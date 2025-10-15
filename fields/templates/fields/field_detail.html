@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ field.name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>{{ field.name }}</h2>
+        <div>
+            <a href="{% url 'edit_field' field.id %}" class="btn btn-warning btn-sm">Edit</a>
+            <a href="{% url 'delete_field' field.id %}" class="btn btn-danger btn-sm">Delete</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <p><strong>Area:</strong> {{ field.area_hectares }} hectares</p>
+        <p><strong>Soil Type:</strong> {{ field.get_soil_type_display }}</p>
+        <p><strong>Created:</strong> {{ field.created_at|date:"M d, Y" }}</p>
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'field_list' %}" class="btn btn-secondary">← Back to List</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Smart Farm{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1>🌱 Smart Farm System</h1>
+    <p class="lead">Welcome to your farm management system</p>
+    <a href="{% url 'field_list' %}" class="btn btn-success btn-lg">View Fields</a>
+    <a href="/admin" class="btn btn-outline-secondary btn-lg">Admin Panel</a>
+</div>
+{% endblock %}

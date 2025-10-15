@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit {{ field.name }}{% endblock %}
+
+{% block content %}
+<h1>Edit Field: {{ field.name }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+        {{ form.name.label_tag }}
+        {{ form.name }}
+    </div>
+    
+    <div class="mb-3">
+        {{ form.area_hectares.label_tag }}
+        {{ form.area_hectares }}
+    </div>
+    
+    <div class="mb-3">
+        {{ form.soil_type.label_tag }}
+        {{ form.soil_type }}
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Update Field</button>
+    <a href="{% url 'field_detail' field.id %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

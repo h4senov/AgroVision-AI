@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Field{% endblock %}
+
+{% block content %}
+<h1>Add New Field</h1>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+        {{ form.name.label_tag }}
+        {{ form.name }}
+        {% if form.name.errors %}
+            <div class="text-danger">{{ form.name.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form.area_hectares.label_tag }}
+        {{ form.area_hectares }}
+        {% if form.area_hectares.errors %}
+            <div class="text-danger">{{ form.area_hectares.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        {{ form.soil_type.label_tag }}
+        {{ form.soil_type }}
+        {% if form.soil_type.errors %}
+            <div class="text-danger">{{ form.soil_type.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <button type="submit" class="btn btn-success">Save Field</button>
+    <a href="{% url 'field_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

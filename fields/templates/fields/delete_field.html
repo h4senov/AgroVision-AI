@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete {{ field.name }}{% endblock %}
+
+{% block content %}
+<h1>Delete Field</h1>
+
+<div class="alert alert-danger">
+    <h4>Are you sure you want to delete "{{ field.name }}"?</h4>
+    <p>This action cannot be undone.</p>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'field_detail' field.id %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
