@@ -7,18 +7,16 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-success">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">🌱 Smart Farm</a>
-            <div class="navbar-nav">
-                <a class="nav-link" href="{% url 'home' %}">Home</a>
-                <a class="nav-link" href="{% url 'field_list' %}">Fields</a>
-                <a class="nav-link" href="/admin">Admin</a>
-            </div>
+            <a class="navbar-brand" href="/">🌱 Smart Farm</a>
         </div>
     </nav>
 
     <div class="container mt-4">
         {% block content %}
+        <!-- Digər template-lərin məzmunu buraya gələcək -->
         {% endblock %}
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

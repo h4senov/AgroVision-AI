@@ -20,6 +20,7 @@ from fields.views import home
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('fields/', include('fields.urls')),  # fields app URL-ləri
+    path('fields/', include('fields.urls')),  # fields app URLləri
     path('', home, name='home'),  # Əsas səhifə
+    path('users/', include('users.urls')), # users appin urleri
 ]
