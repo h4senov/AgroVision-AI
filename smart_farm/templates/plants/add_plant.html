@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Plant - Smart Farm{% endblock %}
+
+{% block content %}
+<h1>Add New Plant</h1>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form.field.label_tag }}
+                {{ form.field }}
+                {% if form.field.errors %}
+                    <div class="text-danger">{{ form.field.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.plant_type.label_tag }}
+                {{ form.plant_type }}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.variety.label_tag }}
+                {{ form.variety }}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.area_hectares.label_tag }}
+                {{ form.area_hectares }}
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="mb-3">
+                {{ form.planting_date.label_tag }}
+                {{ form.planting_date }}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.expected_harvest_date.label_tag }}
+                {{ form.expected_harvest_date }}
+            </div>
+            
+            <div class="mb-3">
+                {{ form.growth_stage.label_tag }}
+                {{ form.growth_stage }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        {{ form.notes.label_tag }}
+        {{ form.notes }}
+    </div>
+    
+    <button type="submit" class="btn btn-success">Save Plant</button>
+    <a href="{% url 'plant_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

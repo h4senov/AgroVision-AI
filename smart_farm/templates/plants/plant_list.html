@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}My Plants - Smart Farm{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>My Plants</h1>
+    <a href="{% url 'add_plant' %}" class="btn btn-success">+ Add New Plant</a>
+</div>
+
+{% if plants %}
+<div class="row">
+    {% for plant in plants %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ plant.get_plant_type_display }}</h5>
+                <span class="badge bg-{% if plant.status == 'active' %}success{% elif plant.status == 'harvested' %}info{% else %}warning{% endif %}">
+                    {{ plant.get_status_display }}
+                </span>
+            </div>
+            <div class="card-body">
+                <p><strong>Sahə:</strong> {{ plant.field.name }}</p>
+                <p><strong>Sort:</strong> {{ plant.variety|default:"-" }}</p>
+                <p><strong>Əkin Tarixi:</strong> {{ plant.planting_date }}</p>
+                <p><strong>Böyümə Mərhələsi:</strong> {{ plant.get_growth_stage_display }}</p>
+                <p><strong>Sahə:</strong> {{ plant.area_hectares }} ha</p>
+                
+                {% if plant.is_harvest_due %}
+                <div class="alert alert-warning py-2 mt-2">
+                    <small>⏰ Yığım vaxtı çatıb!</small>
+                </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <a href="{% url 'plant_detail' plant.id %}" class="btn btn-primary btn-sm">View Details</a>
+                    <a href="{% url 'edit_plant' plant.id %}" class="btn btn-warning btn-sm">Edit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+    <h4>No Plants Found</h4>
+    <p>You haven't added any plants yet. <a href="{% url 'add_plant' %}">Add your first plant</a> to get started.</p>
+</div>
+{% endif %}
+{% endblock %}

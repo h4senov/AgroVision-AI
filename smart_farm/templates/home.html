@@ -6,7 +6,16 @@
 <div class="text-center">
     <h1>🌱 Smart Farm System</h1>
     <p class="lead">Welcome to your farm management system</p>
-    <a href="{% url 'field_list' %}" class="btn btn-success btn-lg">View Fields</a>
-    <a href="/admin" class="btn btn-outline-secondary btn-lg">Admin Panel</a>
+    <ul class="navbar-nav me-auto">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'home' %}">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'field_list' %}">My Fields</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'plant_list' %}">My Plants</a>  <!-- ƏLAVƏ ET -->
+    </li>
+</ul>
 </div>
 {% endblock %}

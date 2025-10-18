@@ -9,6 +9,8 @@ class CustomUserCreationForm(UserCreationForm):
     phone = forms.CharField(max_length=20,required=False)
     location = forms.CharField(max_length=255,required=False)
 
+    
+    
 
     class Meta:
         model =CustomUser

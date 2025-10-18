@@ -23,4 +23,5 @@ urlpatterns = [
     path('fields/', include('fields.urls')),  # fields app URLləri
     path('', home, name='home'),  # Əsas səhifə
     path('users/', include('users.urls')), # users appin urleri
+    path('plants/', include('plants.urls')),
 ]
