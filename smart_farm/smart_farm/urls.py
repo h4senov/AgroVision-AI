@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from fields.views import home
+from fields.views import home , dashboard
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +24,5 @@ urlpatterns = [
     path('', home, name='home'),  # Əsas səhifə
     path('users/', include('users.urls')), # users appin urleri
     path('plants/', include('plants.urls')),
+    path('dashboard/', dashboard, name = 'dashboard')
 ]

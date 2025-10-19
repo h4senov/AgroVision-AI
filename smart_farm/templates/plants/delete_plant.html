@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bitki sil — {{ plant.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Bitkini sil</h2>
+    <p>Bu bitki silinəcək. Davam etmək istədiyinizə əminsiniz?</p>
+
+    <div class="card mb-3" style="max-width: 720px;">
+        <div class="row g-0">
+            {% if plant.image %}
+            <div class="col-md-3">
+                <img src="{{ plant.image.url }}" class="img-fluid rounded-start" alt="{{ plant.name }}">
+            </div>
+            {% endif %}
+            <div class="col">
+                <div class="card-body">
+                    <h5 class="card-title">{{ plant.name }}</h5>
+                    {% if plant.description %}
+                    <p class="card-text">{{ plant.description }}</p>
+                    {% endif %}
+                    {% if plant.created_at %}
+                    <p class="card-text"><small class="text-muted">Yaradılma: {{ plant.created_at|date:"SHORT_DATETIME_FORMAT" }}</small></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Sil</button>
+    </form>
+    <a href="{% url 'plant_list' %}" class="btn btn-secondary">Ləğv et</a>
+</div>
+{% endblock %}

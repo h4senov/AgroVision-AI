@@ -3,19 +3,136 @@
 {% block title %}Home - Smart Farm{% endblock %}
 
 {% block content %}
-<div class="text-center">
-    <h1>🌱 Smart Farm System</h1>
-    <p class="lead">Welcome to your farm management system</p>
-    <ul class="navbar-nav me-auto">
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'home' %}">Home</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'field_list' %}">My Fields</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'plant_list' %}">My Plants</a>  <!-- ƏLAVƏ ET -->
-    </li>
-</ul>
+<div class="hero-section text-center py-5 mb-5 bg-light rounded-3">
+    <div class="container">
+        <h1 class="display-4 fw-bold text-gradient mb-4">🌱 Smart Farm System</h1>
+        <p class="lead fs-4 text-muted mb-4">Kənd təsərrüfatınızı ağılla idarə edin</p>
+        
+        <div class="mt-4">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="btn btn-success btn-lg me-3 hover-lift">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard-a Get
+                </a>
+                <a href="{% url 'field_list' %}" class="btn btn-outline-primary btn-lg me-3 hover-lift">
+                    <i class="fas fa-map-marked-alt me-2"></i>Sahələrim
+                </a>
+                <a href="{% url 'plant_list' %}" class="btn btn-outline-success btn-lg hover-lift">
+                    <i class="fas fa-seedling me-2"></i>Bitkilərim
+                </a>
+            {% else %}
+                <a href="{% url 'register' %}" class="btn btn-success btn-lg me-3 hover-lift">
+                    <i class="fas fa-user-plus me-2"></i>Qeydiyyat
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg hover-lift">
+                    <i class="fas fa-sign-in-alt me-2"></i>Daxil Ol
+                </a>
+            {% endif %}
+        </div>
+    </div>
 </div>
+
+{% if not user.is_authenticated %}
+<div class="row mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="card text-center h-100 hover-lift">
+            <div class="card-body">
+                <i class="fas fa-chart-bar fa-3x text-primary mb-3"></i>
+                <h4 class="card-title">📊 Sahə İdarəetməsi</h4>
+                <p class="card-text">Bütün kənd təsərrüfatı sahələrinizi bir yerdə idarə edin və məhsuldarlığı izləyin</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card text-center h-100 hover-lift">
+            <div class="card-body">
+                <i class="fas fa-robot fa-3x text-success mb-3"></i>
+                <h4 class="card-title">🤖 Ağıllı Tövsiyyələr</h4>
+                <p class="card-text">AI əsaslı tövsiyyələrlə suvarma, gübrələmə və məhsul vaxtını optimallaşdırın</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card text-center h-100 hover-lift">
+            <div class="card-body">
+                <i class="fas fa-tint fa-3x text-info mb-3"></i>
+                <h4 class="card-title">💧 Ağıllı Suvarma</h4>
+                <p class="card-text">Sensor məlumatları əsasında su istehlakını optimallaşdırın və qənaət edin</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <div class="card text-center h-100 hover-lift">
+            <div class="card-body">
+                <i class="fas fa-clipboard-list fa-3x text-warning mb-3"></i>
+                <h4 class="card-title">📈 Real-time Hesabatlar</h4>
+                <p class="card-text">Detallı hesabatlar və analitiklə qərar qəbul etməyi asanlaşdırın</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card text-center h-100 hover-lift">
+            <div class="card-body">
+                <i class="fas fa-mobile-alt fa-3x text-danger mb-3"></i>
+                <h4 class="card-title">📱 Hər yerdən Əlçatan</h4>
+                <p class="card-text">İstənilən cihazdan istifadə edin - telefon, planşet və ya kompüter</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if user.is_authenticated %}
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Sürətli Hərəkətlər</h3>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2 col-6 mb-3">
+                        <a href="{% url 'add_field' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center hover-lift">
+                            <i class="fas fa-plus-circle fa-2x mb-2"></i>
+                            <span>Yeni Sahə</span>
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <a href="{% url 'add_plant' %}" class="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center hover-lift">
+                            <i class="fas fa-seedling fa-2x mb-2"></i>
+                            <span>Yeni Bitki</span>
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <a href="{% url 'field_list' %}" class="btn btn-outline-info w-100 h-100 d-flex flex-column justify-content-center hover-lift">
+                            <i class="fas fa-list fa-2x mb-2"></i>
+                            <span>Sahələr</span>
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <a href="{% url 'plant_list' %}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column justify-content-center hover-lift">
+                            <i class="fas fa-leaf fa-2x mb-2"></i>
+                            <span>Bitkilər</span>
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <a href="{% url 'profile' %}" class="btn btn-outline-secondary w-100 h-100 d-flex flex-column justify-content-center hover-lift">
+                            <i class="fas fa-user fa-2x mb-2"></i>
+                            <span>Profil</span>
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <a href="/admin" class="btn btn-outline-dark w-100 h-100 d-flex flex-column justify-content-center hover-lift">
+                            <i class="fas fa-cog fa-2x mb-2"></i>
+                            <span>Admin</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

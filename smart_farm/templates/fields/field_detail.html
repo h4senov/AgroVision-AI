@@ -3,21 +3,70 @@
 {% block title %}{{ field.name }}{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h2>{{ field.name }}</h2>
-        <div>
-            <a href="{% url 'edit_field' field.id %}" class="btn btn-warning btn-sm">Edit</a>
-            <a href="{% url 'delete_field' field.id %}" class="btn btn-danger btn-sm">Delete</a>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2>{{ field.name }}</h2>
+                <div>
+                    <a href="{% url 'edit_field' field.id %}" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{% url 'delete_field' field.id %}" class="btn btn-danger btn-sm">Delete</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Ümumi Sahə:</strong> {{ field.area_hectares }} ha</p>
+                        <p><strong>Torpaq Növü:</strong> {{ field.get_soil_type_display }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Bitki Sayı:</strong> {{ total_plants }}</p>
+                        <p><strong>Aktiv Bitkilər:</strong> {{ active_plants }}</p>
+                        <p><strong>Bitki Sahəsi:</strong> {{ total_area|floatformat:2 }} ha</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ YENİ: Bitkilər Siyahısı -->
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Bu Sahədəki Bitkilər</h4>
+                <a href="{% url 'add_plant' %}" class="btn btn-success btn-sm">+ Bitki Əlavə Et</a>
+            </div>
+            <div class="card-body">
+                {% if plants %}
+                    <div class="list-group">
+                        {% for plant in plants %}
+                        <a href="{% url 'plant_detail' plant.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ plant.get_plant_type_display }}</h6>
+                                    <small class="text-muted">
+                                        {{ plant.variety|default:"Növ qeyd edilməyib" }} | 
+                                        {{ plant.get_growth_stage_display }} | 
+                                        {{ plant.area_hectares }} ha
+                                    </small>
+                                </div>
+                                <span class="badge bg-{% if plant.status == 'active' %}success{% else %}warning{% endif %}">
+                                    {{ plant.get_status_display }}
+                                </span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted">Bu sahədə hələ bitki yoxdur.</p>
+                        <a href="{% url 'add_plant' %}" class="btn btn-success">İlk Bitkini Əlavə Et</a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-    <div class="card-body">
-        <p><strong>Area:</strong> {{ field.area_hectares }} hectares</p>
-        <p><strong>Soil Type:</strong> {{ field.get_soil_type_display }}</p>
-        <p><strong>Created:</strong> {{ field.created_at|date:"M d, Y" }}</p>
-    </div>
-    <div class="card-footer">
-        <a href="{% url 'field_list' %}" class="btn btn-secondary">← Back to List</a>
-    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'field_list' %}" class="btn btn-secondary">← Sahələrə Qayıt</a>
 </div>
 {% endblock %}
