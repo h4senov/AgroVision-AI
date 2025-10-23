@@ -24,5 +24,6 @@ urlpatterns = [
     path('', home, name='home'),  # Əsas səhifə
     path('users/', include('users.urls')), # users appin urleri
     path('plants/', include('plants.urls')),
-    path('dashboard/', dashboard, name = 'dashboard')
+    path('dashboard/', dashboard, name = 'dashboard'),
+    path('sensors/', include('sensors.urls')), 
 ]

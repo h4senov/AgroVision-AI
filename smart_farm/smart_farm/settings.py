@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'users',
     'fields',
     'plants',
+    'sensors',
 ]
 
 MIDDLEWARE = [
