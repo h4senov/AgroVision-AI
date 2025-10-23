@@ -32,7 +32,7 @@ class PlantForm(forms.ModelForm):
 class PlantSearchForm(forms.Form):
     search = forms.CharField(
         required=False,
-        label ='Axtarış',
+        label='Axtarış',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Bitki sortuna görə axtar...'
@@ -42,22 +42,22 @@ class PlantSearchForm(forms.Form):
 
 class PlantFilterForm(forms.Form):
     plant_type = forms.ChoiceField(
-        choices=[('','Bütün bitki növləri')] + Plant.PLANT_TYPES,  #birinci boslug '' ne ise yarayir? ne is gorur ve s.
+        choices=[('', 'Bütün bitki növləri')] + Plant.PLANT_TYPES,
         required=False,
         label='Bitki növü',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     
     growth_stage = forms.ChoiceField(
-        choices=[('','Bütün böyümə mərhələləri')] + Plant.GROWTH_STAGES,
+        choices=[('', 'Bütün böyümə mərhələləri')] + Plant.GROWTH_STAGES,
         required=False,
         label='Böyümə mərhələsi',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
-    status = forms.CharField(
-        choice=[('','Bütün statuslar')] + Plant.STATUS_CHOICES,
+    
+    status = forms.ChoiceField(
+        choices=[('', 'Bütün statuslar')] + Plant.STATUS_CHOICES,
         required=False,
         label='Status',
-        widget=forms.Select(attrs={'class': 'form-control'}) 
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
