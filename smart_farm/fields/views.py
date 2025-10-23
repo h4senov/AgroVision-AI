@@ -2,12 +2,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from . models import Field
-from .forms import FieldForm
+from .forms import FieldForm, FieldFilterForm, FieldSearchForm
 from plants.models import Plant
 from django.db.models import Sum , Count
 from django.utils import timezone
 from datetime import timedelta
- 
+from django.template.defaulttags import register
+
 @login_required
 def dashboard(request):
     fields = Field.objects.filter(user = request.user)
@@ -45,14 +46,60 @@ def dashboard(request):
         'recent_plants': recent_plants,
     }
 
-
     return render(request, 'dashboard.html', context)
+
+
 @login_required
 def field_list(request):
- 
     fields = Field.objects.filter(user=request.user)
-    return render(request, 'fields/field_list.html', {'fields': fields})
 
+    search_query = request.GET.get('search','')
+    soil_type_filter = request.GET.get('soil_type','')
+
+    min_area = request.GET.get('min_area','')
+    max_area = request.GET.get('max_area','')
+
+    created_after = request.GET.get('created_after','')
+    created_before = request.GET.get('created_before','')
+
+    if created_after:
+        fields = fields.filter(created_at__date__gte=created_after)
+    if created_before:
+        fields = fields.filter(created_at__date__lte=created_before)
+
+    if search_query:
+        fields = fields.filter(name__icontains=search_query)
+
+    if soil_type_filter:
+        fields = fields.filter(soil_type=soil_type_filter)
+
+    if min_area:
+        fields = fields.filter(area_hectares__gte=min_area)
+
+    if max_area:
+        fields = fields.filter(area_hectares__lte=max_area)  
+
+
+    search_form = FieldSearchForm(initial={'search':search_query})        
+    filter_form = FieldFilterForm(initial={
+        'soil_type': soil_type_filter,
+        'min_area': min_area,
+        'max_area': max_area
+    })  
+
+    context = {
+        'fields': fields,
+        'search_form': search_form,
+        'filter_form': filter_form
+    }
+
+    return render(request, 'fields/field_list.html', context)
+
+
+@register.filter
+def dict_key(d, key):
+    """Dictionary-dən key-ə görə value almaq üçün"""
+    return d.get(key, '')
 
 
 @login_required
@@ -66,7 +113,7 @@ def field_detail(request, field_id):
     
     active_plants  = plants.filter(status='active').count()
 
-    total_area =  plants.aggregete(total=Sum('area_hectares'))['total'] or 0
+    total_area =  plants.aggregate(total=Sum('area_hectares'))['total'] or 0
 
      
 
@@ -78,6 +125,7 @@ def field_detail(request, field_id):
         'active_plants': active_plants,
         'total_area': total_area,
     }
+
 
 
     return render(request, 'fields/field_detail.html', context)
@@ -123,4 +171,18 @@ def delete_field(request, field_id):
     return render(request, 'fields/delete_field.html', {'field': field})
 
 def home(request):
-    return render(request, 'home.html')
+    
+    if request.user.is_authenticated:
+        total_fields = Field.objects.filter(user=request.user).count()
+        total_plants = Plant.objects.filter(user=request.user).count()
+    else:
+        total_fields = 0
+        total_plants = 0
+    
+    context = {
+        'total_fields': total_fields,
+        'total_plants': total_plants,
+    }
+    
+    return render(request, 'home.html', context)
+

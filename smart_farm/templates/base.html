@@ -1,129 +1,50 @@
-{% load static %}
+ {%load static%}
+
 <!DOCTYPE html>
 <html lang="az">
+   
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Smart Farm{% endblock %}</title>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>
+    {%block title %} AgroVision AI {%endblock%}
+    </title> 
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- FontAwesome Ikonlar -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- ÖZEL CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">  
+
     <link rel="stylesheet" href="{% static 'css/site.css' %}">
-    
-    {% block extra_css %}{% endblock %}
-</head>
-<body class="d-flex flex-column min-vh-100">
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="fas fa-leaf me-2"></i>Smart Farm
+
+</head>    
+
+<body>
+    <nav class='navbar navbar-expand-lg navbar-dark bg-success'>
+        <div class ='container'>
+            <a class='navbar-brand' href="{% url 'home' %}">
+                🌱   AGRO VISION
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">
-                            <i class="fas fa-home me-1"></i>Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'field_list' %}">
-                            <i class="fas fa-map-marked-alt me-1"></i>Sahələrim
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'plant_list' %}">
-                            <i class="fas fa-seedling me-1"></i>Bitkilərim
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user me-1"></i>{{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'profile' %}">
-                                <i class="fas fa-id-card me-2"></i>Profil
-                            </a></li>
-                            <li><a class="dropdown-item" href="/admin">
-                                <i class="fas fa-cog me-2"></i>Admin Panel
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">
-                                <i class="fas fa-sign-out-alt me-2"></i>Çıxış
-                            </a></li>
-                        </ul>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">
-                            <i class="fas fa-sign-in-alt me-1"></i>Daxil Ol
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">
-                            <i class="fas fa-user-plus me-1"></i>Qeydiyyat
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
+
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container my-4 flex-grow-1 fade-in">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    <i class="fas 
-                        {% if message.tags == 'success' %}fa-check-circle 
-                        {% elif message.tags == 'warning' %}fa-exclamation-triangle 
-                        {% elif message.tags == 'error' %}fa-times-circle 
-                        {% else %}fa-info-circle{% endif %} me-2">
-                    </i>
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
+    <main class="container my-4">
+        {%block content%}
+        TEMPLATEler yazilacaq
+        <div class="alert alert-info">
+             Default məzmun - Əgər child template block-u doldurmazsa, bu görünəcək
+        </div>
 
-        {% block content %}
-        <!-- Buraya digər template-lərin məzmunu gələcək -->
-        {% endblock %}
+        {%endblock%}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
-        <div class="container text-center">
-            <p class="mb-0">
-                &copy; 2024 Smart Farm System. 
-                <span class="text-muted">Ağılla kənd təsərrüfatı idarəetməsi</span>
-            </p>
+
+    <footer class="bg-dark text-light text-center py-3 mt-5">
+        <div class="container">
+            <p>&copy; 2025 AgroVision butun huquqlar qorunur.</p>
         </div>
+
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     {% block extra_js %}{% endblock %}
 </body>
