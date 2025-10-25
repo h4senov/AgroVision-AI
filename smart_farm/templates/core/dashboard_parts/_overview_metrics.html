@@ -1,0 +1,74 @@
+<!-- Statistika Kartları -->
+<div class="row mb-4">
+    <!-- Sensorlar -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card dashboard-card text-white bg-secondary hover-lift">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Sensorlar</h5>
+                        <h2 class="mb-0">{{ total_sensors }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-microchip fa-2x"></i>
+                    </div>
+                </div>
+                <p class="card-text mb-0">{{ active_sensors }} aktiv sensor</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sahələr -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card dashboard-card text-white bg-primary hover-lift">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Sahələr</h5>
+                        <h2 class="mb-0">{{ total_fields }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-map-marked-alt fa-2x"></i>
+                    </div>
+                </div>
+                <p class="card-text mb-0">{{ total_farm_area|floatformat:2 }} ha ümumi sahə</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bitkilər -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card dashboard-card text-white bg-success hover-lift">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Bitkilər</h5>
+                        <h2 class="mb-0">{{ total_plants }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-seedling fa-2x"></i>
+                    </div>
+                </div>
+                <p class="card-text mb-0">{{ active_plants_count }} aktiv • {{ total_plant_area|floatformat:2 }} ha</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Yaxın Yığımlar -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card dashboard-card text-white bg-warning hover-lift">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5 class="card-title">Yaxın Yığımlar</h5>
+                        <h2 class="mb-0">{{ upcoming_harvests }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-hourglass-half fa-2x"></i>
+                    </div>
+                </div>
+                <p class="card-text mb-0">Növbəti 7 gün ərzində</p>
+            </div>
+        </div>
+    </div>
+</div>

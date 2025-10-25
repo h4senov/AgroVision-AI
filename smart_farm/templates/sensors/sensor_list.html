@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Sensorlar - Smart Farm{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Sensorlarım</h1>
+    <a href="{% url 'add_sensor' %}" class="btn btn-success">+ Yeni Sensor</a>
+</div>
+
+<!-- AXTARIŞ FORMU -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                {{ search_form.search.label_tag }}
+                {{ search_form.search }}
+            </div>
+            <div class="col-md-3">
+                {{ filter_form.sensor_type.label_tag }}
+                {{ filter_form.sensor_type }}
+            </div>
+            <div class="col-md-3">
+                {{ filter_form.battery_level.label_tag }}
+                {{ filter_form.battery_level }}
+            </div>
+            <div class="col-md-2">
+                <label>&nbsp;</label>
+                <button type="submit" class="btn btn-primary w-100">Axtar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- SENSOR SİYAHISI -->
+{% for sensor in sensors %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">{{ sensor.name }}</h5>
+        <p class="card-text">
+            <strong>Növ:</strong> {{ sensor.get_sensor_type_display }}<br>
+            <strong>Batareya:</strong> 
+            <span class="badge bg-{{ sensor.battery_status }}">
+                {{ sensor.battery_level }}%
+            </span>
+        </p>
+        <a href="{% url 'sensor_detail' sensor.id %}" class="btn btn-primary">Detallı Bax</a>
+    </div>
+</div>
+{% empty %}
+<div class="alert alert-info">Heç bir sensor tapılmadı</div>
+{% endfor %}
+{% endblock %}

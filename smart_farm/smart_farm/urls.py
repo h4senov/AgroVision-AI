@@ -16,14 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from fields.views import home , dashboard
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('fields/', include('fields.urls')),  # fields app URLləri
-    path('', home, name='home'),  # Əsas səhifə
-    path('users/', include('users.urls')), # users appin urleri
-    path('plants/', include('plants.urls')),
-    path('dashboard/', dashboard, name = 'dashboard'),
-    path('sensors/', include('sensors.urls')), 
+    path('', include('core.urls')),          
+    path('fields/', include('fields.urls')),
+    path('plants/', include('plants.urls')), 
+    path('sensors/', include('sensors.urls')),
+    path('users/', include('users.urls')), 
 ]

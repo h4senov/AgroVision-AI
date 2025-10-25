@@ -1,14 +1,9 @@
- {%extends 'base.html' %}
+{% extends 'base.html' %}
 
+{% block title %}Ana səhifə - AgroVision{% endblock %}
 
- {% block title %}
- Ana sehife -  AgroVision
- {%endblock%}
-
- {% block content%}
+{% block content %}
 <div class="text-center">
-
- <div class="text-center">
     <h1 class="display-4">Xoş gəlmisiniz!</h1>
     <p class="lead">Smart Farm sisteminə xoş gəlmisiniz.</p>
     
@@ -32,14 +27,12 @@
     </div>
 
     <div class="mt-4">
-     
-  
-    {% if fields %}
-    <a href="{% url 'field_detail' field_id=fields.0.id %}" class="btn btn-info">
-        İlk Sahəyə Bax
-    </a>
-    {% endif %}
+        {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="btn btn-success btn-lg">Dashboard-a Keç</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Daxil Ol</a>
+        <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg">Qeydiyyat</a>
+        {% endif %}
+    </div>
 </div>
-</div>
-
-  {%endblock%}
+{% endblock %}

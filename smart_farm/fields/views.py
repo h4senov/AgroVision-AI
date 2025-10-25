@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from sensors.models import Sensor
 from . models import Field
 from .forms import FieldForm, FieldFilterForm, FieldSearchForm
 from plants.models import Plant
@@ -9,44 +9,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.template.defaulttags import register
 
-@login_required
-def dashboard(request):
-    fields = Field.objects.filter(user = request.user)
-    plants = Plant.objects.filter(user = request.user)
 
-    total_fields = fields.count()
-    total_plants = plants.count()
-    total_farm_area = fields.aggregate(total=Sum('area_hectares'))['total'] or 0
-    total_plant_area = plants.aggregate(total=Sum('area_hectares'))['total'] or 0
-
-    active_plants = plants.filter(status='active')
-    active_plants_count = active_plants.count()
-
-    next_week = timezone.now().date() + timedelta(days=7)
-    upcoming_harvests = active_plants.filter(
-        expected_harvest_date__lte=next_week,
-        expected_harvest_date__gte=timezone.now().date()
-    ).count()
-
-    plant_distribution = plants.values('plant_type').annotate(
-        count=Count('id'),
-        total_area=Sum('area_hectares')
-    ).order_by('-count')
-
-    recent_plants = plants.order_by('-created_at')[:5]
-
-    context = {
-        'total_fields': total_fields,
-        'total_plants': total_plants,
-        'total_farm_area': total_farm_area,
-        'total_plant_area': total_plant_area,
-        'active_plants_count': active_plants_count,
-        'upcoming_harvests': upcoming_harvests,
-        'plant_distribution': plant_distribution,
-        'recent_plants': recent_plants,
-    }
-
-    return render(request, 'dashboard.html', context)
 
 
 @login_required
@@ -170,19 +133,5 @@ def delete_field(request, field_id):
     
     return render(request, 'fields/delete_field.html', {'field': field})
 
-def home(request):
-    
-    if request.user.is_authenticated:
-        total_fields = Field.objects.filter(user=request.user).count()
-        total_plants = Plant.objects.filter(user=request.user).count()
-    else:
-        total_fields = 0
-        total_plants = 0
-    
-    context = {
-        'total_fields': total_fields,
-        'total_plants': total_plants,
-    }
-    
-    return render(request, 'home.html', context)
+ 
 

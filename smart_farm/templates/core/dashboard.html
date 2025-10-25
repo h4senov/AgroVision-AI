@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Smart Farm{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-gradient"><i class="fas fa-tachometer-alt me-2"></i>Farm Dashboard</h1>
+    <small class="text-muted">Son yenilənmə: {% now "j F Y" %}</small>
+</div>
+
+<!-- Statistika Kartları -->
+{% include 'core/dashboard_parts/_overview_metrics.html' %}
+
+<!-- Bitki Paylanması və Son Bitkilər -->
+{% include 'core/dashboard_parts/_plants_overview.html' %}
+
+<!-- Tez İstifadə Linkləri -->
+{% include 'core/dashboard_parts/_quick_actions.html' %}
+{% endblock %}

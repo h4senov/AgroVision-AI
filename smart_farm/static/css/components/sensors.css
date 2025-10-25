@@ -1,0 +1,26 @@
+/* sensors/static/css/sensors.css */
+.sensor-card {
+    border-left: 4px solid #6c757d;
+}
+
+.battery-indicator {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.battery-level {
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.battery-high { background: #28a745; }
+.battery-medium { background: #ffc107; }
+.battery-low { background: #dc3545; }
+
+.sensor-type-icon {
+    font-size: 1.5em;
+    margin-right: 0.5rem;
+}

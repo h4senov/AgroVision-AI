@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'fields',
     'plants',
     'sensors',
+    'core',
+    'inventory',
 ]
 
 MIDDLEWARE = [

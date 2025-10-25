@@ -1,0 +1,26 @@
+/* fields/static/css/fields.css */
+.field-card {
+    border-left: 4px solid #28a745;
+    transition: all 0.3s ease;
+}
+
+.field-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.field-stats {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.soil-badge {
+    padding: 0.3em 0.6em;
+    border-radius: 20px;
+    font-size: 0.8em;
+}
+
+.soil-sandy { background: #ffeaa7; color: #2d3436; }
+.soil-clay { background: #fab1a0; color: #2d3436; }
+.soil-loamy { background: #55efc4; color: #2d3436; }

@@ -1,0 +1,25 @@
+/* plants/static/css/plants.css */
+.plant-card {
+    border-left: 4px solid #17a2b8;
+}
+
+.growth-badge {
+    font-size: 0.75em;
+    padding: 0.25em 0.6em;
+}
+
+.growth-seedling { background: #ff7675; color: white; }
+.growth-vegetative { background: #74b9ff; color: white; }
+.growth-flowering { background: #a29bfe; color: white; }
+.growth-fruiting { background: #55efc4; color: #2d3436; }
+
+.harvest-soon {
+    animation: pulse 2s infinite;
+    background: #ffeaa7 !important;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
