@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.conf import settings
 
@@ -33,29 +34,36 @@ class Inventory(models.Model):
     
     def __str__(self):
         return f"{self.item_name} ({self.quantity} {self.unit})"
-    
-    def save(self, *args, **kwargs):
         
-        if self.quantity and self.unit_price:
-            self.total_value = self.quantity * self.unit_price
-        super().save(*args, **kwargs)
-    
     def stock_status(self):
-
         if self.min_stock_level and self.quantity <= self.min_stock_level:
             return 'low'
         elif self.max_stock_level and self.quantity >= self.max_stock_level:
             return 'high'
         else:
             return 'normal'
-    
-    def is_expired(self):
 
+    def days_until_expiration(self):
         if self.expiration_date:
             from django.utils import timezone
-            return self.expiration_date < timezone.now().date()
-        return False
+            today = timezone.now().date()
+            return (self.expiration_date - today).days
+        return None
+
+    def is_expired(self):
+        days = self.days_until_expiration()
+        return days is not None and days < 0
+
+    def calculate_total_value(self):
+        if self.quantity and self.unit_price:
+            return self.quantity * self.unit_price
+        return Decimal('0.00')
     
+    def save(self, *args, **kwargs):  
+        if self.quantity and self.unit_price:
+            self.total_value = self.calculate_total_value()
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = 'Anbar məhsulu'
         verbose_name_plural = 'Anbar məhsulları'

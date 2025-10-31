@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Məhsul — {{ item.item_name }}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-container py-4">
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+      <h1 class="h5 mb-0">{{ item.item_name }}
+</h1>
+      <div class="text-muted small">{{ item.item_code|default:"KOD yoxdur" }}</div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="{% url 'inventory:edit_inventory' item.id %}" class="btn btn-outline-primary btn-sm"><i class="fas fa-edit me-1"></i>Redaktə</a>
+      <a href="{% url 'inventory:delete_inventory' item.id %}" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>Sil</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="row gy-2">
+            <div class="col-6">
+              <div class="text-muted small">Təchizatçı</div>
+              <div class="fw-semibold">{{ item.supplier_name|default:"-" }}</div>
+            </div>
+            <div class="col-6">
+              <div class="text-muted small">Kateqoriya</div>
+              <div>{{ item.category|default:"-" }}</div>
+            </div>
+
+            <div class="col-6">
+              <div class="text-muted small">Miqdar</div>
+              <div>{{ item.quantity|default:"0" }} {{ item.unit|default:"əd" }}</div>
+            </div>
+            <div class="col-6">
+              <div class="text-muted small">Minimum Stok</div>
+              <div>{{ item.min_stock_level|default:"-" }}</div>
+            </div>
+
+            <div class="col-6">
+              <div class="text-muted small">Vahid qiymət</div>
+              <div>{{ item.unit_price|default:"-" }}</div>
+            </div>
+            <div class="col-6">
+              <div class="text-muted small">Ümumi dəyər</div>
+              <div>{{ item.total_value|default:"-" }}</div>
+            </div>
+
+            <div class="col-12">
+              <div class="text-muted small">Qeydlər</div>
+              <div class="text-muted">{{ item.notes|default:"Qeyd yoxdur" }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a href="{% url 'inventory:track_usage' item.id %}" class="btn btn-success btn-sm"><i class="fas fa-history me-1"></i>İstifadə qeydi</a>
+        <a href="{% url 'inventory:inventory_list' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Geri</a>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="mb-2">
+            {% with status=item.stock_status %}
+              <span class="badge badge-status-{{ status }}">{{ status|capfirst }}</span>
+            {% endwith %}
+          </div>
+
+          <div class="small text-muted mb-1">Miqdar</div>
+          <div class="h4 fw-semibold mb-2">{{ item.quantity|default:"0" }} {{ item.unit|default:"əd" }}</div>
+
+          <div class="small text-muted">Minimum stok səviyyəsi</div>
+          <div class="mb-2">{{ item.min_stock_level|default:"-" }}</div>
+
+          <div class="small text-muted">Ümumi dəyər</div>
+          <div class="fw-semibold">{{ item.total_value|default:"-" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

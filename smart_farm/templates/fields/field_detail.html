@@ -1,72 +1,95 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}{{ field.name }}{% endblock %}
+{% block title %}{{ field.name }} — Smart Farm{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/fields.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h2>{{ field.name }}</h2>
-                <div>
-                    <a href="{% url 'edit_field' field.id %}" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="{% url 'delete_field' field.id %}" class="btn btn-danger btn-sm">Delete</a>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Ümumi Sahə:</strong> {{ field.area_hectares }} ha</p>
-                        <p><strong>Torpaq Növü:</strong> {{ field.get_soil_type_display }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Bitki Sayı:</strong> {{ total_plants }}</p>
-                        <p><strong>Aktiv Bitkilər:</strong> {{ active_plants }}</p>
-                        <p><strong>Bitki Sahəsi:</strong> {{ total_area|floatformat:2 }} ha</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ✅ YENİ: Bitkilər Siyahısı -->
-        <div class="card mt-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Bu Sahədəki Bitkilər</h4>
-                <a href="{% url 'add_plant' %}" class="btn btn-success btn-sm">+ Bitki Əlavə Et</a>
-            </div>
-            <div class="card-body">
-                {% if plants %}
-                    <div class="list-group">
-                        {% for plant in plants %}
-                        <a href="{% url 'plant_detail' plant.id %}" class="list-group-item list-group-item-action">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1">{{ plant.get_plant_type_display }}</h6>
-                                    <small class="text-muted">
-                                        {{ plant.variety|default:"Növ qeyd edilməyib" }} | 
-                                        {{ plant.get_growth_stage_display }} | 
-                                        {{ plant.area_hectares }} ha
-                                    </small>
-                                </div>
-                                <span class="badge bg-{% if plant.status == 'active' %}success{% else %}warning{% endif %}">
-                                    {{ plant.get_status_display }}
-                                </span>
-                            </div>
-                        </a>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-4">
-                        <p class="text-muted">Bu sahədə hələ bitki yoxdur.</p>
-                        <a href="{% url 'add_plant' %}" class="btn btn-success">İlk Bitkini Əlavə Et</a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+<div class="app-container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="{% url 'field_list' %}">Sahələr</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ field.name }}</li>
+        </ol>
+      </nav>
+      <h1 class="h5 mb-1">{{ field.name }}</h1>
+      <span class="soil-badge">{{ field.get_soil_type_display }}</span>
     </div>
-</div>
 
-<div class="mt-4">
-    <a href="{% url 'field_list' %}" class="btn btn-secondary">← Sahələrə Qayıt</a>
+    <div class="d-flex gap-2">
+      <a href="{% url 'edit_field' field.id %}" class="btn btn-outline-primary btn-sm"><i class="fas fa-edit me-1"></i> Redaktə</a>
+      <a href="{% url 'delete_field' field.id %}" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i> Sil</a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="row g-3 mb-3">
+        <div class="col-6 col-sm-3">
+          <div class="stat-card">
+            <div class="stat-number">{{ field.area_hectares }}</div>
+            <div class="stat-label small text-muted">Ümumi Sahə (ha)</div>
+          </div>
+        </div>
+
+        <div class="col-6 col-sm-3">
+          <div class="stat-card">
+            <div class="stat-number">{{ total_plants }}</div>
+            <div class="stat-label small text-muted">Bitki Sayı</div>
+          </div>
+        </div>
+
+        <div class="col-6 col-sm-3">
+          <div class="stat-card">
+            <div class="stat-number">{{ active_plants }}</div>
+            <div class="stat-label small text-muted">Aktiv Bitkilər</div>
+          </div>
+        </div>
+
+        <div class="col-6 col-sm-3">
+          <div class="stat-card">
+            <div class="stat-number">{{ total_area|floatformat:2 }}</div>
+            <div class="stat-label small text-muted">Bitki Sahəsi (ha)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0"><i class="fas fa-seedling me-1 text-success"></i> Bu sahədəki bitkilər</h6>
+            <a href="{% url 'add_plant' %}" class="btn btn-sm btn-primary"><i class="fas fa-plus me-1"></i>Bitki əlavə et</a>
+          </div>
+
+          {% if plants %}
+            <div class="list-group">
+              {% for plant in plants %}
+                <a href="{% url 'plant_detail' plant.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-semibold">{{ plant.get_plant_type_display }}</div>
+                    <small class="text-muted">{{ plant.variety|default:"Növ qeyd edilməyib" }} • {{ plant.get_growth_stage_display }}</small>
+                  </div>
+                  <span class="badge bg-light text-dark small">{{ plant.get_status_display }}</span>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-4">
+              <i class="fas fa-seedling fa-2x text-muted mb-2"></i>
+              <div class="h6 mb-1">Bitki tapılmadı</div>
+              <p class="text-muted small mb-3">Bu sahədə hələ heç bir bitki yoxdur.</p>
+              <a href="{% url 'add_plant' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>İlk bitkini əlavə et</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 {% endblock %}

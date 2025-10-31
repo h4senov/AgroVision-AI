@@ -1,18 +1,44 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Delete {{ field.name }}{% endblock %}
+{% block title %}Sahəni Sil — {{ field.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/fields.css' %}">
+{% endblock %}
 
 {% block content %}
-<h1>Delete Field</h1>
+<div class="app-container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="text-center mb-4">
+        <div class="text-danger mb-2"><i class="fas fa-exclamation-triangle fa-2x"></i></div>
+        <h1 class="h5 mb-1">Sahəni Sil</h1>
+        <p class="text-muted small mb-0">Bu əməliyyat geri alınmaz.</p>
+      </div>
 
-<div class="alert alert-danger">
-    <h4>Are you sure you want to delete "{{ field.name }}"?</h4>
-    <p>This action cannot be undone.</p>
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <h4 class="h6 mb-3">“{{ field.name }}” sahəsini silmək istədiyinizə əminsiniz?</h4>
+
+          <div class="mb-3">
+            <span class="soil-badge">{{ field.get_soil_type_display }}</span>
+            <span class="text-muted ms-2">{{ field.area_hectares }} ha</span>
+          </div>
+
+          <p class="small text-muted mb-4">Bu sahə ilə əlaqəli bütün bitki məlumatları da silinəcək.</p>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-center gap-2">
+              <button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i> Bəli, Sil</button>
+              <a href="{% url 'field_detail' field.id %}" class="btn btn-outline-secondary">Ləğv et</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
-
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Yes, Delete</button>
-    <a href="{% url 'field_detail' field.id %}" class="btn btn-secondary">Cancel</a>
-</form>
 {% endblock %}

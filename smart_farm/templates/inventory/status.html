@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Anbar vəziyyəti{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-container py-4">
+  <h1 class="h5 mb-3">Anbar Vəziyyəti</h1>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-4">
+      <div class="stat-card text-center">
+        <div class="stat-number">{{ total_items }}</div>
+        <div class="stat-label small text-muted">Məhsul sayı</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="stat-card text-center">
+        <div class="stat-number">{{ total_value }}</div>
+        <div class="stat-label small text-muted">Ümumi dəyər</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="stat-card text-center">
+        <div class="stat-number">{{ low_stock_count }}</div>
+        <div class="stat-label small text-muted">Az stokda olanlar</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h6 class="mb-3">Az stokda olan məhsullar</h6>
+      {% if inventory_items %}
+        <div class="list-group">
+          {% for it in inventory_items %}
+            {% if it.stock_status and it.stock_status == 'low' %}
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold">{{ it.items_name|default:it.item_name|default:it.name }}</div>
+                  <small class="text-muted">{{ it.item_code|default:"-" }} • {{ it.quantity }} {{ it.unit|default:"əd" }}</small>
+                </div>
+                <span class="badge badge-status-low">Low</span>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted small mb-0">Məlumat tapılmadı.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

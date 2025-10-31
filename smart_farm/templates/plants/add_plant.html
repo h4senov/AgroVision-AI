@@ -1,63 +1,120 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Add Plant - Smart Farm{% endblock %}
+{% block title %}Yeni Bitki - Smart Farm{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/plants.css' %}">
+{% endblock %}
 
 {% block content %}
-<h1>Yeni bitki əlavə et</h1>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="d-flex align-items-center mb-4">
+                <a href="{% url 'plant_list' %}" class="btn-natural btn-secondary-natural me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h1 class="h3 mb-1" style="color: var(--plant-text);">Yeni Bitki Əlavə Et</h1>
+                    <p class="mb-0" style="color: var(--plant-brown);">Yeni bitki məlumatlarını daxil edin</p>
+                </div>
+            </div>
 
-<form method="post">
-    {% csrf_token %}
-    
-    <div class="row">
-        <div class="col-md-6">
-            <div class="mb-3">
-                {{ form.field.label_tag }}
-                {{ form.field }}
-                {% if form.field.errors %}
-                    <div class="text-danger">{{ form.field.errors }}</div>
-                {% endif %}
-            </div>
-            
-            <div class="mb-3">
-                {{ form.plant_type.label_tag }}
-                {{ form.plant_type }}
-            </div>
-            
-            <div class="mb-3">
-                {{ form.variety.label_tag }}
-                {{ form.variety }}
-            </div>
-            
-            <div class="mb-3">
-                {{ form.area_hectares.label_tag }}
-                {{ form.area_hectares }}
-            </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="mb-3">
-                {{ form.planting_date.label_tag }}
-                {{ form.planting_date }}
-            </div>
-            
-            <div class="mb-3">
-                {{ form.expected_harvest_date.label_tag }}
-                {{ form.expected_harvest_date }}
-            </div>
-            
-            <div class="mb-3">
-                {{ form.growth_stage.label_tag }}
-                {{ form.growth_stage }}
+            <!-- Form -->
+            <div class="plant-form">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Sahə Seçimi -->
+                            <div class="form-group">
+                                <label for="{{ form.field.id_for_label }}" class="form-label">
+                                    <i class="fas fa-tractor me-2"></i>Sahə
+                                </label>
+                                {{ form.field }}
+                                {% if form.field.errors %}
+                                    <div class="text-danger small mt-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        {{ form.field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Bitki Növü -->
+                            <div class="form-group">
+                                <label for="{{ form.plant_type.id_for_label }}" class="form-label">
+                                    <i class="fas fa-leaf me-2"></i>Bitki Növü
+                                </label>
+                                {{ form.plant_type }}
+                            </div>
+                            
+                            <!-- Sort -->
+                            <div class="form-group">
+                                <label for="{{ form.variety.id_for_label }}" class="form-label">
+                                    <i class="fas fa-seedling me-2"></i>Sort
+                                </label>
+                                {{ form.variety }}
+                            </div>
+                            
+                            <!-- Sahə Ölçüsü -->
+                            <div class="form-group">
+                                <label for="{{ form.area_hectares.id_for_label }}" class="form-label">
+                                    <i class="fas fa-ruler-combined me-2"></i>Sahə (hektar)
+                                </label>
+                                {{ form.area_hectares }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <!-- Əkin Tarixi -->
+                            <div class="form-group">
+                                <label for="{{ form.planting_date.id_for_label }}" class="form-label">
+                                    <i class="fas fa-calendar-plus me-2"></i>Əkin Tarixi
+                                </label>
+                                {{ form.planting_date }}
+                            </div>
+                            
+                            <!-- Gözlənilən Yığım -->
+                            <div class="form-group">
+                                <label for="{{ form.expected_harvest_date.id_for_label }}" class="form-label">
+                                    <i class="fas fa-calendar-check me-2"></i>Gözlənilən Yığım
+                                </label>
+                                {{ form.expected_harvest_date }}
+                            </div>
+                            
+                            <!-- Böyümə Mərhələsi -->
+                            <div class="form-group">
+                                <label for="{{ form.growth_stage.id_for_label }}" class="form-label">
+                                    <i class="fas fa-chart-line me-2"></i>Böyümə Mərhələsi
+                                </label>
+                                {{ form.growth_stage }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Qeydlər -->
+                    <div class="form-group">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label">
+                            <i class="fas fa-sticky-note me-2"></i>Qeydlər
+                        </label>
+                        {{ form.notes }}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 pt-3">
+                        <button type="submit" class="btn-natural btn-primary-natural">
+                            <i class="fas fa-save me-2"></i>Bitki Əlavə Et
+                        </button>
+                        <a href="{% url 'plant_list' %}" class="btn-natural btn-secondary-natural">
+                            <i class="fas fa-times me-2"></i>Ləğv et
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-    
-    <div class="mb-3">
-        {{ form.notes.label_tag }}
-        {{ form.notes }}
-    </div>
-    
-    <button type="submit" class="btn btn-success">Save Plant</button>
-    <a href="{% url 'plant_list' %}" class="btn btn-secondary">Cancel</a>
-</form>
+</div>
 {% endblock %}

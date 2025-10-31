@@ -3,48 +3,73 @@
 {% block title %}My Plants - Smart Farm{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>My Plants</h1>
-    <a href="{% url 'add_plant' %}" class="btn btn-success">+ Add New Plant</a>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+  <div>
+    <h1 class="h4 mb-0">Mənim Bitkilərim</h1>
+  </div>
+
+  <div class="d-flex gap-2">
+    <form class="d-none d-md-flex" method="get" role="search" aria-label="Axtar">
+      <input name="search" value="{{ request.GET.search }}" class="form-control form-control-sm" placeholder="Axtar...">
+    </form>
+    <a href="{% url 'add_plant' %}" class="btn btn-success btn-sm">
+      <i class="fas fa-plus me-1"></i> Bitki əlavə et
+    </a>
+  </div>
 </div>
 
 {% if plants %}
-<div class="row">
-    {% for plant in plants %}
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">{{ plant.get_plant_type_display }}</h5>
-                <span class="badge bg-{% if plant.status == 'active' %}success{% elif plant.status == 'harvested' %}info{% else %}warning{% endif %}">
-                    {{ plant.get_status_display }}
-                </span>
-            </div>
-            <div class="card-body">
-                <p><strong>Sahə:</strong> {{ plant.field.name }}</p>
-                <p><strong>Sort:</strong> {{ plant.variety|default:"-" }}</p>
-                <p><strong>Əkin Tarixi:</strong> {{ plant.planting_date }}</p>
-                <p><strong>Böyümə Mərhələsi:</strong> {{ plant.get_growth_stage_display }}</p>
-                <p><strong>Sahə:</strong> {{ plant.area_hectares }} ha</p>
-                
-                {% if plant.is_harvest_due %}
-                <div class="alert alert-warning py-2 mt-2">
-                    <small>⏰ Yığım vaxtı çatıb!</small>
-                </div>
-                {% endif %}
-                
-                <div class="mt-3">
-                    <a href="{% url 'plant_detail' plant.id %}" class="btn btn-primary btn-sm">View Details</a>
-                    <a href="{% url 'edit_plant' plant.id %}" class="btn btn-warning btn-sm">Edit</a>
-                </div>
-            </div>
+<div class="row g-3">
+  {% for plant in plants %}
+  <div class="col-12 col-md-6 col-lg-4">
+    <article class="card h-100 shadow-sm">
+      <div class="card-body d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <h5 class="card-title mb-1">{{ plant.get_plant_type_display }}</h5>
+            <p class="text-muted small mb-0">{{ plant.variety|default:"Sort qeyd edilməyib" }}</p>
+          </div>
+          <span class="badge badge-natural align-self-start plant-status-{{ plant.status }}">
+            {{ plant.get_status_display }}
+          </span>
         </div>
-    </div>
-    {% endfor %}
+
+        <ul class="list-unstyled small mb-3">
+          <li><strong>Sahə adı:</strong> {{ plant.field.name }}</li>
+          <li><strong>Ölçü:</strong> {{ plant.area_hectares }} ha</li>
+          <li><strong>Əkin Tarixi:</strong> {{ plant.planting_date }}</li>
+          <li><strong>Böyümə:</strong> {{ plant.get_growth_stage_display }}</li>
+        </ul>
+
+        {% if plant.is_harvest_due %}
+        <div class="alert alert-warning py-2 mb-3 small">
+          <i class="fas fa-clock me-1"></i> Yığım vaxtı yaxın/çatıb
+        </div>
+        {% endif %}
+
+        <div class="mt-auto d-flex gap-2">
+          <a href="{% url 'plant_detail' plant.id %}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-eye me-1"></i> Bax
+          </a>
+          <a href="{% url 'edit_plant' plant.id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-edit me-1"></i> Redaktə
+          </a>
+        </div>
+      </div>
+    </article>
+  </div>
+  {% endfor %}
 </div>
+
 {% else %}
-<div class="alert alert-info">
-    <h4>No Plants Found</h4>
-    <p>You haven't added any plants yet. <a href="{% url 'add_plant' %}">Add your first plant</a> to get started.</p>
+<div class="card border-0 shadow-sm">
+  <div class="card-body text-center py-5">
+    <h4 class="mb-2">Bitki tapılmadı</h4>
+    <p class="text-muted mb-3">Hələ heç bir bitki əlavə etməmisiniz.</p>
+    <a href="{% url 'add_plant' %}" class="btn btn-success">
+      <i class="fas fa-plus me-1"></i> İlk bitkini əlavə et
+    </a>
+  </div>
 </div>
 {% endif %}
 {% endblock %}

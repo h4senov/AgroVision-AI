@@ -1,0 +1,62 @@
+:root{
+  --muted:#6b7280;
+  --card-bg:#fff;
+  --accent:#374151; /* neutral dark gray */
+  --success:#0b8457;
+  --low:#c2410c; /* subtle orange for low stock */
+  --normal:#0b8457; /* greenish for normal */
+  --high:#0c5ea6; /* bluish for high */
+}
+
+/* wrapper */
+.app-container { max-width:1100px; margin:0 auto; padding-left:1rem; padding-right:1rem; }
+
+/* card baseline */
+.card { border-radius:10px; background:var(--card-bg); }
+
+/* inventory card */
+.inventory-card { border-radius:10px; background:#fff; padding:0; overflow:hidden; }
+.inventory-card-body { padding:1rem; display:flex; flex-direction:column; height:100%; }
+
+/* badges for status */
+.badge { font-weight:600; border-radius:8px; padding:0.25rem 0.5rem; font-size:0.78rem; }
+.badge-status-low { background:#fff4ed; color:var(--low); border:1px solid rgba(194,65,12,0.08); }
+.badge-status-normal { background:#effaf3; color:var(--normal); border:1px solid rgba(11,132,87,0.08); }
+.badge-status-high { background:#eef6ff; color:var(--high); border:1px solid rgba(12,94,166,0.06); }
+
+/* stat card */
+.stat-card { background:#fff; padding:0.75rem; border-radius:8px; text-align:center; box-shadow: 0 6px 18px rgba(17,24,39,0.03); }
+.stat-number { font-weight:700; font-size:1.05rem; }
+.stat-label { color:var(--muted); font-size:0.82rem; margin-top:0.25rem; }
+
+/* forms: fallback if widgets don't use .form-control */
+.app-container form input:not(.form-control),
+.app-container form select:not(.form-control),
+.app-container form textarea:not(.form-control) {
+  width:100%;
+  padding:0.45rem 0.6rem;
+  border-radius:6px;
+  border:1px solid rgba(15,23,42,0.07);
+  box-sizing:border-box;
+  font-size:0.95rem;
+}
+
+/* spacing and small helpers */
+.fw-semibold { font-weight:600; }
+.text-muted.small { font-size:0.85rem; color:var(--muted); }
+
+/* list group tweaks */
+.list-group a.list-group-item, .list-group .list-group-item {
+  border-radius:6px;
+  margin-bottom:8px;
+  border:1px solid rgba(0,0,0,0.04);
+}
+.list-group a.list-group-item:hover { background:#fbfdff; }
+
+/* error messages */
+.text-danger.small { font-size:0.85rem; }
+
+/* responsive */
+@media (max-width:576px){
+  .app-container { padding-left:0.6rem; padding-right:0.6rem; }
+}

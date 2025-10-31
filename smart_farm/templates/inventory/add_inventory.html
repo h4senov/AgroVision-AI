@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Yeni Məhsul əlavə et{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="d-flex align-items-center mb-3">
+        <a href="{% url 'inventory:inventory_list' %}" class="btn btn-light btn-sm me-2"><i class="fas fa-arrow-left"></i></a>
+        <h1 class="h5 mb-0">Yeni Məhsul əlavə et</h1>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger small">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+              <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">
+                  {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                  <div class="form-text small">{{ field.help_text }}</div>
+                {% endif %}
+                {% for err in field.errors %}
+                  <div class="text-danger small mt-1">{{ err }}</div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Saxla</button>
+              <a href="{% url 'inventory:inventory_list' %}" class="btn btn-outline-secondary">Ləğv et</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,25 +1,61 @@
-/* plants/static/css/plants.css */
-.plant-card {
-    border-left: 4px solid #17a2b8;
+:root{
+  --plant-green: #2b8a3e;
+  --plant-text: #0f1720;
+  --plant-brown: #6b4f2a;
+  --muted: #6c757d;
+  --card-bg: #ffffff;
+  --natural-contrast: #f1f8f3;
 }
 
+/* general card + icon */
+.card { border-radius: 10px; background: var(--card-bg); }
+.plant-type-icon { width:48px;height:48px;border-radius:8px;background:var(--natural-contrast);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--plant-green);box-shadow:0 1px 2px rgba(0,0,0,0.04); }
+
+/* badges */
+.badge-natural {
+  display:inline-block;
+  padding:0.275rem 0.45rem;
+  border-radius:0.5rem;
+  font-size:0.75rem;
+  font-weight:600;
+  background:#eef8f0;
+  color:var(--plant-green);
+  border:1px solid rgba(43,138,62,0.08);
+}
+
+/* status variants */
+.plant-status-active { background:#e8f9ea; color:#1f7a34; border:1px solid rgba(31,122,52,0.08); }
+.plant-status-harvested { background:#eef7ff; color:#1f55a3; border:1px solid rgba(21,85,163,0.06); }
+.plant-status-pending { background:#fff8e7; color:#b36b00; border:1px solid rgba(179,107,0,0.06); }
+
+/* buttons natural */
+.btn-natural { border-radius:10px; padding:0.5rem 0.75rem; font-weight:600; }
+.btn-primary-natural { background:var(--plant-green); color:#fff; border:none; }
+.btn-secondary-natural { background:#f3f4f6; color:#111; border:none; }
+
+/* growth badge */
 .growth-badge {
-    font-size: 0.75em;
-    padding: 0.25em 0.6em;
+  padding:0.25rem 0.45rem;
+  font-size:0.8rem;
+  border-radius:6px;
+  background:#f1f7f3;
+  color:var(--plant-green);
+  font-weight:600;
 }
 
-.growth-seedling { background: #ff7675; color: white; }
-.growth-vegetative { background: #74b9ff; color: white; }
-.growth-flowering { background: #a29bfe; color: white; }
-.growth-fruiting { background: #55efc4; color: #2d3436; }
-
-.harvest-soon {
-    animation: pulse 2s infinite;
-    background: #ffeaa7 !important;
+/* plant card detail grid */
+.plant-info-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap:1rem;
+  margin-top:0.5rem;
 }
 
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
+/* small helpers */
+.opacity-75 { opacity:0.75; }
+.fw-medium { font-weight:600; }
+
+/* responsive small tweaks */
+@media (max-width: 575px) {
+  .plant-type-icon { width:44px;height:44px;font-size:18px; }
 }

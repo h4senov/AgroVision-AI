@@ -1,29 +1,80 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Edit {{ field.name }}{% endblock %}
+{% block title %}{{ field.name }} — Redaktə{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/fields.css' %}">
+{% endblock %}
 
 {% block content %}
-<h1>Edit Field: {{ field.name }}</h1>
+<div class="app-container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="d-flex align-items-center mb-3 gap-3">
+        <a href="{% url 'field_detail' field.id %}" class="btn btn-light btn-sm" aria-label="geri">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+          <h1 class="h5 mb-0">{{ field.name }} — Redaktə</h1>
+        </div>
+      </div>
 
-<form method="post">
-    {% csrf_token %}
-    
-    <div class="mb-3">
-        {{ form.name.label_tag }}
-        {{ form.name }}
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h6 class="mb-3">Cari Məlumatlar</h6>
+          <div class="row">
+            <div class="col-sm-4 mb-2">
+              <div class="text-muted small">Sahə adı</div>
+              <div class="fw-semibold">{{ field.name }}</div>
+            </div>
+            <div class="col-sm-4 mb-2">
+              <div class="text-muted small">Sahə ölçüsü</div>
+              <div class="fw-semibold">{{ field.area_hectares }} ha</div>
+            </div>
+            <div class="col-sm-4 mb-2">
+              <div class="text-muted small">Torpaq növü</div>
+              <div class="fw-semibold">{{ field.get_soil_type_display }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger small mb-3">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="mb-3">
+              <label for="{{ form.name.id_for_label }}" class="form-label"><i class="fas fa-tag me-1"></i> Sahə Adı</label>
+              {{ form.name }}
+              {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.area_hectares.id_for_label }}" class="form-label"><i class="fas fa-ruler-combined me-1"></i> Sahə (hektar)</label>
+              {{ form.area_hectares }}
+              {% if form.area_hectares.errors %}<div class="text-danger small mt-1">{{ form.area_hectares.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.soil_type.id_for_label }}" class="form-label"><i class="fas fa-mountain me-1"></i> Torpaq Növü</label>
+              {{ form.soil_type }}
+              {% if form.soil_type.errors %}<div class="text-danger small mt-1">{{ form.soil_type.errors }}</div>{% endif %}
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Yenilə</button>
+              <a href="{% url 'field_detail' field.id %}" class="btn btn-outline-secondary">Ləğv et</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
-    
-    <div class="mb-3">
-        {{ form.area_hectares.label_tag }}
-        {{ form.area_hectares }}
-    </div>
-    
-    <div class="mb-3">
-        {{ form.soil_type.label_tag }}
-        {{ form.soil_type }}
-    </div>
-    
-    <button type="submit" class="btn btn-primary">Update Field</button>
-    <a href="{% url 'field_detail' field.id %}" class="btn btn-secondary">Cancel</a>
-</form>
+  </div>
+</div>
 {% endblock %}

@@ -1,120 +1,160 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Sahələrim - Smart Farm{% endblock %}
 
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Sahələrim</h1>
-    <a href="{% url 'add_field' %}" class="btn btn-success">+ Yeni Sahə</a>
-</div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/fields.css' %}">
+{% endblock %}
 
-<!-- AXTARIŞ VƏ FİLTER FORMU -->
-<div class="card mb-4">
-    <div class="card-header">
-        <h5 class="card-title mb-0">Axtarış və Filtrləmə</h5>
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="page-header-natural">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-2" style="color: var(--earth-green);">Sahələrim</h1>
+                <p class="mb-0" style="color: var(--earth-brown);">Bütün əkin sahələrinizin icmalı</p>
+            </div>
+            <a href="{% url 'add_field' %}" class="btn-natural btn-primary-natural">
+                <i class="fas fa-plus me-2"></i>Yeni Sahə
+            </a>
+        </div>
     </div>
-    <div class="card-body">
-        <!-- fields/field_list.html - YENİ FİLTERLƏR ƏLAVƏ ET -->
-        <form method="get" class="row g-3 mb-4">
+
+    <!-- Axtarış və Filter -->
+    <div class="search-filter-natural">
+        <h5 class="section-title-natural mb-3">
+            <i class="fas fa-search me-2"></i>Axtarış və Filtrləmə
+        </h5>
+        
+        <form method="get" class="row g-3">
             <div class="col-md-4">
-                {{ search_form.search.label_tag }}
+                <label class="form-label" style="color: var(--earth-green); font-weight: 600;">Axtarış</label>
                 {{ search_form.search }}
             </div>
             <div class="col-md-3">
-                {{ filter_form.soil_type.label_tag }}
+                <label class="form-label" style="color: var(--earth-green); font-weight: 600;">Torpaq Növü</label>
                 {{ filter_form.soil_type }}
             </div>
             <div class="col-md-2">
-                {{ filter_form.min_area.label_tag }}
+                <label class="form-label" style="color: var(--earth-green); font-weight: 600;">Min Sahə</label>
                 {{ filter_form.min_area }}
             </div>
             <div class="col-md-2">
-                {{ filter_form.max_area.label_tag }}
+                <label class="form-label" style="color: var(--earth-green); font-weight: 600;">Max Sahə</label>
                 {{ filter_form.max_area }}
             </div>
-            <div class="col-md-1">
-                <label>&nbsp;</label>
-                <button type="submit" class="btn btn-primary w-100">Axtar</button>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn-natural btn-primary-natural w-100 search-btn-clear">
+                    <i class="fas fa-filter me-1"></i>Axtar
+                </button>
             </div>
         </form>
-        
-        <!-- Aktiv Filterləri Göstər -->
-        {% if search_query or soil_type_filter %}
-        <div class="mt-3">
-            <small class="text-muted">
-                Aktiv filtrlər:
+
+        <!-- Aktiv Filtrlər -->
+        {% if search_query or soil_type_filter or min_area or max_area %}
+        <div class="mt-4 pt-3 border-top" style="border-color: var(--border-natural) !important;">
+            <h6 class="small mb-2" style="color: var(--earth-brown);">Aktiv filtrlər:</h6>
+            <div class="d-flex flex-wrap gap-2">
                 {% if search_query %}
-                <span class="badge bg-info">Axtarış: "{{ search_query }}"</span>
+                <span class="filter-badge-natural">
+                    <i class="fas fa-search me-1"></i>Axtarış: "{{ search_query }}"
+                </span>
                 {% endif %}
                 {% if soil_type_filter %}
                 {% for val,label in filter_form.fields.soil_type.choices %}
                     {% if val|stringformat:"s" == soil_type_filter|stringformat:"s" %}
-                <span class="badge bg-info">Torpaq: {{ label }}</span>
+                <span class="filter-badge-natural">
+                    <i class="fas fa-mountain me-1"></i>Torpaq: {{ label }}
+                </span>
                     {% endif %}
                 {% endfor %}
                 {% endif %}
-                <!-- fields/field_list.html - aktiv filtrlərə əlavə et -->
-                {% if min_area or max_area %}
-                    {% if min_area %}
-                    <span class="badge bg-info">Min: {{ min_area }} ha</span>
-                    {% endif %}
-                    {% if max_area %}
-                    <span class="badge bg-info">Max: {{ max_area }} ha</span>
-                    {% endif %}
+                {% if min_area %}
+                <span class="filter-badge-natural">
+                    <i class="fas fa-arrow-up me-1"></i>Min: {{ min_area }} ha
+                </span>
                 {% endif %}
-
-            </small>
+                {% if max_area %}
+                <span class="filter-badge-natural">
+                    <i class="fas fa-arrow-down me-1"></i>Max: {{ max_area }} ha
+                </span>
+                {% endif %}
+            </div>
         </div>
         {% endif %}
     </div>
-</div>
 
-<!-- NƏTİCƏLƏR -->
-{% if fields %}
-<div class="row">
-    {% for field in fields %}
-    <div class="col-md-6 mb-4">
-        <div class="card hover-lift">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">{{ field.name }}</h5>
-                <span class="badge bg-secondary">{{ field.get_soil_type_display }}</span>
-            </div>
-            <div class="card-body">
-                <p class="card-text">
-                    <strong>Sahə:</strong> {{ field.area_hectares }} ha<br>
-                    <strong>Yaradılma:</strong> {{ field.created_at|date:"d.m.Y" }}
-                </p>
-                <div class="mt-3">
-                    <a href="{% url 'field_detail' field.id %}" class="btn btn-primary btn-sm">Detallı Bax</a>
-                    <a href="{% url 'edit_field' field.id %}" class="btn btn-warning btn-sm">Redaktə</a>
+    <!-- Nəticələr -->
+    {% if fields %}
+    <div class="row">
+        {% for field in fields %}
+        <div class="col-xl-4 col-lg-6 mb-4">
+            <div class="field-card-natural h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h3 class="h5 mb-0" style="color: var(--earth-green);">{{ field.name }}</h3>
+                    <span class="badge-natural soil-{{ field.soil_type }}">
+                        {{ field.get_soil_type_display }}
+                    </span>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span style="color: var(--text-muted);">Sahə:</span>
+                        <strong style="color: var(--earth-brown);">{{ field.area_hectares }} ha</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span style="color: var(--text-muted);">Yaradılma:</span>
+                        <span style="color: var(--text-muted);">{{ field.created_at|date:"d.m.Y" }}</span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{% url 'field_detail' field.id %}" class="btn-natural btn-primary-natural flex-fill text-center">
+                        <i class="fas fa-eye me-1"></i>Detallı Bax
+                    </a>
+                    <a href="{% url 'edit_field' field.id %}" class="btn-natural btn-secondary-natural edit-btn-clear">
+                        <i class="fas fa-edit"></i>
+                    </a>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 
-<!-- Nəticə sayı -->
-<div class="mt-3">
-    <p class="text-muted">
-        <strong>{{ fields|length }}</strong> sahə tapıldı
-    </p>
-</div>
+    <!-- Nəticə Sayı -->
+    <div class="text-center mt-4">
+        <p style="color: var(--earth-brown);">
+            <strong>{{ fields|length }}</strong> sahə tapıldı
+        </p>
+    </div>
 
-{% else %}
-<!-- NƏTİCƏ YOXDURSA -->
-<div class="alert alert-info">
-    <h4>Heç bir sahə tapılmadı</h4>
-    <p>
-        {% if search_query or soil_type_filter %}
-            Axtarış kriteriyalarınıza uyğun sahə tapılmadı. 
-            <a href="{% url 'field_list' %}" class="alert-link">Bütün sahələri göstər</a>
-        {% else %}
-            Hələ heç bir sahə yaratmamısınız. 
-            <a href="{% url 'add_field' %}" class="alert-link">İlk sahəni yaradın</a>
-        {% endif %}
-    </p>
+    {% else %}
+    <!-- Boş Vəziyyət -->
+    <div class="empty-state-natural">
+        <div class="empty-state-icon-natural">
+            <i class="fas fa-tractor"></i>
+        </div>
+        <h3 class="h4 mb-3" style="color: var(--earth-brown);">Heç bir sahə tapılmadı</h3>
+        <p class="mb-4" style="color: var(--text-muted);">
+            {% if search_query or soil_type_filter %}
+                Axtarış kriteriyalarınıza uyğun sahə tapılmadı.
+            {% else %}
+                Hələ heç bir sahə yaratmamısınız.
+            {% endif %}
+        </p>
+        <div class="d-flex gap-3 justify-content-center">
+            {% if search_query or soil_type_filter %}
+            <a href="{% url 'field_list' %}" class="btn-natural btn-secondary-natural">
+                <i class="fas fa-times me-2"></i>Filtrləri Təmizlə
+            </a>
+            {% endif %}
+            <a href="{% url 'add_field' %}" class="btn-natural btn-primary-natural">
+                <i class="fas fa-plus me-2"></i>İlk Sahəni Yaradın
+            </a>
+        </div>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
-
 {% endblock %}

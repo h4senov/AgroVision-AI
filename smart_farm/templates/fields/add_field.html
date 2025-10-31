@@ -1,38 +1,67 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Add Field{% endblock %}
+{% block title %}Yeni Sahə Əlavə Et - Smart Farm{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/fields.css' %}">
+{% endblock %}
 
 {% block content %}
-<h1>Add New Field</h1>
+<div class="app-container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="d-flex align-items-center mb-4 gap-3">
+        <a href="{% url 'field_list' %}" class="btn btn-light btn-sm" aria-label="geri">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+          <h1 class="h5 mb-0">Yeni Sahə Əlavə Et</h1>
+        </div>
+      </div>
 
-<form method="post">
-    {% csrf_token %}
-    
-    <div class="mb-3">
-        {{ form.name.label_tag }}
-        {{ form.name }}
-        {% if form.name.errors %}
-            <div class="text-danger">{{ form.name.errors }}</div>
-        {% endif %}
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger small mb-3">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="mb-3">
+              <label for="{{ form.name.id_for_label }}" class="form-label"><i class="fas fa-tag me-1"></i> Sahə Adı</label>
+              {{ form.name }}
+              {% if form.name.errors %}
+                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.area_hectares.id_for_label }}" class="form-label"><i class="fas fa-ruler-combined me-1"></i> Sahə (hektar)</label>
+              {{ form.area_hectares }}
+              {% if form.area_hectares.errors %}
+                <div class="text-danger small mt-1">{{ form.area_hectares.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.soil_type.id_for_label }}" class="form-label"><i class="fas fa-mountain me-1"></i> Torpaq Növü</label>
+              {{ form.soil_type }}
+              {% if form.soil_type.errors %}
+                <div class="text-danger small mt-1">{{ form.soil_type.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Saxla</button>
+              <a href="{% url 'field_list' %}" class="btn btn-outline-secondary">Ləğv et</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
-    
-    <div class="mb-3">
-        {{ form.area_hectares.label_tag }}
-        {{ form.area_hectares }}
-        {% if form.area_hectares.errors %}
-            <div class="text-danger">{{ form.area_hectares.errors }}</div>
-        {% endif %}
-    </div>
-    
-    <div class="mb-3">
-        {{ form.soil_type.label_tag }}
-        {{ form.soil_type }}
-        {% if form.soil_type.errors %}
-            <div class="text-danger">{{ form.soil_type.errors }}</div>
-        {% endif %}
-    </div>
-    
-    <button type="submit" class="btn btn-success">Save Field</button>
-    <a href="{% url 'field_list' %}" class="btn btn-secondary">Cancel</a>
-</form>
+  </div>
+</div>
 {% endblock %}
