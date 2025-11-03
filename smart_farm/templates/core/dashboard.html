@@ -1,19 +1,151 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Dashboard - Smart Farm{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="text-gradient"><i class="fas fa-tachometer-alt me-2"></i>Farm Dashboard</h1>
-    <small class="text-muted">Son yenilənmə: {% now "j F Y" %}</small>
+<div class="app-container py-4">
+    <div class="row">
+        <!-- 📊 STATISTICS CARDS -->
+        <div class="col-12 mb-4">
+            <h1 class="h4 mb-3">Ferma Dashboard</h1>
+            <div class="row g-3">
+                <!-- Sahələr -->
+                <div class="col-6 col-md-3">
+                    <div class="card stat-card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-map fa-2x mb-2"></i>
+                            <h3 class="h2">{{ total_fields }}</h3>
+                            <p class="mb-0">Sahə</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bitkilər -->
+                <div class="col-6 col-md-3">
+                    <div class="card stat-card bg-success text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-seedling fa-2x mb-2"></i>
+                            <h3 class="h2">{{ total_plants }}</h3>
+                            <p class="mb-0">Bitki</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sensorlar -->
+                <div class="col-6 col-md-3">
+                    <div class="card stat-card bg-info text-white">
+                        <div class="card-body text-center">
+                            <i class="fas fa-satellite-dish fa-2x mb-2"></i>
+                            <h3 class="h2">{{ total_sensors }}</h3>
+                            <p class="mb-0">Sensor</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Anbar -->
+                <div class="col-6 col-md-3">
+                    <div class="card stat-card bg-warning text-dark">
+                        <div class="card-body text-center">
+                            <i class="fas fa-box fa-2x mb-2"></i>
+                            <h3 class="h2">{{ total_inventory }}</h3>
+                            <p class="mb-0">Məhsul</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📋 SON ƏMƏLİYYATLAR -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Son Əməliyyatlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <!-- Burada son əməliyyatlar göstəriləcək -->
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-plus text-success me-2"></i>
+                                <span>Yeni məhsul əlavə edildi</span>
+                            </div>
+                            <small class="text-muted">5 dəqiqə əvvəl</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-seedling text-primary me-2"></i>
+                                <span>Yeni bitki əlavə edildi</span>
+                            </div>
+                            <small class="text-muted">1 saat əvvəl</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                                <span>Aşağı stok xəbərdarlığı</span>
+                            </div>
+                            <small class="text-muted">2 saat əvvəl</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⚠️ XƏBƏRDARLIQLAR -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Xəbərdarlıqlar</h5>
+                </div>
+                <div class="card-body">
+                    {% if low_stock_count > 0 %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-box me-2"></i>
+                        <strong>{{ low_stock_count }} məhsul</strong> aşağı stokdadır.
+                        <a href="{% url 'inventory:low_stock' %}" class="alert-link">Bax</a>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Heç bir xəbərdarlıq yoxdur.
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Digər xəbərdarlıqlar burada əlavə oluna bilər -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Hava proqnozu: Sabah yağış gözlənilir.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Statistika Kartları -->
-{% include 'core/dashboard_parts/_overview_metrics.html' %}
+<!-- 🎨 STYLES -->
+<style>
+.stat-card {
+    border: none;
+    border-radius: 12px;
+    transition: transform 0.2s ease;
+}
 
-<!-- Bitki Paylanması və Son Bitkilər -->
-{% include 'core/dashboard_parts/_plants_overview.html' %}
+.stat-card:hover {
+    transform: translateY(-3px);
+}
 
-<!-- Tez İstifadə Linkləri -->
-{% include 'core/dashboard_parts/_quick_actions.html' %}
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.list-group-item {
+    border: none;
+    padding: 12px 0;
+}
+</style>
 {% endblock %}

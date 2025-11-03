@@ -7,13 +7,13 @@ from .models import CustomUser
 
 # Create your views here.
 
-def register(request):
+def user_register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('field_list')
+            return redirect('fields:field_list')
     else :
         form =CustomUserCreationForm()
     return render(request,'users/register.html',{'form' : form})
@@ -26,7 +26,7 @@ def user_login(request):
         
         if user is not None:
             login(request, user)
-            return redirect('field_list')
+            return redirect('fields:field_list')
         else:
             return render(request, 'users/login.html', {'error': 'Invalid credentials'})
     
@@ -36,9 +36,9 @@ def user_login(request):
 
 def user_logout(request):
     logout(request)
-    return redirect('home')
+    return redirect('core:home')
 
 
 @login_required
-def profile(request):
+def user_profile(request):
     return render(request, 'users/profile.html', {'user': request.user})

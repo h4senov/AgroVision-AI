@@ -2,45 +2,163 @@
 {% load static %}
 {% block title %}Yeni Məhsul əlavə et{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/inventory.css' %}">
-{% endblock %}
-
 {% block content %}
 <div class="app-container py-4">
   <div class="row justify-content-center">
     <div class="col-lg-8">
+      <!-- Header -->
       <div class="d-flex align-items-center mb-3">
-        <a href="{% url 'inventory:inventory_list' %}" class="btn btn-light btn-sm me-2"><i class="fas fa-arrow-left"></i></a>
+        <a href="{% url 'inventory:inventory_list' %}" class="btn btn-light btn-sm me-2">
+          <i class="fas fa-arrow-left"></i>
+        </a>
         <h1 class="h5 mb-0">Yeni Məhsul əlavə et</h1>
       </div>
 
       <div class="card shadow-sm">
         <div class="card-body">
-          <form method="post" novalidate>
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-              <div class="alert alert-danger small">{{ form.non_field_errors }}</div>
-            {% endif %}
-
-            {% for field in form %}
-              <div class="mb-3">
-                <label class="form-label" for="{{ field.id_for_label }}">
-                  {{ field.label }}
-                </label>
-                {{ field }}
-                {% if field.help_text %}
-                  <div class="form-text small">{{ field.help_text }}</div>
-                {% endif %}
-                {% for err in field.errors %}
-                  <div class="text-danger small mt-1">{{ err }}</div>
-                {% endfor %}
+          <!-- Mesajlar -->
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
               </div>
             {% endfor %}
+          {% endif %}
 
+          <!-- Form -->
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            
+            <!-- Form Xətaları -->
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                  <div class="small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="row">
+              <!-- Sol Sütun -->
+              <div class="col-md-6">
+                <!-- Şəkil -->
+                <div class="mb-3">
+                  <label class="form-label">{{ form.image.label }}</label>
+                  {{ form.image }}
+                  {% if form.image.help_text %}
+                    <div class="form-text">{{ form.image.help_text }}</div>
+                  {% endif %}
+                  {% for error in form.image.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+                </div>
+
+                <!-- Əsas Məlumatlar -->
+                <div class="mb-3">
+                  <label class="form-label">{{ form.item_name.label }} *</label>
+                  {{ form.item_name }}
+                  {% for error in form.item_name.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">{{ form.item_code.label }}</label>
+                  {{ form.item_code }}
+                  {% for error in form.item_code.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">{{ form.category.label }} *</label>
+                  {{ form.category }}
+                  {% for error in form.category.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">{{ form.supplier_name.label }}</label>
+                  {{ form.supplier_name }}
+                  {% for error in form.supplier_name.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Sağ Sütun -->
+              <div class="col-md-6">
+                <!-- Stok Məlumatları -->
+                <div class="mb-3">
+                  <label class="form-label">{{ form.quantity.label }} *</label>
+                  {{ form.quantity }}
+                  {% for error in form.quantity.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">{{ form.unit.label }} *</label>
+                  {{ form.unit }}
+                  {% for error in form.unit.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+                </div>
+
+                <div class="row">
+                  <div class="col-6">
+                    <div class="mb-3">
+                      <label class="form-label">{{ form.min_stock_level.label }}</label>
+                      {{ form.min_stock_level }}
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="mb-3">
+                      <label class="form-label">{{ form.max_stock_level.label }}</label>
+                      {{ form.max_stock_level }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Qiymət Məlumatları -->
+                <div class="mb-3">
+                  <label class="form-label">{{ form.unit_price.label }}</label>
+                  {{ form.unit_price }}
+                  {% for error in form.unit_price.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+                </div>
+
+                <!-- Saxlama Məlumatları -->
+                <div class="mb-3">
+                  <label class="form-label">{{ form.storage_location.label }}</label>
+                  {{ form.storage_location }}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">{{ form.expiration_date.label }}</label>
+                  {{ form.expiration_date }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Qeydlər -->
+            <div class="mb-4">
+              <label class="form-label">{{ form.notes.label }}</label>
+              {{ form.notes }}
+              {% if form.notes.help_text %}
+                <div class="form-text">{{ form.notes.help_text }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Düymələr -->
             <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Saxla</button>
-              <a href="{% url 'inventory:inventory_list' %}" class="btn btn-outline-secondary">Ləğv et</a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i>Məhsulu Əlavə Et
+              </button>
+              <a href="{% url 'inventory:inventory_list' %}" class="btn btn-outline-secondary">Ləğv Et</a>
             </div>
           </form>
         </div>
@@ -48,4 +166,16 @@
     </div>
   </div>
 </div>
+
+<!-- Form Style -->
+<style>
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+.form-label {
+  font-weight: 500;
+  color: #495057;
+}
+</style>
 {% endblock %}

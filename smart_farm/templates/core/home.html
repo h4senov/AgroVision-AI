@@ -28,10 +28,10 @@
 
     <div class="mt-4">
         {% if user.is_authenticated %}
-        <a href="{% url 'dashboard' %}" class="btn btn-success btn-lg">Dashboard-a Keç</a>
+        <a href="{% url 'core:dashboard' %}" class="btn btn-success btn-lg">Dashboard-a Keç</a>
         {% else %}
-        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Daxil Ol</a>
-        <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg">Qeydiyyat</a>
+        <a href="{% url 'users:user_login' %}" class="btn btn-primary btn-lg">Daxil Ol</a>
+        <a href="{% url 'users:user_register' %}" class="btn btn-outline-primary btn-lg">Qeydiyyat</a>
         {% endif %}
     </div>
 </div>

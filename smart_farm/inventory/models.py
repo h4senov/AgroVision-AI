@@ -1,6 +1,14 @@
 from decimal import Decimal
+import os
 from django.db import models
 from django.conf import settings
+
+def inventory_image_path(instance, filename):
+
+    name, ext = os.path.splitext(filename)
+    clean_name = name.replace(" ", "_")
+
+    return f"inventory/user_{instance.user.id}/{instance.category}/{clean_name}{ext}"
 
 class Inventory(models.Model):
     CATEGORY_CHOICES = [
@@ -31,7 +39,14 @@ class Inventory(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+    image = models.ImageField(
+        upload_to=inventory_image_path,  
+        null=True,
+        blank=True,
+        verbose_name='Şəkil',
+        help_text='Məhsulun şəklini yükləyin (max 5MB)',
+        validators=[]   
+    )
     def __str__(self):
         return f"{self.item_name} ({self.quantity} {self.unit})"
         
@@ -63,6 +78,22 @@ class Inventory(models.Model):
         if self.quantity and self.unit_price:
             self.total_value = self.calculate_total_value()
         super().save(*args, **kwargs)
+
+    def get_image_url(self):
+        if self.image and hasattr(self.image, 'url'):
+            return self.image.url
+        return '/static/images/default_inventory.png'
+    
+    def image_preview(self):
+        if self.image:
+            from django.utils.html import format_html
+            return format_html(
+                '<img src="{}" width="500" height="500" style="object-fit: cover; border-radius: 4px;" />',
+                self.image.url
+            )
+        return "-"
+    image_preview.short_description = 'Şəkil önizləməsi'
+
 
     class Meta:
         verbose_name = 'Anbar məhsulu'

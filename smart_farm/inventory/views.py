@@ -1,103 +1,102 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, F
-from .models import Inventory
-from .forms import Inventory, InventoryFilterForm, InventoryForm, InventorySearchForm
+from django.contrib.auth.decorators import login_required
 from django.db.models import Sum 
 from decimal import Decimal
+# ------------------------------------------------/
+from django.views.generic import ListView, DetailView, UpdateView, DeleteView,CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.contrib import messages
+from .models import Inventory
+from .forms import InventoryForm, InventorySearchForm, InventoryFilterForm
 
+class InventoryListView(LoginRequiredMixin, ListView):
+    model = Inventory
+    template_name = 'inventiry/inventory_list.html'
+    context_object_name = 'items' 
+    paginate_by = 10
 
+    def get_queryset(self):
 
-@login_required
-def inventory_list(request):
-    items = Inventory.objects.filter(user=request.user)
+        inventory = super().get_queryset().filter(user=self.request.user)
+        
+        search_query = self.request.GET.get('search','')
+        if search_query:
+            inventory = inventory.filter(
+                Q(item_name__icontains=search_query) |
+                Q(item_code__icontains=search_query) |
+                Q(supplier_name__icontains=search_query)
+            )
+        
+        category_filter = self.request.GET.get('category','')
+
+        if category_filter:
+            inventory = inventory.filter(category=category_filter)
+
+        return inventory
     
-    search_query = request.GET.get('search','')
-    category_filter = request.GET.get('category','')
-    stock_status_filter = request.GET.get('stock_status','')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-    if search_query:
-        items = items.filter(
-            Q(items_name__icontains=search_query) |
-            Q(item_code__icontains=search_query) |
-            Q(supplier_name__icontains=search_query)
-        )
+        search_query = self.request.GET.get('search', '')
+        category_filter = self.request.GET.get('category', '')
 
-    if category_filter:
-        items =  items.filter(category=category_filter)
+        context['search_form'] = InventorySearchForm(initial={'search': search_query})
+        context['filter_form'] = InventoryFilterForm(initial={'category': category_filter})
 
-
-    if stock_status_filter:
-        if stock_status_filter == 'low':
-            items = [item for item in items if item.stock_status() == 'low']
-        elif stock_status_filter == 'normal':
-            items = [item for item in items if item.stock_status() == 'normal']
-        elif stock_status_filter == 'high':
-            items = [item for item in items if item.stock_status() == 'high']       
-
-
-    search_form = InventorySearchForm(initial={'search': search_query})
-    filter_form = InventoryFilterForm(initial={
-        'category': category_filter,
-        'stock_status': stock_status_filter
-    })
+        return context
     
-    context = {
-        'items': items,
-        'search_form': search_form,
-        'filter_form': filter_form,
-    }
+class InventoryDetailView(LoginRequiredMixin, DetailView):
+    model = Inventory
+    template_name = 'inventory/inventory_detail.html'
+    context_object_name = 'item'
+
+
+
     
-    return render(request, 'inventory/inventory_list.html', context)
-
-@login_required
-def inventory_detail(request, item_id):
-    item = get_object_or_404(Inventory,id=item_id, user = request.user)
-    return render(request, 'inventory/inventory_detail.html', {'item' : item})
-
-@login_required
-def add_inventory(request):
-    if request.method == 'POST':
-        form = InventoryForm(request.POST)
-        if form.is_valid():
-            item = form.save(commit=False)
-            item.user = request.user
-            item.save()
-
-            messages.success(request, 'Məhsul uğurla əlavə edildi!')
-            return redirect('inventory:inventory_list')
-    else:
-        form =InventoryForm()
-
-
-    return render(request, 'inventory/add_inventory.html', {'form': form})
-
-@login_required
-def edit_inventory(request, item_id):
-    item = get_object_or_404(Inventory, id=item_id, user=request.user)
-    if request.method == 'POST':
-        form = InventoryForm(request.POST,instance=item)
-        if form.is_valid():
-            form.save()
-            messages.success(request, '✅ Məhsul məlumatları uğurla yeniləndi!')
-            return redirect('inventory:inventory_detail', item_id=item.id)
-    else:
-        form = InventoryForm(instance=item)
+    def get_queryset(self):
+        return Inventory.objects.filter(user=self.request.user)
     
-    return render(request, 'inventory/edit_inventory.html', {'form': form, 'item': item})
+class InventoryCreateView(LoginRequiredMixin, CreateView):
+    model = Inventory
+    form_class = InventoryForm   
+    template_name = 'inventory/add_inventory.html'
+    success_url = reverse_lazy('inventory:inventory_list')
 
-@login_required
-def delete_inventory(request, item_id):
-
-    item = get_object_or_404(Inventory, id=item_id, user=request.user)
+    def form_valid(self, form):
+        form.instance.user =  self.request.user
+        messages.success(self.request,'🎉 Məhsul uğurla əlavə edildi!')
+        return super().form_valid(form)
     
-    if request.method == 'POST':
-        item.delete()
+class InventoryUpdateView(LoginRequiredMixin,UpdateView):
+    
+    model = Inventory
+    form_class = InventoryForm
+    template_name = 'inventory/edit_inventory.html'
+    context_object_name = 'item'
+
+    def get_queryset(self):
+        return Inventory.objects.filter(user=self.request.user)
+    
+    def get_success_url(self):
+        messages.success(self.request,'✅ Məhsul məlumatları uğurla yeniləndi!')
+        return reverse_lazy('inventory:inventory_detail', kwargs={'pk': self.object.pk})
+
+class InventoryDeleteView(LoginRequiredMixin,DeleteView):
+    model = Inventory
+    template_name = 'inventory/delete_inventory.html'
+    success_url = reverse_lazy('inventory:inventory_list')
+
+    def get_queryset(self):
+        return Inventory.objects.filter(user=self.request.user)
+    
+    def delete(self, request, *args, **kwargs):
+        
         messages.success(request, '🗑️ Məhsul uğurla silindi!')
-        return redirect('inventory_list')
-    
-    return render(request, 'inventory/delete_inventory.html', {'item': item})
+        return super().delete(request, *args, **kwargs)
+
 
 @login_required
 def get_inventory_status(request):
@@ -135,7 +134,7 @@ def track_inventory_usage(request,item_id):
                 item.quantity -= used_quantity
                 item.save()
                 messages.success(request, f'{used_quantity} {item.unit} istifadə edildi')
-                return redirect('inventory:inventory_detail', item_id=item.id)
+                return redirect('inventory:inventory_detail', pk=item.id)
             else:
                 messages.error(request, 'Keçərsiz miqdar!')
         except (ValueError, TypeError):
@@ -144,7 +143,7 @@ def track_inventory_usage(request,item_id):
     return render(request, 'inventory/track_usage.html', {'item': item})
 
 @login_required
-def check_low_stock(request):
+def low_stock(request):
     user_inventory = Inventory.objects.filter(user=request.user)
     
 

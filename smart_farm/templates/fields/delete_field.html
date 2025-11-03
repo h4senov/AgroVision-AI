@@ -32,7 +32,7 @@
             {% csrf_token %}
             <div class="d-flex justify-content-center gap-2">
               <button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i> Bəli, Sil</button>
-              <a href="{% url 'field_detail' field.id %}" class="btn btn-outline-secondary">Ləğv et</a>
+              <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-outline-secondary">Ləğv et</a>
             </div>
           </form>
         </div>

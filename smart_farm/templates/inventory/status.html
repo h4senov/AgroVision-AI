@@ -37,10 +37,10 @@
       {% if inventory_items %}
         <div class="list-group">
           {% for it in inventory_items %}
-            {% if it.stock_status and it.stock_status == 'low' %}
+            {% if it.min_stock_level is not None and it.quantity <= it.min_stock_level %}
               <div class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
-                  <div class="fw-semibold">{{ it.items_name|default:it.item_name|default:it.name }}</div>
+                  <div class="fw-semibold">{{ it.item_name }}</div>
                   <small class="text-muted">{{ it.item_code|default:"-" }} • {{ it.quantity }} {{ it.unit|default:"əd" }}</small>
                 </div>
                 <span class="badge badge-status-low">Low</span>

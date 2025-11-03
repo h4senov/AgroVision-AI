@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}İstifadə qeydi — {{ item.item_name }}
-{% endblock %}
+{% block title %}İstifadə qeydi — {{ item.item_name }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/components/inventory.css' %}">
@@ -12,14 +11,13 @@
   <div class="row justify-content-center">
     <div class="col-md-7 col-lg-6">
       <div class="d-flex align-items-center mb-3">
-        <a href="{% url 'inventory:inventory_detail' item.id %}" class="btn btn-light btn-sm me-2"><i class="fas fa-arrow-left"></i></a>
+        <a href="{% url 'inventory:inventory_detail' item.pk %}" class="btn btn-light btn-sm me-2"><i class="fas fa-arrow-left"></i></a>
         <h1 class="h6 mb-0">İstifadə qeydi</h1>
       </div>
 
       <div class="card shadow-sm">
         <div class="card-body">
-          <p class="small text-muted mb-3">Məhsul: <strong>{{ item.item_name }}
-strong></p>
+          <p class="small text-muted mb-3">Məhsul: <strong>{{ item.item_name }}</strong></p>
 
           <form method="post" novalidate>
             {% csrf_token %}
@@ -30,7 +28,7 @@ strong></p>
 
             <div class="d-flex gap-2">
               <button type="submit" class="btn btn-success"><i class="fas fa-check me-1"></i>Qeyd et</button>
-              <a href="{% url 'inventory:inventory_detail' item.id %}" class="btn btn-outline-secondary">İmtina</a>
+              <a href="{% url 'inventory:inventory_detail' item.pk %}" class="btn btn-outline-secondary">İmtina</a>
             </div>
           </form>
         </div>
@@ -40,3 +38,4 @@ strong></p>
   </div>
 </div>
 {% endblock %}
+W

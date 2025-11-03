@@ -2,30 +2,21 @@
 {% load static %}
 {% block title %}Anbar - Məhsullar{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/inventory.css' %}">
-{% endblock %}
-
 {% block content %}
 <div class="app-container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
     <h1 class="h5 mb-0">Anbar — Məhsullar</h1>
-    <div class="d-flex gap-2 align-items-center">
-      <!-- Low stock button (goes to low-stock page) -->
-      <a href="{% url 'inventory:low_stock' %}" class="btn btn-outline-danger btn-sm d-flex align-items-center" title="Az stokda olan məhsullar">
-        <i class="fas fa-exclamation-triangle me-1"></i>
-        Az stokda
-        {% if low_stock_count %}
-          <span class="badge bg-danger ms-2 small">{{ low_stock_count }}</span>
-        {% endif %}
-      </a>
-
+    <div class="d-flex gap-2">
       <a href="{% url 'inventory:add_inventory' %}" class="btn btn-primary btn-sm">
         <i class="fas fa-plus me-1"></i> Yeni Məhsul
+      </a>
+      <a href="{% url 'inventory:low_stock' %}" class="btn btn-warning btn-sm">
+        <i class="fas fa-exclamation-triangle me-1"></i> Aşağı Stok
       </a>
     </div>
   </div>
 
+  <!-- Search və Filter Form -->
   <div class="card mb-3 shadow-sm">
     <div class="card-body">
       <form method="get" class="row g-2 align-items-end">
@@ -40,98 +31,123 @@
         </div>
 
         <div class="col-6 col-md-2">
-          <label class="form-label small mb-1">Stok</label>
-          {{ filter_form.stock_status }}
+          <button type="submit" class="btn btn-outline-primary btn-sm w-100">Filtrlə</button>
         </div>
-
-        <div class="col-12 col-md-2 d-grid">
-          <button type="submit" class="btn btn-outline-primary btn-sm">Filtrlə</button>
+        
+        <div class="col-6 col-md-2">
+          <a href="{% url 'inventory:inventory_list' %}" class="btn btn-outline-secondary btn-sm w-100">Təmizlə</a>
         </div>
       </form>
     </div>
   </div>
 
-  {# Optional inline low-stock preview: göstərmək üçün view-də low_stock_items göndər (isteğe bağlı) #}
-  {% if low_stock_items %}
-  <div class="card mb-3 border-warning shadow-sm">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="mb-0"><i class="fas fa-exclamation-triangle text-warning me-1"></i> Az stokda olanlar ({{ low_stock_count }})</h6>
-        <a href="{% url 'inventory:low_stock' %}" class="small">Tam siyahıya keç</a>
-      </div>
-
-      <div class="list-group">
-        {% for it in low_stock_items|slice:":5" %}
-        <a href="{% url 'inventory:inventory_detail' it.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-          <div>
-            <div class="fw-semibold">{{ it.item_name }}</div>
-            <small class="text-muted">{{ it.item_code|default:"-" }} • {{ it.supplier_name|default:"-" }}</small>
-          </div>
-          <div class="text-end">
-            <div class="small text-muted">Miqdar</div>
-            <div class="fw-semibold">{{ it.quantity }} {{ it.unit|default:"əd" }}</div>
-          </div>
-        </a>
-        {% endfor %}
-
-        {% if low_stock_count > 5 %}
-        <div class="list-group-item text-center small text-muted">+ Daha çox...</div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
+  <!-- Məhsul Kartları -->
   {% if items %}
   <div class="row g-3">
     {% for item in items %}
     <div class="col-12 col-md-6 col-lg-4">
-      <article class="inventory-card shadow-sm h-100">
-        <div class="inventory-card-body d-flex flex-column">
+      <div class="card shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <!-- Şəkil -->
+          <div class="text-center mb-3">
+            <img src="{{ item.get_image_url }}" 
+                 alt="{{ item.item_name }}" 
+                 class="img-fluid rounded"
+                 style="max-height: 150px; object-fit: cover;">
+          </div>
+
+          <!-- Məhsul Məlumatları -->
           <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
               <h6 class="mb-1 fw-semibold">{{ item.item_name }}</h6>
-              <div class="text-muted small">{{ item.item_code|default:"-" }}</div>
+              <div class="text-muted small">{{ item.item_code|default:"Kodsuz" }}</div>
             </div>
             <div class="text-end">
               {% with status=item.stock_status %}
-                {% if status %}
-                  <span class="badge badge-status-{{ status }}">{{ status|capfirst }}</span>
+                {% if status == 'low' %}
+                  <span class="badge bg-danger">Aşağı Stok</span>
+                {% elif status == 'normal' %}
+                  <span class="badge bg-success">Normal</span>
+                {% else %}
+                  <span class="badge bg-warning">Yüksək</span>
                 {% endif %}
               {% endwith %}
             </div>
           </div>
 
-          <ul class="list-unstyled small mb-3">
+          <!-- Ətraflı Məlumat -->
+          <ul class="list-unstyled small mb-3 flex-grow-1">
             <li><strong>Təchizatçı:</strong> {{ item.supplier_name|default:"-" }}</li>
-            <li><strong>Kateqoriya:</strong> {{ item.category|default:"-" }}</li>
-            <li><strong>Miqdar:</strong> {{ item.quantity|default:"0" }} {{ item.unit|default:"əd" }}</li>
-            <li><strong>Vahid qiymət:</strong> {{ item.unit_price|default:"-" }}</li>
+            <li><strong>Kateqoriya:</strong> {{ item.get_category_display }}</li>
+            <li><strong>Miqdar:</strong> {{ item.quantity }} {{ item.unit }}</li>
+            <li><strong>Qiymət:</strong> {{ item.unit_price|default:"0" }} ₺</li>
+            {% if item.expiration_date %}
+              <li><strong>Son istifadə:</strong> 
+                {% if item.is_expired %}
+                  <span class="text-danger">{{ item.expiration_date }}</span>
+                {% else %}
+                  {{ item.expiration_date }}
+                {% endif %}
+              </li>
+            {% endif %}
           </ul>
 
+          <!-- Əməliyyat Düymələri -->
           <div class="mt-auto d-flex gap-2">
-            <a href="{% url 'inventory:inventory_detail' item.id %}" class="btn btn-outline-primary btn-sm">
+            <a href="{% url 'inventory:inventory_detail' item.pk %}" class="btn btn-outline-primary btn-sm flex-fill">
               <i class="fas fa-eye me-1"></i>Bax
             </a>
-            <a href="{% url 'inventory:edit_inventory' item.id %}" class="btn btn-outline-secondary btn-sm">
-              <i class="fas fa-edit me-1"></i>Redaktə
-            </a>
-            <a href="{% url 'inventory:track_usage' item.id %}" class="btn btn-outline-success btn-sm">
-              <i class="fas fa-history me-1"></i>İstifadə
+            <a href="{% url 'inventory:edit_inventory' item.pk %}" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-edit"></i>
             </a>
           </div>
         </div>
-      </article>
+      </div>
     </div>
     {% endfor %}
   </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Əvvəlki</a>
+        </li>
+      {% endif %}
+      
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">{{ num }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+      
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Sonrakı</a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+
   {% else %}
+  <!-- Boş State -->
   <div class="card shadow-sm">
     <div class="card-body text-center py-5">
       <i class="fas fa-box-open fa-2x text-muted mb-2"></i>
       <h5 class="mb-1">Məhsul tapılmadı</h5>
-      <p class="text-muted small mb-3">Hələ anbara məhsul əlavə etməmisiniz.</p>
-      <a href="{% url 'inventory:add_inventory' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i> İlk məhsulu əlavə et</a>
+      <p class="text-muted small mb-3">Heç bir məhsul tapılmadı və ya filter nəticə vermədi.</p>
+      <a href="{% url 'inventory:add_inventory' %}" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus me-1"></i> İlk məhsulu əlavə et
+      </a>
     </div>
   </div>
   {% endif %}

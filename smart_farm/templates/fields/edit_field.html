@@ -12,7 +12,7 @@
   <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="d-flex align-items-center mb-3 gap-3">
-        <a href="{% url 'field_detail' field.id %}" class="btn btn-light btn-sm" aria-label="geri">
+        <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-light btn-sm" aria-label="geri">
           <i class="fas fa-arrow-left"></i>
         </a>
         <div>
@@ -68,7 +68,7 @@
 
             <div class="d-flex gap-2">
               <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Yenilə</button>
-              <a href="{% url 'field_detail' field.id %}" class="btn btn-outline-secondary">Ləğv et</a>
+              <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-outline-secondary">Ləğv et</a>
             </div>
           </form>
         </div>

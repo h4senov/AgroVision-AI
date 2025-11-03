@@ -1,13 +1,14 @@
 from django import forms
 from .models import Inventory
-
+from django.core.exceptions import ValidationError
+import os
 class InventoryForm(forms.ModelForm):
     class Meta:
         model = Inventory
         fields = [
             'item_name', 'item_code', 'category', 'quantity', 'unit',
             'min_stock_level', 'max_stock_level', 'supplier_name',
-            'unit_price', 'expiration_date', 'storage_location', 'notes'
+            'unit_price', 'expiration_date', 'storage_location', 'notes', 'image'
         ]
         widgets = {
             'item_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Məhsul adını daxil edin...'}),
@@ -22,8 +23,27 @@ class InventoryForm(forms.ModelForm):
             'expiration_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'storage_location': forms.TextInput(attrs={'class': 'form-control'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'image': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'   
+            }),
         }
-
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        
+        if image:
+           
+            if image.size > 5 * 1024 * 1024:  # 5MB
+                raise ValidationError('Şəkil ölçüsü 5MB-dan çox ola bilməz')
+            
+           
+            ext = os.path.splitext(image.name)[1].lower()
+            allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+            
+            if ext not in allowed_extensions:
+                raise ValidationError('Yalnız JPG, JPEG, PNG, GIF və WEBP faylları qəbul olunur')
+        
+        return image
 class InventorySearchForm(forms.Form):
     search = forms.CharField(
         required=False,

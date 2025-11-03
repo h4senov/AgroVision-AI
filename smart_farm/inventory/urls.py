@@ -1,16 +1,28 @@
 from django.urls import path
 from . import views
-
+from .views import (
+    InventoryListView,
+    InventoryDetailView, 
+    InventoryCreateView,
+    InventoryUpdateView,
+    InventoryDeleteView,
+    get_inventory_status,
+    track_inventory_usage,
+    low_stock
+)
 
 app_name = 'inventory'
 
 urlpatterns = [
-    path('', views.inventory_list, name='inventory_list'),
-    path('status/', views.get_inventory_status, name='status'),
-     path('low-stock/', views.check_low_stock, name='low_stock'),
-    path('add/', views.add_inventory, name='add_inventory'),
-    path('<int:item_id>/', views.inventory_detail, name='inventory_detail'),
-    path('<int:item_id>/edit/', views.edit_inventory, name='edit_inventory'),
-    path('<int:item_id>/delete/', views.delete_inventory, name='delete_inventory'),
-    path('<int:item_id>/track-usage/', views.track_inventory_usage, name='track_usage'),
+    # Generic Views
+    path('', InventoryListView.as_view(), name='inventory_list'),
+    path('add/', InventoryCreateView.as_view(), name='add_inventory'),
+    path('<int:pk>/', InventoryDetailView.as_view(), name='inventory_detail'),
+    path('<int:pk>/edit/', InventoryUpdateView.as_view(), name='edit_inventory'),
+    path('<int:pk>/delete/', InventoryDeleteView.as_view(), name='delete_inventory'),
+    
+    # Function-based Views (xüsusi məntiq)
+    path('status/', get_inventory_status, name='inventory_status'),
+    path('<int:item_id>/track-usage/', track_inventory_usage, name='track_usage'),
+    path('low-stock/', views.low_stock, name='low_stock'),
 ]

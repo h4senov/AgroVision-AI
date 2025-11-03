@@ -1,46 +1,142 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Məhsulu redaktə et — {{ item.item_name }}
-{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/inventory.css' %}">
-{% endblock %}
+{% block title %}Redaktə — {{ item.item_name }}{% endblock %}
 
 {% block content %}
 <div class="app-container py-4">
   <div class="row justify-content-center">
     <div class="col-lg-8">
+      <!-- Header -->
       <div class="d-flex align-items-center mb-3">
-        <a href="{% url 'inventory:inventory_detail' item.id %}" class="btn btn-light btn-sm me-2"><i class="fas fa-arrow-left"></i></a>
-        <h1 class="h5 mb-0">Məhsulu redaktə et</h1>
+        <a href="{% url 'inventory:inventory_detail' item.pk %}" class="btn btn-light btn-sm me-2">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="h5 mb-0">Məhsulu Redaktə Et</h1>
       </div>
 
       <div class="card shadow-sm">
         <div class="card-body">
-          <form method="post" novalidate>
+          <!-- Cari Şəkil -->
+          <div class="text-center mb-4">
+            <img src="{{ item.get_image_url }}" 
+                 alt="{{ item.item_name }}" 
+                 class="img-fluid rounded"
+                 style="max-height: 200px; object-fit: cover;">
+            <div class="form-text mt-2">Cari şəkil</div>
+          </div>
+
+          <!-- Form -->
+          <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
+            
             {% if form.non_field_errors %}
-              <div class="alert alert-danger small">{{ form.non_field_errors }}</div>
+              <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                  <div class="small">{{ error }}</div>
+                {% endfor %}
+              </div>
             {% endif %}
 
-            {% for field in form %}
-              <div class="mb-3">
-                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.help_text %}<div class="form-text small">{{ field.help_text }}</div>{% endif %}
-                {% for err in field.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
-              </div>
-            {% endfor %}
+            <div class="row">
+              <!-- Sol Sütun -->
+              <div class="col-md-6">
+                <!-- Şəkil -->
+                <div class="mb-3">
+                  <label class="form-label">{{ form.image.label }}</label>
+                  {{ form.image }}
+                  {% if form.image.help_text %}
+                    <div class="form-text">{{ form.image.help_text }}</div>
+                  {% endif %}
+                  {% for error in form.image.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                  {% endfor %}
+                </div>
 
+                <!-- Əsas Məlumatlar -->
+                <div class="mb-3">
+                  <label class="form-label">{{ form.item_name.label }} *</label>
+                  {{ form.item_name }}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">{{ form.item_code.label }}</label>
+                  {{ form.item_code }}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">{{ form.category.label }} *</label>
+                  {{ form.category }}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">{{ form.supplier_name.label }}</label>
+                  {{ form.supplier_name }}
+                </div>
+              </div>
+
+              <!-- Sağ Sütun -->
+              <div class="col-md-6">
+                <!-- Stok Məlumatları -->
+                <div class="mb-3">
+                  <label class="form-label">{{ form.quantity.label }} *</label>
+                  {{ form.quantity }}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">{{ form.unit.label }} *</label>
+                  {{ form.unit }}
+                </div>
+
+                <div class="row">
+                  <div class="col-6">
+                    <div class="mb-3">
+                      <label class="form-label">{{ form.min_stock_level.label }}</label>
+                      {{ form.min_stock_level }}
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="mb-3">
+                      <label class="form-label">{{ form.max_stock_level.label }}</label>
+                      {{ form.max_stock_level }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Qiymət Məlumatları -->
+                <div class="mb-3">
+                  <label class="form-label">{{ form.unit_price.label }}</label>
+                  {{ form.unit_price }}
+                </div>
+
+                <!-- Saxlama Məlumatları -->
+                <div class="mb-3">
+                  <label class="form-label">{{ form.storage_location.label }}</label>
+                  {{ form.storage_location }}
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">{{ form.expiration_date.label }}</label>
+                  {{ form.expiration_date }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Qeydlər -->
+            <div class="mb-4">
+              <label class="form-label">{{ form.notes.label }}</label>
+              {{ form.notes }}
+            </div>
+
+            <!-- Düymələr -->
             <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Yadda saxla</button>
-              <a href="{% url 'inventory:inventory_detail' item.id %}" class="btn btn-outline-secondary">İmtina</a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i>Yadda Saxla
+              </button>
+              <a href="{% url 'inventory:inventory_detail' item.pk %}" class="btn btn-outline-secondary">Ləğv Et</a>
             </div>
           </form>
         </div>
       </div>
-
     </div>
   </div>
 </div>

@@ -16,7 +16,7 @@
                 <h1 class="h2 mb-2" style="color: var(--earth-green);">Sahələrim</h1>
                 <p class="mb-0" style="color: var(--earth-brown);">Bütün əkin sahələrinizin icmalı</p>
             </div>
-            <a href="{% url 'add_field' %}" class="btn-natural btn-primary-natural">
+            <a href="{% url 'fields:add_field' %}" class="btn-natural btn-primary-natural">
                 <i class="fas fa-plus me-2"></i>Yeni Sahə
             </a>
         </div>
@@ -111,10 +111,10 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    <a href="{% url 'field_detail' field.id %}" class="btn-natural btn-primary-natural flex-fill text-center">
+                    <a href="{% url 'fields:field_detail' field.id %}" class="btn-natural btn-primary-natural flex-fill text-center">
                         <i class="fas fa-eye me-1"></i>Detallı Bax
                     </a>
-                    <a href="{% url 'edit_field' field.id %}" class="btn-natural btn-secondary-natural edit-btn-clear">
+                    <a href="{% url 'fields:edit_field' field.id %}" class="btn-natural btn-secondary-natural edit-btn-clear">
                         <i class="fas fa-edit"></i>
                     </a>
                 </div>
@@ -146,11 +146,11 @@
         </p>
         <div class="d-flex gap-3 justify-content-center">
             {% if search_query or soil_type_filter %}
-            <a href="{% url 'field_list' %}" class="btn-natural btn-secondary-natural">
+            <a href="{% url 'fields:field_list' %}" class="btn-natural btn-secondary-natural">
                 <i class="fas fa-times me-2"></i>Filtrləri Təmizlə
             </a>
             {% endif %}
-            <a href="{% url 'add_field' %}" class="btn-natural btn-primary-natural">
+            <a href="{% url 'fields:add_field' %}" class="btn-natural btn-primary-natural">
                 <i class="fas fa-plus me-2"></i>İlk Sahəni Yaradın
             </a>
         </div>
