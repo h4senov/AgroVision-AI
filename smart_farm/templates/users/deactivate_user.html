@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}İstifadəçini Deaktiv Et - {{ user.username }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/users.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="text-center mb-4">
+                <div class="text-danger mb-3">
+                    <i class="fas fa-user-slash fa-3x"></i>
+                </div>
+                <h3 class="h5 mb-2">İstifadəçini Deaktiv Et</h3>
+                <p class="text-muted">Bu istifadəçi artıq sistemə daxil ola bilməyəcək.</p>
+            </div>
+
+            <!-- İstifadəçi Məlumatları -->
+            <div class="card border-danger mb-4">
+                <div class="card-body">
+                    <div class="text-center">
+                        <i class="fas fa-user-circle fa-2x text-muted mb-3"></i>
+                        <h5 class="card-title text-danger">{{ user.username }}</h5>
+                        <div class="text-muted small mb-2">{{ user.email|default:"Email yoxdur" }}</div>
+                        
+                        <div class="row small text-muted">
+                            <div class="col-6">
+                                <div>Rol</div>
+                                <div class="fw-semibold">{{ user.get_role_display }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div>Qeydiyyat</div>
+                                <div class="fw-semibold">{{ user.date_joined|date:"d.m.Y" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Diqqət!</strong> "{{ user.username }}" adlı istifadəçini deaktiv etmək istədiyinizə əminsiniz?
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.deactivate_reason.label }}</label>
+                            {{ form.deactivate_reason }}
+                            <div class="form-text">
+                                Deaktivasiya səbəbini qeyd etmək məcburidir
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-user-slash me-1"></i>Bəli, Deaktiv Et
+                            </button>
+                            <a href="{% url 'users:user_statistics' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Ləğv Et
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

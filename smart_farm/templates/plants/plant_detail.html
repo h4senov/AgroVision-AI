@@ -11,7 +11,7 @@
 <div class="container-fluid p-0">
   <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb mb-0">
-      <li class="breadcrumb-item"><a href="{% url 'plant_list' %}">Bitkilər</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'plants:plant_list' %}">Bitkilər</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ plant.get_plant_type_display }}</li>
     </ol>
   </nav>
@@ -27,10 +27,10 @@
     </div>
 
     <div class="d-flex gap-2">
-      <a href="{% url 'edit_plant' plant.id %}" class="btn btn-outline-primary btn-sm">
+      <a href="{% url 'plants:edit_plant' plant.id %}" class="btn btn-outline-primary btn-sm">
         <i class="fas fa-edit me-1"></i> Redaktə
       </a>
-      <a href="{% url 'delete_plant' plant.id %}" class="btn btn-outline-danger btn-sm">
+      <a href="{% url 'plants:delete_plant' plant.id %}" class="btn btn-outline-danger btn-sm">
         <i class="fas fa-trash me-1"></i> Sil
       </a>
     </div>
@@ -90,8 +90,8 @@
   </div>
 
   <div class="d-flex gap-2">
-    <a href="{% url 'plant_list' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i> Bitkilərə qayıt</a>
-    <a href="{% url 'field_detail' plant.field.id %}" class="btn btn-primary btn-sm"><i class="fas fa-tractor me-1"></i> Sahəni göstər</a>
+    <a href="{% url 'plants:plant_list' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i> Bitkilərə qayıt</a>
+    <a href="{% url 'fields:field_detail' plant.field.id %}" class="btn btn-primary btn-sm"><i class="fas fa-tractor me-1"></i> Sahəni göstər</a>
   </div>
 </div>
 {% endblock %}

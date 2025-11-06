@@ -84,35 +84,82 @@
                 {% endif %}
                 
                 <!-- User Menu -->
+                                <!-- User Menu -->
                 <div class="navbar-nav">
                     {% if user.is_authenticated %}
                     <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user me-1"></i> {{ user.username }}
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-2" style="font-size:1.05rem"></i>
+                            <div class="d-none d-lg-inline">
+                                <strong>{{ user.username }}</strong>
+                                {% if user.farm_name %} <small class="text-muted"> — {{ user.farm_name }}</small>{% endif %}
+                            </div>
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">
-                                <i class="fas fa-cog me-1"></i> Profil
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
+
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <!-- Profile -->
                             <li>
-                                <form method="post" action="{% url 'users:user_logout' %}" class="d-inline">
+                                <a class="dropdown-item d-flex align-items-center" href="{% url 'users:user_profile' %}">
+                                    <i class="fas fa-id-card me-2"></i> Profil
+                                </a>
+                            </li>
+
+                            <!-- Update profile -->
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="{% url 'users:update_profile' %}">
+                                    <i class="fas fa-user-edit me-2"></i> Profil redaktə et
+                                </a>
+                            </li>
+
+                            <!-- Change password -->
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="{% url 'users:change_password' %}">
+                                    <i class="fas fa-key me-2"></i> Şifrəni dəyiş
+                                </a>
+                            </li>
+
+                            <!-- Statistics -->
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="{% url 'users:user_statistics' %}">
+                                    <i class="fas fa-chart-line me-2"></i> Statistikalar
+                                </a>
+                            </li>
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <!-- Admin-only / role-based action (optional) -->
+                            {% if user.is_superuser or user.role == 'admin' %}
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center" href="{% url 'admin:index' %}">
+                                    <i class="fas fa-tools me-2"></i> Admin panel
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+
+                            <!-- Logout (POST form inside dropdown) -->
+                            <li>
+                                <form method="post" action="{% url 'users:user_logout' %}" class="m-0">
                                     {% csrf_token %}
-                                    <button type="submit" class="dropdown-item">
-                                        <i class="fas fa-sign-out-alt me-1"></i> Çıxış
+                                    <button type="submit" class="dropdown-item d-flex align-items-center">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Çıxış
                                     </button>
                                 </form>
                             </li>
                         </ul>
                     </div>
                     {% else %}
-                    <a class="nav-link" href="{% url 'users:login' %}">
-                        <i class="fas fa-sign-in-alt me-1"></i> Giriş
-                    </a>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-light btn-sm" href="{% url 'users:user_login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Giriş
+                        </a>
+                        <a class="btn btn-light btn-sm text-success" href="{% url 'users:user_register' %}">
+                            <i class="fas fa-user-plus me-1"></i> Qeydiyyat
+                        </a>
+                    </div>
                     {% endif %}
                 </div>
-            </div>
-        </div>
+
     </nav>
 
     <!-- Main Content -->

@@ -2,6 +2,140 @@ from django.db import models
 from django.conf import settings    
 from fields.models import Field
  
+
+
+
+# sensors/models.py - Sensor modelinə əlavə edirəm
+class SensorManager(models.Manager):
+    def get_real_time_data(self, sensor_ids):
+        """
+        Sensorlar üçün real-vaxt məlumatlarını qaytarır
+        """
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        sensors = self.filter(id__in=sensor_ids)
+        real_time_data = {}
+        
+        for sensor in sensors:
+            # Son 1 saatlıq məlumatları götürürük
+            one_hour_ago = timezone.now() - timedelta(hours=1)
+            
+            recent_readings = sensor.readings.filter(
+                recorded_at__gte=one_hour_ago
+            ).order_by('-recorded_at')
+            
+            if recent_readings.exists():
+                latest_reading = recent_readings.first()
+                
+                sensor_data = {
+                    'sensor_name': sensor.name,
+                    'sensor_type': sensor.get_sensor_type_display(),
+                    'latest_value': float(latest_reading.value),
+                    'unit': latest_reading.unit,
+                    'recorded_at': latest_reading.recorded_at,
+                    'battery_level': float(sensor.battery_level),
+                    'battery_status': sensor.battery_status(),
+                    'is_active': sensor.is_active,
+                    'data_quality': 'good',  # Bu hissəni SensorData modelində də əlavə edə bilərik
+                    'trend': self._calculate_trend(recent_readings),
+                    'alerts': self._check_alerts(sensor, latest_reading)
+                }
+                
+                real_time_data[sensor.id] = sensor_data
+            else:
+                real_time_data[sensor.id] = {
+                    'sensor_name': sensor.name,
+                    'error': 'Son 1 saatlıq məlumat yoxdur',
+                    'battery_level': float(sensor.battery_level),
+                    'is_active': sensor.is_active
+                }
+        
+        return real_time_data
+    
+    def _calculate_trend(self, readings):
+        """Sensor məlumatlarının trendini hesablayır"""
+        if len(readings) < 2:
+            return 'stable'
+        
+        values = [float(reading.value) for reading in readings[:10]]  # Son 10 oxunuş
+        if len(values) < 2:
+            return 'stable'
+        
+        # Sadə trend analizi
+        first_half = sum(values[:len(values)//2]) / (len(values)//2)
+        second_half = sum(values[len(values)//2:]) / (len(values) - len(values)//2)
+        
+        difference = second_half - first_half
+        percentage_change = (difference / first_half) * 100 if first_half != 0 else 0
+        
+        if percentage_change > 5:
+            return 'increasing'
+        elif percentage_change < -5:
+            return 'decreasing'
+        else:
+            return 'stable'
+    
+    def _check_alerts(self, sensor, latest_reading):
+        """Sensor üçün xəbərdarlıqları yoxlayır"""
+        alerts = []
+        
+        # Batareya səviyyəsi
+        if sensor.battery_level < 20:
+            alerts.append({
+                'type': 'warning',
+                'message': 'Batareya səviyyəsi aşağıdır',
+                'priority': 'high' if sensor.battery_level < 10 else 'medium'
+            })
+        
+        # Sensor aktiv deyilsə
+        if not sensor.is_active:
+            alerts.append({
+                'type': 'error',
+                'message': 'Sensor aktiv deyil',
+                'priority': 'high'
+            })
+        
+        # Sensor növünə görə limitlər
+        threshold_alerts = self._check_thresholds(sensor, latest_reading)
+        alerts.extend(threshold_alerts)
+        
+        return alerts
+    
+    def _check_thresholds(self, sensor, reading):
+        """Sensor tipinə görə həddi dəyərləri yoxlayır"""
+        thresholds = {
+            'soil_moisture': {'min': 20, 'max': 80},
+            'temperature': {'min': 5, 'max': 35},
+            'humidity': {'min': 30, 'max': 80},
+            'ph': {'min': 5.5, 'max': 7.5},
+        }
+        
+        alerts = []
+        sensor_type = sensor.sensor_type
+        value = float(reading.value)
+        
+        if sensor_type in thresholds:
+            limits = thresholds[sensor_type]
+            
+            if value < limits['min']:
+                alerts.append({
+                    'type': 'warning',
+                    'message': f'{sensor_type} həddindən aşağı: {value}',
+                    'priority': 'medium'
+                })
+            elif value > limits['max']:
+                alerts.append({
+                    'type': 'warning', 
+                    'message': f'{sensor_type} həddindən yuxarı: {value}',
+                    'priority': 'medium'
+                })
+        
+        return alerts
+
+ 
+
+
 class Sensor(models.Model):
      
     SENSOR_TYPES = [
@@ -30,7 +164,8 @@ class Sensor(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+    objects = SensorManager()
+
     def __str__(self):
         return f"{self.name} ({self.get_sensor_type_display()})"  
     

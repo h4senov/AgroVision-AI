@@ -1,33 +1,176 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}Profil - {{ user.username }}{% endblock %}
 
-{% block title %}Profile - Smart Farm{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/users.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h2>User Profile</h2>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Username:</strong> {{ user.username }}</p>
-                        <p><strong>Email:</strong> {{ user.email }}</p>
-                        <p><strong>Farm Name:</strong> {{ user.farm_name }}</p>
+<div class="app-container py-4">
+    <div class="row">
+        <!-- Sol Sütun - Profil Məlumatları -->
+        <div class="col-lg-4 mb-4">
+            <div class="card profile-card">
+                <div class="card-body text-center">
+                    <div class="profile-avatar mb-3">
+                        <i class="fas fa-user-circle fa-4x text-success"></i>
                     </div>
-                    <div class="col-md-6">
-                        <p><strong>Phone:</strong> {{ user.phone }}</p>
-                        <p><strong>Location:</strong> {{ user.location }}</p>
-                        <p><strong>Member since:</strong> {{ user.date_joined|date:"M d, Y" }}</p>
+                    
+                    <h4 class="mb-1">{{ user.username }}</h4>
+                    <span class="badge role-badge bg-{{ user.role }} mb-3">
+                        {{ user.get_role_display }}
+                    </span>
+                    
+                    {% if user.farm_name %}
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-tractor me-2"></i>{{ user.farm_name }}
+                    </p>
+                    {% endif %}
+
+                    <div class="profile-stats">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="stat-number">{{ user_stats.fields_count }}</div>
+                                <div class="stat-label">Sahə</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-number">{{ user_stats.plants_count }}</div>
+                                <div class="stat-label">Bitki</div>
+                            </div>
+                        </div>
+                        <div class="row text-center mt-2">
+                            <div class="col-6">
+                                <div class="stat-number">{{ user_stats.sensors_count }}</div>
+                                <div class="stat-label">Sensor</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-number">{{ user_stats.inventory_count }}</div>
+                                <div class="stat-label">Məhsul</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="mt-4">
-                    <a href="{% url 'field_list' %}" class="btn btn-primary">View My Fields</a>
-                    <a href="/admin" class="btn btn-secondary">Admin Panel</a>
+            </div>
+
+            <!-- Aktivlik Səviyyəsi -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">Aktivlik Səviyyəsi</h6>
+                    <div class="activity-level">
+                        {% if user_stats.activity_level == 'high' %}
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-success" style="width: 90%"></div>
+                        </div>
+                        <span class="badge bg-success">Yüksək Aktivlik</span>
+                        {% elif user_stats.activity_level == 'medium' %}
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-warning" style="width: 60%"></div>
+                        </div>
+                        <span class="badge bg-warning">Orta Aktivlik</span>
+                        {% else %}
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-info" style="width: 30%"></div>
+                        </div>
+                        <span class="badge bg-info">Aşağı Aktivlik</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Sağ Sütun - Ətraflı Məlumatlar -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Profil Məlumatları</h5>
+                    <div class="btn-group">
+                        <a href="{% url 'users:update_profile' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit me-1"></i>Redaktə
+                        </a>
+                        <a href="{% url 'users:change_password' %}" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-key me-1"></i>Şifrəni Dəyiş
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item mb-3">
+                                <label class="text-muted small">İstifadəçi adı</label>
+                                <div class="fw-semibold">{{ user.username }}</div>
+                            </div>
+                            
+                            <div class="info-item mb-3">
+                                <label class="text-muted small">Email</label>
+                                <div class="fw-semibold">{{ user.email|default:"Qeyd edilməyib" }}</div>
+                            </div>
+                            
+                            <div class="info-item mb-3">
+                                <label class="text-muted small">Rol</label>
+                                <div>
+                                    <span class="badge role-badge bg-{{ user.role }}">
+                                        {{ user.get_role_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="info-item mb-3">
+                                <label class="text-muted small">Telefon</label>
+                                <div class="fw-semibold">{{ user.phone|default:"Qeyd edilməyib" }}</div>
+                            </div>
+                            
+                            <div class="info-item mb-3">
+                                <label class="text-muted small">Ferma adı</label>
+                                <div class="fw-semibold">{{ user.farm_name|default:"Qeyd edilməyib" }}</div>
+                            </div>
+                            
+                            <div class="info-item mb-3">
+                                <label class="text-muted small">Yerləşdiyi yer</label>
+                                <div class="fw-semibold">{{ user.location|default:"Qeyd edilməyib" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item mb-3">
+                                <label class="text-muted small">Qeydiyyat tarixi</label>
+                                <div class="fw-semibold">{{ user.date_joined|date:"d.m.Y H:i" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item mb-3">
+                                <label class="text-muted small">Son giriş</label>
+                                <div class="fw-semibold">
+                                    {% if user.last_login %}
+                                        {{ user.last_login|date:"d.m.Y H:i" }}
+                                    {% else %}
+                                        İlk dəfə
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Statistikalar Linki -->
+            {% if user.role == 'admin' or user.is_superuser %}
+            <div class="card mt-3">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Admin Panel</h6>
+                    <p class="text-muted small mb-3">İstifadəçi statistikalarını idarə edin</p>
+                    <a href="{% url 'users:user_statistics' %}" class="btn btn-outline-success">
+                        <i class="fas fa-chart-bar me-1"></i>İstifadəçi Statistikaları
+                    </a>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

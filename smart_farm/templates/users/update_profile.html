@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Profil Redaktə - {{ user.username }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/users.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center mb-3">
+                <a href="{% url 'users:user_profile' %}" class="btn btn-light btn-sm me-2">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="h5 mb-0">Profil Məlumatlarını Redaktə Et</h1>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            <div class="small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.username.label }}</label>
+                                    {{ form.username }}
+                                    {% for error in form.username.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.email.label }}</label>
+                                    {{ form.email }}
+                                    {% for error in form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.farm_name.label }}</label>
+                                    {{ form.farm_name }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.phone.label }}</label>
+                                    {{ form.phone }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.location.label }}</label>
+                            {{ form.location }}
+                        </div>
+
+                        {% if user.role == 'admin' or user.is_superuser %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.role.label }}</label>
+                            {{ form.role }}
+                            <div class="form-text">
+                                İstifadəçi rolunu dəyişmək hüququ yalnız adminlərə aiddir
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Yadda Saxla
+                            </button>
+                            <a href="{% url 'users:user_profile' %}" class="btn btn-outline-secondary">Ləğv Et</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

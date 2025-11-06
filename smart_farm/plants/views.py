@@ -61,7 +61,7 @@ def add_plant(request):
             plant.user = request.user
             plant.save()
             messages.success(request, 'Bitki uğurla əlavə edildi!')
-            return redirect('plant_list')
+            return redirect('plants:plant_list')
     else:
         form = PlantForm()
         # Yalnız current user-ın sahələrini göstər
@@ -78,7 +78,7 @@ def edit_plant(request, plant_id):
         if form.is_valid():
             form.save()
             messages.success(request, 'Bitki məlumatları uğurla yeniləndi!')
-            return redirect('plant_detail', plant_id=plant.id)
+            return redirect('plants:plant_detail', plant_id=plant.id)
     else:
         form = PlantForm(instance=plant)
         form.fields['field'].queryset = Field.objects.filter(user=request.user)
@@ -92,6 +92,6 @@ def delete_plant(request, plant_id):
     if request.method == 'POST':
         plant.delete()
         messages.success(request, 'Bitki uğurla silindi!')
-        return redirect('plant_list')
+        return redirect('plants:plant_list')
     
     return render(request, 'plants/delete_plant.html', {'plant': plant})

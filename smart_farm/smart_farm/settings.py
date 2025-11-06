@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'sensors',
     'core',
     'inventory',
+    'weather',
     
 ]
 

@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}İstifadəçi Statistikaları - Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/components/users.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h4 mb-0">İstifadəçi Statistikaları</h1>
+        <div class="text-muted small">
+            Son yenilənmə: {% now "d.m.Y H:i" %}
+        </div>
+    </div>
+
+    <!-- 📊 Ümumi Statistikalar -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card bg-primary text-white">
+                <div class="stat-card-body">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <div class="stat-number">{{ total_users }}</div>
+                    <div class="stat-label">Ümumi İstifadəçi</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6 col-md-3">
+            <div class="stat-card bg-success text-white">
+                <div class="stat-card-body">
+                    <i class="fas fa-user-check fa-2x mb-2"></i>
+                    <div class="stat-number">{{ active_users }}</div>
+                    <div class="stat-label">Aktiv İstifadəçi</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6 col-md-3">
+            <div class="stat-card bg-warning text-dark">
+                <div class="stat-card-body">
+                    <i class="fas fa-user-clock fa-2x mb-2"></i>
+                    <div class="stat-number">{{ inactive_users }}</div>
+                    <div class="stat-label">Deaktiv İstifadəçi</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6 col-md-3">
+            <div class="stat-card bg-info text-white">
+                <div class="stat-card-body">
+                    <i class="fas fa-chart-line fa-2x mb-2"></i>
+                    <div class="stat-number">{{ recent_active_users }}</div>
+                    <div class="stat-label">Son 7 gündə aktiv</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 👥 Rol Paylanması -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Rol Paylanması</h6>
+                </div>
+                <div class="card-body">
+                    {% for role in role_distribution %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <span class="badge role-badge bg-{{ role.role }} me-2">
+                                {{ role.role }}
+                            </span>
+                            <span class="small">{{ role.get_role_display }}</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-semibold">{{ role.count }}</span>
+                            <small class="text-muted">/ {{ role.active_count }} aktiv</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Aktivlik Statistikası</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <div class="display-4 text-success">{{ active_users }}</div>
+                        <p class="text-muted mb-0">Aktiv İstifadəçi</p>
+                    </div>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-success" style="width: {% widthratio active_users total_users 100 %}%"></div>
+                    </div>
+                    <div class="small text-muted text-center">
+                        Ümumi istifadəçilərin {% widthratio active_users total_users 100 %}% aktivdir
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📋 İstifadəçi Siyahısı -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">İstifadəçi Siyahısı</h6>
+            <span class="badge bg-primary">{{ users.paginator.count }} nəfər</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>İstifadəçi</th>
+                            <th>Rol</th>
+                            <th>Status</th>
+                            <th>Statistikalar</th>
+                            <th>Son Giriş</th>
+                            <th>Əməliyyatlar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user-circle text-muted me-2"></i>
+                                    <div>
+                                        <div class="fw-semibold">{{ user.username }}</div>
+                                        <small class="text-muted">{{ user.email|default:"Email yoxdur" }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge role-badge bg-{{ user.role }}">
+                                    {{ user.get_role_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if user.is_active %}
+                                <span class="badge bg-success">Aktiv</span>
+                                {% else %}
+                                <span class="badge bg-danger">Deaktiv</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <span class="text-primary" title="Sahələr">{{ user.fields_count }}S</span>
+                                    <span class="text-success" title="Bitkilər">{{ user.plants_count }}B</span>
+                                    <span class="text-info" title="Sensorlar">{{ user.sensors_count }}Sn</span>
+                                    <span class="text-warning" title="Məhsullar">{{ user.inventory_count }}M</span>
+                                </div>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {% if user.last_login %}
+                                        {{ user.last_login|timesince }} əvvəl
+                                    {% else %}
+                                        Giriş etməyib
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    {% if user.is_active and user != request.user %}
+                                    <a href="{% url 'users:deactivate_user' user.id %}" 
+                                       class="btn btn-outline-danger" 
+                                       title="Deaktiv et">
+                                        <i class="fas fa-user-slash"></i>
+                                    </a>
+                                    {% elif not user.is_active %}
+                                    <a href="{% url 'users:activate_user' user.id %}" 
+                                       class="btn btn-outline-success" 
+                                       title="Aktiv et">
+                                        <i class="fas fa-user-check"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                                <p class="text-muted">Heç bir istifadəçi tapılmadı</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Əvvəlki</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Sonrakı</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

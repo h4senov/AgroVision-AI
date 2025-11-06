@@ -101,7 +101,7 @@ def add_field(request):
             field = form.save(commit=False)
             field.user = request.user  
             field.save()
-            return redirect('field_list')
+            return redirect('fields:field_list')
     else:
         form = FieldForm()
     
@@ -116,7 +116,7 @@ def edit_field(request, field_id):
         form = FieldForm(request.POST, instance=field)
         if form.is_valid():
             form.save()
-            return redirect('field_detail', field_id=field.id)
+            return redirect('fields:field_detail', field_id=field.id)
     else:
         form = FieldForm(instance=field)
     
@@ -129,7 +129,7 @@ def delete_field(request, field_id):
     
     if request.method == 'POST':
         field.delete()
-        return redirect('field_list')
+        return redirect('fields:field_list')
     
     return render(request, 'fields/delete_field.html', {'field': field})
 
