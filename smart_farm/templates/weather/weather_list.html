@@ -1,0 +1,45 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hava Məlumatları - Smart Farm{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>🌤️ Hava Məlumatları</h1>
+        <a href="{% url 'weather:weather_form' %}" class="btn btn-success">
+            ➕ Yeni Hava Məlumatı
+        </a>
+    </div>
+
+  
+    {% if weather_data %}
+    <div class="row">
+        {% for weather in weather_data %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ weather.field.name }}</h5>
+                    <p class="card-text">
+                        📅 {{ weather.weather_date }}<br>
+                        🌡️ {{ weather.temperature_avg }}°C<br>
+                        💧 {{ weather.precipitation_mm }} mm<br>
+                        {{ weather.get_weather_condition_display }}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'weather:weather_detail' weather.pk %}" 
+                       class="btn btn-sm btn-outline-primary">Detallar</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        📝 Hələ heç bir hava məlumatı yoxdur.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

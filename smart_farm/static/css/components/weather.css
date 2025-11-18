@@ -1,0 +1,40 @@
+/* static/css/components/weather.css */
+.weather-card {
+    transition: transform 0.2s;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+}
+
+.weather-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.weather-info p {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.weather-info strong {
+    color: #495057;
+}
+
+/* Weather condition badges */
+.weather-condition-sunny { background-color: #fff3cd; color: #856404; }
+.weather-condition-cloudy { background-color: #e2e3e5; color: #383d41; }
+.weather-condition-rainy { background-color: #cce7ff; color: #004085; }
+.weather-condition-stormy { background-color: #f8d7da; color: #721c24; }
+.weather-condition-snowy { background-color: #e2f0ff; color: #0c5460; }
+.weather-condition-windy { background-color: #d1ecf1; color: #0c5460; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .weather-card .btn-group {
+        flex-direction: column;
+    }
+    
+    .weather-card .btn-group .btn {
+        margin-bottom: 0.25rem;
+    }
+}

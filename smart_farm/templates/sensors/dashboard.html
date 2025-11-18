@@ -1,0 +1,9 @@
+<!-- sensors/dashboard.html -->
+{% for sensor_id, data in real_time_data.items %}
+<div class="sensor-card {{ data.battery_status }}">
+    <h5>{{ data.sensor_name }}</h5>
+    <p>Son Dəyər: {{ data.latest_value }} {{ data.unit }}</p>
+    <p>Trend: {{ data.trend }}</p>
+    <p>Batareya: {{ data.battery_level }}%</p>
+</div>
+{% endfor %}

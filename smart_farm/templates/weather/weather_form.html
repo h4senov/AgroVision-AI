@@ -1,0 +1,217 @@
+<!-- weather/weather_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Yeni Hava Məlumatı - Smart Farm
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-plus me-2"></i>
+                        Yeni Hava Məlumatı
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Sahə və Tarix -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.field.id_for_label }}" class="form-label">
+                                        <i class="fas fa-tractor me-1"></i>{{ form.field.label }}
+                                    </label>
+                                    {{ form.field }}
+                                    {% if form.field.errors %}
+                                    <div class="text-danger small">{{ form.field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.weather_date.id_for_label }}" class="form-label">
+                                        <i class="fas fa-calendar me-1"></i>{{ form.weather_date.label }}
+                                    </label>
+                                    {{ form.weather_date }}
+                                    {% if form.weather_date.errors %}
+                                    <div class="text-danger small">{{ form.weather_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Temperaturlar -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.temperature_min.id_for_label }}" class="form-label">
+                                        <i class="fas fa-thermometer-empty me-1"></i>{{ form.temperature_min.label }}
+                                    </label>
+                                    {{ form.temperature_min }}
+                                    {% if form.temperature_min.errors %}
+                                    <div class="text-danger small">{{ form.temperature_min.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.temperature_max.id_for_label }}" class="form-label">
+                                        <i class="fas fa-thermometer-full me-1"></i>{{ form.temperature_max.label }}
+                                    </label>
+                                    {{ form.temperature_max }}
+                                    {% if form.temperature_max.errors %}
+                                    <div class="text-danger small">{{ form.temperature_max.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="{{ form.temperature_avg.id_for_label }}" class="form-label">
+                                        <i class="fas fa-thermometer-half me-1"></i>{{ form.temperature_avg.label }}
+                                    </label>
+                                    {{ form.temperature_avg }}
+                                    {% if form.temperature_avg.errors %}
+                                    <div class="text-danger small">{{ form.temperature_avg.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rütubət və Yağıntı -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.humidity_avg.id_for_label }}" class="form-label">
+                                        <i class="fas fa-water me-1"></i>{{ form.humidity_avg.label }}
+                                    </label>
+                                    {{ form.humidity_avg }}
+                                    {% if form.humidity_avg.errors %}
+                                    <div class="text-danger small">{{ form.humidity_avg.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.precipitation_mm.id_for_label }}" class="form-label">
+                                        <i class="fas fa-tint me-1"></i>{{ form.precipitation_mm.label }}
+                                    </label>
+                                    {{ form.precipitation_mm }}
+                                    {% if form.precipitation_mm.errors %}
+                                    <div class="text-danger small">{{ form.precipitation_mm.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Külək Sürəti -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.wind_speed_avg.id_for_label }}" class="form-label">
+                                        <i class="fas fa-wind me-1"></i>{{ form.wind_speed_avg.label }}
+                                    </label>
+                                    {{ form.wind_speed_avg }}
+                                    {% if form.wind_speed_avg.errors %}
+                                    <div class="text-danger small">{{ form.wind_speed_avg.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.wind_speed_max.id_for_label }}" class="form-label">
+                                        <i class="fas fa-wind me-1"></i>{{ form.wind_speed_max.label }}
+                                    </label>
+                                    {{ form.wind_speed_max }}
+                                    {% if form.wind_speed_max.errors %}
+                                    <div class="text-danger small">{{ form.wind_speed_max.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hava Vəziyyəti və Məlumat Mənbəyi -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.weather_condition.id_for_label }}" class="form-label">
+                                        <i class="fas fa-cloud me-1"></i>{{ form.weather_condition.label }}
+                                    </label>
+                                    {{ form.weather_condition }}
+                                    {% if form.weather_condition.errors %}
+                                    <div class="text-danger small">{{ form.weather_condition.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.data_source.id_for_label }}" class="form-label">
+                                        <i class="fas fa-database me-1"></i>{{ form.data_source.label }}
+                                    </label>
+                                    {{ form.data_source }}
+                                    {% if form.data_source.errors %}
+                                    <div class="text-danger small">{{ form.data_source.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Düymələr -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'weather:weather_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Ləğv Et
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i>
+                                Əlavə Et
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+.form-control, .form-select {
+    border-radius: 0.375rem;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+.card {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: none;
+    border-radius: 0.5rem;
+}
+.card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+</style>
+{% endblock %}

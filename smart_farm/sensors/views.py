@@ -5,7 +5,26 @@ from django.db.models import Q
 from .models import Sensor  
 from .forms import SensorForm, SensorFilterForm, SensorSearchForm
 from fields.models import Field
- 
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class SensorDashboardView(LoginRequiredMixin, ListView):
+    model = Sensor
+    template_name = 'sensors/sensor_dashboard.html'
+    context_object_name = 'sensors'
+
+    def get_queryset(self):
+        return Sensor.objects.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sensor_ids = list(self.get_queryset().values_list('id', flat=True))
+        context['real_time_data'] = Sensor.objects.get_real_time_data(sensor_ids)
+        return context
+
+
+
+
 @login_required
 def sensor_list(request):
     sensors = Sensor.objects.filter(user= request.user).select_related('field')
@@ -80,7 +99,7 @@ def add_sensor(request):
             sensor.user = request.user
             sensor.save()
             messages.success(request, 'Sensor uğurla əlavə edildi!')
-            return redirect('sensor_list')
+            return redirect('sensors:sensor_list')
     else:
         form = SensorForm()
         
@@ -97,7 +116,7 @@ def edit_sensor(request, sensor_id):
         if form.is_valid():
             form.save()
             messages.success(request, 'Sensor məlumatları uğurla yeniləndi!')
-            return redirect('sensor_detail', sensor_id=sensor.id)
+            return redirect('sensors:sensor_detail', sensor_id=sensor.id)
     else:
         form = SensorForm(instance=sensor)
         form.fields['field'].queryset = Field.objects.filter(user=request.user)
@@ -111,6 +130,6 @@ def delete_sensor(request, sensor_id):
     if request.method == 'POST':
         sensor.delete()
         messages.success(request, 'Sensor uğurla silindi!')
-        return redirect('sensor_list')
+        return redirect('sensors:sensor_list')
     
     return render(request, 'sensors/delete_sensor.html', {'sensor': sensor})

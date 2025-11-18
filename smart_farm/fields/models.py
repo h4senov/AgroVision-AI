@@ -23,7 +23,7 @@ class FieldManager(models.Manager):
             from datetime import timedelta
 
             week_ago = timezone.now().date() - timedelta(days=7)
-            weather_data = field.weather_data.filter(weather_data__gte=week_ago)
+            weather_data = field.weather_data.filter(weather_date__gte=week_ago)
             avg_temperature = weather_data.aggregate(avg_temp=models.Avg('temperature_avg'))['avg_temp']
             total_precipitation = weather_data.aggregate(total_precip=models.Sum('precipitation_mm'))['total_precip']
 

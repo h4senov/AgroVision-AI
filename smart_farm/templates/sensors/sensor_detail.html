@@ -30,7 +30,7 @@
                             <tr>
                                 <th><i class="fas fa-map-marker-alt me-2"></i>Sahə:</th>
                                 <td>
-                                    <a href="{% url 'field_detail' sensor.field.id %}" class="text-decoration-none">
+                                    <a href="{% url 'fields:field_detail' sensor.field.id %}" class="text-decoration-none">
                                         {{ sensor.field.name }}
                                     </a>
                                 </td>
@@ -151,13 +151,13 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="{% url 'edit_sensor' sensor.id %}" class="btn btn-warning">
+                    <a href="{% url 'sensors:edit_sensor' sensor.id %}" class="btn btn-warning">
                         <i class="fas fa-edit me-2"></i>Redaktə Et
                     </a>
-                    <a href="{% url 'delete_sensor' sensor.id %}" class="btn btn-danger">
+                    <a href="{% url 'sensors:delete_sensor' sensor.id %}" class="btn btn-danger">
                         <i class="fas fa-trash me-2"></i>Sil
                     </a>
-                    <a href="{% url 'sensor_list' %}" class="btn btn-secondary">
+                    <a href="{% url 'sensors:sensor_list' %}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-2"></i>Sensor Siyahısı
                     </a>
                     <a href="#" class="btn btn-info">

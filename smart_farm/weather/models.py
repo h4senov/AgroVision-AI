@@ -10,21 +10,24 @@ class WeatherData(models.Model):
         ('stormy', '⛈️ Tufanlı'),
         ('foggy', '🌫️ Dumanlı'),
         ('snowy', '❄️ Qarlı'),
+        ('windy', '💨 Küləkli')
     ]
     field = models.ForeignKey(Field, on_delete=models.CASCADE, related_name='weather_data')
     weather_date = models.DateField(verbose_name='Hava tarixi')
 
-    temperature_max = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Maksimum temperatur (°C)')
-    temperature_min = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Minimum temperatur (°C)')
-    temperature_avg = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Orta temperatur (°C)')
+    temperature_max = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name='Maksimum temperatur (°C)')
+    temperature_min = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name='Minimum temperatur (°C)') 
+    temperature_avg = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name='Orta temperatur (°C)')
 
-    humidity_avg = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Orta rütubət (%)')
-    humidity_max = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Maksimum rütubət (%)')
-    humidity_min = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Minimum rütubət (%)')
-
-    precipitation_mm = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Yağıntı (mm)')
-    wind_speed_avg = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Orta külək sürəti (m/s)')
-    wind_speed_max = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Maksimum külək sürəti (m/s)')
+    humidity_avg = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name='Orta rütubət (%)')
+    humidity_max = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name='Maksimum rütubət (%)')
+    humidity_min = models.DecimalField(max_digits=5, decimal_places=2, null=True, verbose_name='Minimum rütubət (%)')
+    
+    precipitation_mm = models.DecimalField(max_digits=8, decimal_places=2, null=True, verbose_name='Yağıntı (mm)')
+    
+    wind_speed_avg = models.DecimalField(max_digits=6, decimal_places=2, null=True, verbose_name='Orta külək sürəti (m/s)')
+    wind_speed_max = models.DecimalField(max_digits=6, decimal_places=2, null=True, verbose_name='Maksimum külək sürəti (m/s)')
+    
     wind_direction_degrees = models.IntegerField(null=True, blank=True, verbose_name='Külək istiqaməti (dərəcə)')
     solar_radiation_mj_m2 = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, verbose_name='Günəş radiasiyası (MJ/m²)')
     evapotranspiration_mm = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name='Evapotranspirasiya (mm)')
@@ -51,6 +54,15 @@ class WeatherData(models.Model):
          
         return self.precipitation_mm > 0
     
+    def is_windy_day(self):
+         
+        return self.wind_speed_max > 10
+
+    def is_hot_day(self):
+        return self.temperature_max > 30
+
+    def is_cold_day(self):
+        return self.temperature_min < 10
 
     def get_temperature_range(self):
 

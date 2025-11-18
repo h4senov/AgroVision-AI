@@ -6,6 +6,7 @@ from sensors.models import Sensor
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
+from weather.models import WeatherData
 
 def home(request):
     if request.user.is_authenticated:
@@ -55,7 +56,29 @@ def dashboard(request):
         count=Count('id'),
         total_area=Sum('area_hectares')
     ).order_by('-count')
+
     
+    
+    week_ago = timezone.now().date() - timedelta(days=7)
+    recent_weather = WeatherData.objects.filter(
+        field__user=request.user, 
+        weather_date__gte=week_ago
+    ).order_by('-weather_date')[:5]
+
+    # Field metrics üçün nümunə
+    sample_field = fields.first()
+    field_metrics = None
+    if sample_field:
+        field_metrics = Field.objects.calculate_field_metrics(sample_field.id)
+
+    # Plant predictions
+    upcoming_plants = plants.filter(status='active')[:3]
+    plant_predictions = {}
+    for plant in upcoming_plants:
+        plant_predictions[plant.id] = Plant.objects.predict_harvest_time(plant.id)
+
+
+
     context = {
         'total_fields': total_fields,
         'total_plants': total_plants,
@@ -67,6 +90,9 @@ def dashboard(request):
         'upcoming_harvests': upcoming_harvests,
         'recent_plants': recent_plants,
         'plant_distribution': plant_distribution,
+        'recent_weather': recent_weather,
+        'field_metrics': field_metrics,
+        'plant_predictions': plant_predictions,
     }
     
     return render(request, 'core/dashboard.html', context)

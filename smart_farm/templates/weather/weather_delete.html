@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hava Məlumatını Sil - Smart Farm{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Hava Məlumatını Sil
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-skull-crossbones me-2"></i>Diqqət!</h5>
+                        <p class="mb-0">Bu əməliyyat geri qaytarıla bilməz. Aşağıdakı hava məlumatını silmək istədiyinizə əminsiniz?</p>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6>Silinəcək Məlumat:</h6>
+                            <p><strong>Sahə:</strong> {{ weather.field.name }}</p>
+                            <p><strong>Tarix:</strong> {{ weather.weather_date }}</p>
+                            <p><strong>Temperatur:</strong> {{ weather.temperature_avg }}°C</p>
+                            <p><strong>Hava Vəziyyəti:</strong> {{ weather.get_weather_condition_display }}</p>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'weather:weather_detail' weather.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Ləğv Et
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i>Bəli, Sil
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -23,12 +23,13 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),  # ⭐ ƏSAS SƏHİFƏ
+    path('', include('core.urls')), 
     path('fields/', include('fields.urls')),
     path('plants/', include('plants.urls')), 
     path('sensors/', include('sensors.urls')),
     path('inventory/', include('inventory.urls')),
     path('users/', include('users.urls')),
+    path('weather/', include('weather.urls')),
 ]
 
 if settings.DEBUG:

@@ -4,7 +4,21 @@ from django.contrib import messages
 from .models import Plant
 from .forms import PlantForm,PlantFilterForm,PlantSearchForm
 from fields.models import Field
+from django.views.generic import DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
+class PlantPredictionView(LoginRequiredMixin, DetailView):
+    model = Plant
+    template_name = 'plants/harvest_prediction.html'
+    context_object_name = 'plant'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['prediction'] = Plant.objects.predict_harvest_time(self.object.id)
+        return context
+
+    def get_queryset(self):
+        return Plant.objects.filter(user=self.request.user)
  
 
 @login_required
@@ -51,6 +65,8 @@ def plant_list(request):
 def plant_detail(request, plant_id):
     plant = get_object_or_404(Plant, id=plant_id, user=request.user)
     return render(request, 'plants/plant_detail.html', {'plant': plant})
+
+
 
 @login_required
 def add_plant(request):
