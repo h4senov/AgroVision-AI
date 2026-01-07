@@ -28,43 +28,18 @@ class FieldMetricsView(LoginRequiredMixin, DetailView):
 
 @login_required
 def field_list(request):
-    fields = Field.objects.filter(user=request.user)
+    query = request.GET.get('search','')
+    filters ={
+        'soil_type': request.GET.get('soil_type', ''),
+        'min_area': request.GET.get('min_area', ''),
+        'max_area': request.GET.get('max_area', ''),
+    }
 
-    search_query = request.GET.get('search','')
-    soil_type_filter = request.GET.get('soil_type','')
+    fields = Field.objects.search_fields(query, request.user, filters)    
+    search_form = FieldSearchForm(initial={'search': query})
+    filter_form = FieldFilterForm(initial=filters)
 
-    min_area = request.GET.get('min_area','')
-    max_area = request.GET.get('max_area','')
-
-    created_after = request.GET.get('created_after','')
-    created_before = request.GET.get('created_before','')
-
-    if created_after:
-        fields = fields.filter(created_at__date__gte=created_after)
-    if created_before:
-        fields = fields.filter(created_at__date__lte=created_before)
-
-    if search_query:
-        fields = fields.filter(name__icontains=search_query)
-
-    if soil_type_filter:
-        fields = fields.filter(soil_type=soil_type_filter)
-
-    if min_area:
-        fields = fields.filter(area_hectares__gte=min_area)
-
-    if max_area:
-        fields = fields.filter(area_hectares__lte=max_area)  
-
-
-    search_form = FieldSearchForm(initial={'search':search_query})        
-    filter_form = FieldFilterForm(initial={
-        'soil_type': soil_type_filter,
-        'min_area': min_area,
-        'max_area': max_area
-    })  
-
-    context = {
+    context ={
         'fields': fields,
         'search_form': search_form,
         'filter_form': filter_form
@@ -73,10 +48,6 @@ def field_list(request):
     return render(request, 'fields/field_list.html', context)
 
 
-@register.filter
-def dict_key(d, key):
-    """Dictionary-dən key-ə görə value almaq üçün"""
-    return d.get(key, '')
 
 
 @login_required

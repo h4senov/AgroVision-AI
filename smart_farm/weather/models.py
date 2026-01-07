@@ -1,7 +1,20 @@
-from django.db import models # verilernler bazasi ile islemeye imkan verir
-from django.conf import settings # smartfarmin settingsine daxil olmaq ucundur 
-from fields.models import Field # field adli obyekti getirir
+from django.db import models 
+from django.conf import settings  
+from fields.models import Field  
 
+
+class WeatherManager(models.Manager):
+    def get_rainy_fields(self, user, days=7):
+        from django.utils import timezone
+        from datetime import timedelta
+        start_date = timezone.now().date() - timedelta(days=days)
+    
+        return Field.objects.filter(
+            user=user,
+            weather_data__precipitation_mm__gt=0,
+            weather_data__weather_date__gte=start_date
+        ).distinct()
+        
 class WeatherData(models.Model):
     WEATHER_CONDITIONS = [
         ('sunny', '☀️ Günəşli'),
@@ -49,7 +62,6 @@ class WeatherData(models.Model):
         
         return f"{self.field.name} - {self.weather_date} - {self.get_weather_condition_display()}"
     
-
     def is_rainy_day(self):
          
         return self.precipitation_mm > 0

@@ -7,6 +7,30 @@ from users.models import CustomUser
 
 
 class FieldManager(models.Manager):
+
+    def search_fields(self, query, user, filters=None):
+
+        qs = self.filter(user=user)
+
+        if query:
+            qs = qs.filter(
+                models.Q(name__icontains = query) |
+                models.Q(soil_type = query)
+            )
+        if filters :   
+            soil_type = filters.get('soil_type')
+            min_area = filters.get('min_area')
+            max_area = filters.get('max_area')
+
+            if soil_type:
+                qs = qs.filter(soil_type=filters['soil_type'])
+            if min_area:     
+                qs = qs.filter(area_hectares__gte =filters['min_area'])
+            if max_area:    
+                qs = qs.filter(area_hectares__lte = filters['max_area']) 
+        
+        return qs
+
     def calculate_field_metrics(self, field_id):
         
         try:

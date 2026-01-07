@@ -2,7 +2,7 @@ from django.shortcuts import render,get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from .models import Sensor  
+from .models import Sensor , SensorManager
 from .forms import SensorForm, SensorFilterForm, SensorSearchForm
 from fields.models import Field
 from django.views.generic import ListView
@@ -27,53 +27,25 @@ class SensorDashboardView(LoginRequiredMixin, ListView):
 
 @login_required
 def sensor_list(request):
-    sensors = Sensor.objects.filter(user= request.user).select_related('field')
+    query = request.GET.get('search','')
 
+    filters = {
+        'sensor_type': request.GET.get('sensor_type',''),
+        'is_active' : request.GET.get('is_active',''),
+        'battery_level' : request.GET.get('battery_level',''),
+    }
 
-    search_query = request.GET.get('search','')
-    sensor_type_filter = request.GET.get('sensor_type','')
-    status_filter = request.GET.get('status', '')
-    battery_level_filter = request.GET.get('battery_level', '')
-
-    if search_query:
-        sensors = sensors.filter(
-            Q(name__icontains=search_query) | 
-            Q(sensor_code__icontains=search_query)
-        )
+    sensors =   Sensor.objects.search_sensor(query, request.user, filters)
     
-    if sensor_type_filter:
-        sensors = sensors.filter(sensor_type=sensor_type_filter)
-        
-    if status_filter:
-        if status_filter == 'active':
-            sensors = sensors.filter(is_active=True)
-        elif status_filter == 'inactive':
-            sensors = sensors.filter(is_active=False)
-    
-    if battery_level_filter:
-        if battery_level_filter == 'high':
-            sensors = sensors.filter(battery_level__gt=70)
-        elif battery_level_filter == 'medium':
-            sensors = sensors.filter(battery_level__range=(30, 70))
-        elif battery_level_filter == 'low':
-            sensors = sensors.filter(battery_level__lt=30)
 
+    search_form = SensorSearchForm(initial={'search': query}) 
+    filter_form = SensorFilterForm(initial=filters)
 
-    search_form = SensorSearchForm(initial={'search': search_query}) 
-    filter_form = SensorFilterForm(initial={ 
-        'sensor_type': sensor_type_filter,
-        'status': status_filter,
-        'battery_level': battery_level_filter
-    })
 
     context = {
         'sensors': sensors,
         'search_form': search_form,
         'filter_form': filter_form,
-        'search_query': search_query,
-        'sensor_type_filter': sensor_type_filter,
-        'status_filter': status_filter,
-        'battery_level_filter': battery_level_filter,
     }
     
     return render(request, 'sensors/sensor_list.html', context)

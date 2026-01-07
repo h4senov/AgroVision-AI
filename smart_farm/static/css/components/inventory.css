@@ -237,3 +237,64 @@
     padding-bottom: 0.5rem;
     border-bottom: 2px solid #28a745;
 }
+
+
+/* =========================================================
+   static/css/components/inventory.css
+   ========================================================= */
+
+.inventory-status-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.inventory-status-card h4 {
+    color: #495057;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.status-value {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #007bff; /* Mavi rəng */
+    display: block;
+    margin-top: 5px;
+}
+
+.low-stock-value {
+    color: #dc3545; /* Qırmızı rəng */
+}
+
+/* TRACK USAGE FORM */
+.usage-form-container {
+    max-width: 500px;
+    margin: 30px auto;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #ffffff;
+}
+
+.usage-form-container label {
+    font-weight: 500;
+}
+
+/* LOW STOCK LIST */
+.low-stock-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.low-stock-item:last-child {
+    border-bottom: none;
+}
+
+.stock-warning {
+    color: #dc3545;
+    font-weight: bold;
+}

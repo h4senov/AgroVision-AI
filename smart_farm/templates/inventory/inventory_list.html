@@ -2,44 +2,57 @@
 {% load static %}
 {% block title %}Anbar - Məhsullar{% endblock %}
 
+
 {% block content %}
-<div class="app-container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
-    <h1 class="h5 mb-0">Anbar — Məhsullar</h1>
-    <div class="d-flex gap-2">
-      <a href="{% url 'inventory:add_inventory' %}" class="btn btn-primary btn-sm">
-        <i class="fas fa-plus me-1"></i> Yeni Məhsul
-      </a>
-      <a href="{% url 'inventory:low_stock' %}" class="btn btn-warning btn-sm">
-        <i class="fas fa-exclamation-triangle me-1"></i> Aşağı Stok
-      </a>
+<div class="container-fluid py-4 px-lg-5">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">📦 Anbar İdarəetməsi</h2>
+            <p class="text-muted mb-0">Məhsulların siyahısı və statusu</p>
+        </div>
+        <a href="{% url 'inventory:add_inventory' %}" class="btn btn-primary btn-lg shadow-sm rounded-pill px-4">
+            <i class="fas fa-plus-circle me-2"></i>Yeni Məhsul
+        </a>
     </div>
-  </div>
 
-  <!-- Search və Filter Form -->
-  <div class="card mb-3 shadow-sm">
-    <div class="card-body">
-      <form method="get" class="row g-2 align-items-end">
-        <div class="col-12 col-md-5">
-          <label class="form-label small mb-1">Axtar</label>
-          <input name="search" value="{{ request.GET.search }}" class="form-control form-control-sm" placeholder="Ad, kod, təchizatçı...">
+    <ul class="nav nav-pills mb-4">
+        <li class="nav-item">
+            <a class="nav-link active" href="{% url 'inventory:inventory_list' %}">
+                <i class="fas fa-list me-2"></i>Bütün Məhsullar
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'inventory:get_inventory_status' %}">
+                <i class="fas fa-chart-pie me-2"></i>Statistika
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-danger" style="background: #fff5f5; border-color: #feb2b2;" href="{% url 'inventory:low_stock' %}">
+                <i class="fas fa-exclamation-triangle me-2"></i>Kritik Stok
+            </a>
+        </li>
+    </ul>
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+        <div class="card-body p-4">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Axtarış</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                        <input name="search" value="{{ request.GET.search }}" class="form-control bg-light border-0" placeholder="Məhsul adı, kodu...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Kateqoriya</label>
+                    {{ filter_form.category }} </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark flex-grow-1">Filtrlə</button>
+                    <a href="{% url 'inventory:inventory_list' %}" class="btn btn-light border">Sıfırla</a>
+                </div>
+            </form>
         </div>
-
-        <div class="col-6 col-md-3">
-          <label class="form-label small mb-1">Kateqoriya</label>
-          {{ filter_form.category }}
-        </div>
-
-        <div class="col-6 col-md-2">
-          <button type="submit" class="btn btn-outline-primary btn-sm w-100">Filtrlə</button>
-        </div>
-        
-        <div class="col-6 col-md-2">
-          <a href="{% url 'inventory:inventory_list' %}" class="btn btn-outline-secondary btn-sm w-100">Təmizlə</a>
-        </div>
-      </form>
     </div>
-  </div>
 
   <!-- Məhsul Kartları -->
   {% if items %}

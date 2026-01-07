@@ -1,45 +1,65 @@
+<!-- templates/weather/weather_delete.html -->
 {% extends 'base.html' %}
-{% load static %}
 
-{% block title %}Hava Məlumatını Sil - Smart Farm{% endblock %}
+{% block title %}Hava Məlumatını Sil - Ağıllı Ferma{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="row justify-content-center">
-        <div class="col-lg-6">
+        <div class="col-md-6">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'weather:weather_list' %}">Hava Məlumatları</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'weather:weather_detail' weather.pk %}">{{ weather.field.name }} - {{ weather.weather_date|date:"d.m.Y" }}</a></li>
+                    <li class="breadcrumb-item active">Sil</li>
+                </ol>
+            </nav>
+
             <div class="card border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h4 class="card-title mb-0">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Hava Məlumatını Sil
-                    </h4>
+                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Hava Məlumatını Sil</h4>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-warning">
-                        <h5><i class="fas fa-skull-crossbones me-2"></i>Diqqət!</h5>
-                        <p class="mb-0">Bu əməliyyat geri qaytarıla bilməz. Aşağıdakı hava məlumatını silmək istədiyinizə əminsiniz?</p>
-                    </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-trash-alt fa-4x text-danger mb-3"></i>
+                        <h5>Silmək istədiyinizə əminsiniz?</h5>
+                        
+                        <div class="alert alert-warning mt-3">
+                            <p class="mb-0">
+                                <strong>{{ weather.field.name }}</strong> sahəsi üçün 
+                                <strong>{{ weather.weather_date|date:"d.m.Y" }}</strong> tarixli 
+                                hava məlumatı silinəcək.
+                            </p>
+                        </div>
 
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h6>Silinəcək Məlumat:</h6>
-                            <p><strong>Sahə:</strong> {{ weather.field.name }}</p>
-                            <p><strong>Tarix:</strong> {{ weather.weather_date }}</p>
-                            <p><strong>Temperatur:</strong> {{ weather.temperature_avg }}°C</p>
-                            <p><strong>Hava Vəziyyəti:</strong> {{ weather.get_weather_condition_display }}</p>
+                        <!-- Weather Info Card -->
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h6 class="card-title">Silinəcək məlumat:</h6>
+                                <p class="mb-1">
+                                    <strong>Tarix:</strong> {{ weather.weather_date|date:"d.m.Y" }}<br>
+                                    <strong>Sahə:</strong> {{ weather.field.name }}<br>
+                                    <strong>Hava:</strong> {{ weather.get_weather_condition_display }}<br>
+                                    <strong>Temperatur:</strong> {{ weather.temperature_avg|default:"-" }}°C
+                                </p>
+                            </div>
                         </div>
                     </div>
 
                     <form method="post">
                         {% csrf_token %}
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-center gap-3">
                             <a href="{% url 'weather:weather_detail' weather.pk %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-1"></i>Ləğv Et
+                                <i class="fas fa-times"></i> Ləğv et
                             </a>
                             <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash me-1"></i>Bəli, Sil
+                                <i class="fas fa-trash"></i> Bəli, Sil
                             </button>
                         </div>
                     </form>
+                </div>
+                <div class="card-footer text-muted text-center">
+                    <small>Bu əməliyyat geri qaytarıla bilməz</small>
                 </div>
             </div>
         </div>

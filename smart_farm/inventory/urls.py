@@ -14,15 +14,15 @@ from .views import (
 app_name = 'inventory'
 
 urlpatterns = [
-    # Generic Views
+     
     path('', InventoryListView.as_view(), name='inventory_list'),
     path('add/', InventoryCreateView.as_view(), name='add_inventory'),
     path('<int:pk>/', InventoryDetailView.as_view(), name='inventory_detail'),
     path('<int:pk>/edit/', InventoryUpdateView.as_view(), name='edit_inventory'),
     path('<int:pk>/delete/', InventoryDeleteView.as_view(), name='delete_inventory'),
     
-    # Function-based Views (xüsusi məntiq)
-    path('status/', get_inventory_status, name='inventory_status'),
-    path('<int:item_id>/track-usage/', track_inventory_usage, name='track_usage'),
+     
+    path('status/', views.get_inventory_status, name='get_inventory_status'),
     path('low-stock/', views.low_stock, name='low_stock'),
+    path('track-usage/<int:item_id>/', views.track_inventory_usage, name='track_inventory_usage'),
 ]

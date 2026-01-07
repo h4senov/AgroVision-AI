@@ -23,13 +23,13 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')), 
-    path('fields/', include('fields.urls')),
-    path('plants/', include('plants.urls')), 
-    path('sensors/', include('sensors.urls')),
-    path('inventory/', include('inventory.urls')),
-    path('users/', include('users.urls')),
-    path('weather/', include('weather.urls')),
+    path('', include('core.urls', namespace='core')),
+    path('users/', include('users.urls', namespace='users')),
+    path('fields/', include('fields.urls', namespace='fields')),
+    path('plants/', include('plants.urls', namespace='plants')),
+    path('sensors/', include('sensors.urls', namespace='sensors')),
+    path('inventory/', include('inventory.urls', namespace='inventory')),
+    path('weather/', include('weather.urls', namespace='weather')),   
 ]
 
 if settings.DEBUG:

@@ -2,10 +2,14 @@ from django.urls import path
 from . import views
 app_name = 'sensors'
 
+def new_func():
+    return path()
+
 urlpatterns = [
     path('', views.sensor_list, name='sensor_list'),
     path('<int:sensor_id>/', views.sensor_detail, name='sensor_detail'),
     path('add/', views.add_sensor, name='add_sensor'),
     path('<int:sensor_id>/edit/', views.edit_sensor, name='edit_sensor'),
     path('<int:sensor_id>/delete/', views.delete_sensor, name='delete_sensor'),
+    path('dashboard/', views.SensorDashboardView.as_view(), name='sensor_dashboard'),
 ]

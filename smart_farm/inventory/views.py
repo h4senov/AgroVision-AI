@@ -14,7 +14,7 @@ from .forms import InventoryForm, InventorySearchForm, InventoryFilterForm
 
 class InventoryListView(LoginRequiredMixin, ListView):
     model = Inventory
-    template_name = 'inventiry/inventory_list.html'
+    template_name = 'inventory/inventory_list.html'
     context_object_name = 'items' 
     paginate_by = 10
 
@@ -87,6 +87,7 @@ class InventoryUpdateView(LoginRequiredMixin,UpdateView):
 class InventoryDeleteView(LoginRequiredMixin,DeleteView):
     model = Inventory
     template_name = 'inventory/delete_inventory.html'
+    context_object_name = 'item'
     success_url = reverse_lazy('inventory:inventory_list')
 
     def get_queryset(self):

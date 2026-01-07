@@ -5,12 +5,46 @@ from fields.models import Field
 
 
 
-# sensors/models.py - Sensor modelinə əlavə edirəm
+
 class SensorManager(models.Manager):
+
+    def search_sensor(self, query, user, filters=None):
+
+        qs = self.filter(user=user)
+        
+        if query:
+            qs = qs.filter(
+                models.Q(field__name__icontains = query) |
+                models.Q(sensor_code__icontains = query) |
+                models.Q(name__icontains = query) |
+                models.Q(sensor_type = query)
+            )
+
+        if filters:
+            sensor_type = filters.get('sensor_type')
+            is_active = filters.get('is_active')
+            battery_level = filters.get('battery_level')
+            
+            if sensor_type:
+                qs = qs.filter(sensor_type=sensor_type)
+            if is_active:
+                
+                is_active_bool = is_active.lower() == 'true'
+                qs = qs.filter(is_active=is_active_bool)
+            if battery_level:
+               
+                if battery_level == 'high':
+                    qs = qs.filter(battery_level__gt=70)
+                elif battery_level == 'medium':
+                    qs = qs.filter(battery_level__range=(30, 70))
+                elif battery_level == 'low':
+                    qs = qs.filter(battery_level__lt=30)     
+
+        return qs.select_related('field')           
+
+
     def get_real_time_data(self, sensor_ids):
-        """
-        Sensorlar üçün real-vaxt məlumatlarını qaytarır
-        """
+        
         from django.utils import timezone
         from datetime import timedelta
         
@@ -18,7 +52,7 @@ class SensorManager(models.Manager):
         real_time_data = {}
         
         for sensor in sensors:
-            # Son 1 saatlıq məlumatları götürürük
+            
             one_hour_ago = timezone.now() - timedelta(hours=1)
             
             recent_readings = sensor.readings.filter(
@@ -37,7 +71,7 @@ class SensorManager(models.Manager):
                     'battery_level': float(sensor.battery_level),
                     'battery_status': sensor.battery_status(),
                     'is_active': sensor.is_active,
-                    'data_quality': 'good',  # Bu hissəni SensorData modelində də əlavə edə bilərik
+                    'data_quality': 'good',  
                     'trend': self._calculate_trend(recent_readings),
                     'alerts': self._check_alerts(sensor, latest_reading)
                 }
@@ -54,15 +88,15 @@ class SensorManager(models.Manager):
         return real_time_data
     
     def _calculate_trend(self, readings):
-        """Sensor məlumatlarının trendini hesablayır"""
+        
         if len(readings) < 2:
             return 'stable'
         
-        values = [float(reading.value) for reading in readings[:10]]  # Son 10 oxunuş
+        values = [float(reading.value) for reading in readings[:10]]  
         if len(values) < 2:
             return 'stable'
         
-        # Sadə trend analizi
+       
         first_half = sum(values[:len(values)//2]) / (len(values)//2)
         second_half = sum(values[len(values)//2:]) / (len(values) - len(values)//2)
         
@@ -77,10 +111,10 @@ class SensorManager(models.Manager):
             return 'stable'
     
     def _check_alerts(self, sensor, latest_reading):
-        """Sensor üçün xəbərdarlıqları yoxlayır"""
+        
         alerts = []
         
-        # Batareya səviyyəsi
+        
         if sensor.battery_level < 20:
             alerts.append({
                 'type': 'warning',
@@ -88,7 +122,7 @@ class SensorManager(models.Manager):
                 'priority': 'high' if sensor.battery_level < 10 else 'medium'
             })
         
-        # Sensor aktiv deyilsə
+        
         if not sensor.is_active:
             alerts.append({
                 'type': 'error',
@@ -96,7 +130,7 @@ class SensorManager(models.Manager):
                 'priority': 'high'
             })
         
-        # Sensor növünə görə limitlər
+       
         threshold_alerts = self._check_thresholds(sensor, latest_reading)
         alerts.extend(threshold_alerts)
         

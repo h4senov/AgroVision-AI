@@ -2,39 +2,63 @@ from django.db import models
 from django.conf import settings
 from fields.models import Field
 
-# plants/models.py - Plant modelinə əlavə edirəm
+
 class PlantManager(models.Manager):
+
+    def search_plants(self, query, user, filters=None):
+        
+        qs  = self.filter(user=user)
+
+        if query:
+            qs = qs.filter(
+                models.Q(variety__icontains = query) |
+                models.Q(plant_type  = query) |
+                models.Q(field__name__icontains = query)
+            )
+
+        if filters:
+            plant_type = filters.get('plant_type')
+            growth_stage = filters.get('growth_stage')
+            status = filters.get('status')
+            
+            if plant_type:
+                qs = qs.filter(plant_type=plant_type)
+            if growth_stage:
+                qs = qs.filter(growth_stage=growth_stage)
+            if status:
+                qs = qs.filter(status=status)              
+
+        return qs.select_related('field')         
+
     def predict_harvest_time(self, plant_id):
-        """
-        Bitkinin yığım vaxtını proqnozlaşdırır
-        """
+       
         try:
             plant = self.get(id=plant_id)
             
-            # Bitki növünə görə orta yetişmə müddəti (günlər)
+            
             growth_periods = {
-                'wheat': 120,      # Buğda
-                'corn': 90,        # Qarğıdalı
-                'barley': 110,     # Arpa
-                'sunflower': 85,   # Günəbaxan
-                'cotton': 160,     # Pambıq
-                'tomato': 75,      # Pomidor
-                'potato': 100,     # Kartof
-                'other': 90,       # Digər
+                'wheat': 120,      
+                'corn': 90,        
+                'barley': 110,     
+                'sunflower': 85,  
+                'cotton': 160,     
+                'tomato': 75,      
+                'potato': 100,
+                'other': 90,      
             }
             
             base_growth_days = growth_periods.get(plant.plant_type, 90)
             
-            # İklim şəraitinə görə tənzimləmə
+            
             weather_factor = self._calculate_weather_factor(plant.field)
             
-            # Bitki sağlamlığına görə tənzimləmə
+           
             health_factor = self._calculate_health_factor(plant)
             
-            # Ümumi yetişmə müddəti
+           
             adjusted_growth_days = base_growth_days * weather_factor * health_factor
             
-            # Proqnozlaşdırılan yığım tarixi
+            
             from django.utils import timezone
             predicted_harvest_date = plant.planting_date + timezone.timedelta(days=adjusted_growth_days)
             
@@ -59,7 +83,7 @@ class PlantManager(models.Manager):
     
     def _calculate_weather_factor(self, field):
         """Hava şəraitinin təsirini hesablayır"""
-        # Son 30 günlük hava məlumatları
+       
         from django.utils import timezone
         from datetime import timedelta
         month_ago = timezone.now().date() - timedelta(days=30)
@@ -67,33 +91,32 @@ class PlantManager(models.Manager):
         weather_data = field.weather_data.filter(weather_date__gte=month_ago)
         
         if not weather_data.exists():
-            return 1.0  # Default faktor
+            return 1.0  
         
         avg_temp = weather_data.aggregate(avg=models.Avg('temperature_avg'))['avg']
         total_rain = weather_data.aggregate(total=models.Sum('precipitation_mm'))['total']
         
-        # Optimal temperatur və yağıntıya görə tənzimləmə
+       
         temp_factor = 1.0
         if avg_temp < 10:
-            temp_factor = 0.8  # Çox soyuq
+            temp_factor = 0.8  
         elif avg_temp > 30:
-            temp_factor = 0.9  # Çox isti
+            temp_factor = 0.9  
         elif 15 <= avg_temp <= 25:
-            temp_factor = 1.1  # Optimal
+            temp_factor = 1.1 
         
         rain_factor = 1.0
         if total_rain < 20:
-            rain_factor = 0.8  # Quraq
+            rain_factor = 0.8 
         elif total_rain > 100:
-            rain_factor = 0.9  # Çox yağışlı
+            rain_factor = 0.9 
         elif 40 <= total_rain <= 80:
-            rain_factor = 1.1  # Optimal
+            rain_factor = 1.1 
         
         return (temp_factor + rain_factor) / 2
     
     def _calculate_health_factor(self, plant):
-        """Bitki sağlamlığının təsirini hesablayır"""
-        # Böyümə mərhələsinə görə
+       
         growth_factors = {
             'seedling': 0.8,
             'vegetative': 1.0,
@@ -105,7 +128,7 @@ class PlantManager(models.Manager):
         
         growth_factor = growth_factors.get(plant.growth_stage, 1.0)
         
-        # Statusa görə
+        
         status_factor = 1.0
         if plant.status == 'diseased':
             status_factor = 0.7

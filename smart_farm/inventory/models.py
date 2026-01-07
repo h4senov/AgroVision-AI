@@ -3,6 +3,36 @@ import os
 from django.db import models
 from django.conf import settings
 
+
+class InventoryManager(models.Manager):
+    def search_inventory(self, query, user, filters=None):
+        qs = self.filter(user=user)
+        
+        if query:
+            qs = qs.filter(
+                models.Q(item_name__icontains=query) |
+                models.Q(item_code__icontains=query) |
+                models.Q(supplier_name__icontains=query)
+            )
+        
+        if filters:
+            category = filters.get('category')
+            min_stock = filters.get('min_stock')
+            max_stock = filters.get('max_stock')
+            
+            if category:
+                qs = qs.filter(category=category)
+            if min_stock:
+                qs = qs.filter(quantity__gte=min_stock)
+            if max_stock:
+                qs = qs.filter(quantity__lte=max_stock)
+                
+        return qs
+
+
+
+
+
 def inventory_image_path(instance, filename):
 
     name, ext = os.path.splitext(filename)
