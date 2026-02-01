@@ -167,8 +167,6 @@ class SensorManager(models.Manager):
         
         return alerts
 
- 
-
 
 class Sensor(models.Model):
      

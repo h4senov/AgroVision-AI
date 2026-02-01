@@ -71,3 +71,17 @@ class FieldFilterForm(forms.Form):
             'step': '0.01'
         })
     )
+
+    irrigated = forms.ChoiceField(
+        choices=[   
+            ('', 'Bütün'),
+            ('true', 'Sulanmış'),
+            ('false', 'Sulanmamış'),
+        ],
+        required=False,
+        label='Sulama',
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'style': 'max-width: 250px;'
+        })
+    )

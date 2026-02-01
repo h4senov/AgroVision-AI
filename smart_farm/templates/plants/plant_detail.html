@@ -4,94 +4,123 @@
 {% block title %}{{ plant.get_plant_type_display }} - Smart Farm{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/plants.css' %}">
+<style>
+    .plant-info-label { color: #6b7280; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+    .plant-info-value { font-weight: 600; color: #1f2937; font-size: 1.1rem; }
+    .detail-card { border-radius: 24px; border: none; overflow: hidden; }
+    .prediction-banner {
+        background: linear-gradient(90deg, #27ae60, #2ecc71);
+        color: white;
+        border-radius: 15px;
+        transition: transform 0.3s ease;
+    }
+    .prediction-banner:hover { transform: scale(1.02); color: white; }
+    .img-frame { border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid p-0">
-  <nav aria-label="breadcrumb" class="mb-3">
-    <ol class="breadcrumb mb-0">
-      <li class="breadcrumb-item"><a href="{% url 'plants:plant_list' %}">Bitkilər</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{{ plant.get_plant_type_display }}</li>
-    </ol>
-  </nav>
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'plants:plant_list' %}">Bitkilər</a></li>
+            <li class="breadcrumb-item active">{{ plant.get_plant_type_display }}</li>
+        </ol>
+    </nav>
 
-  <div class="d-flex justify-content-between align-items-start mb-3 gap-3">
-    <div>
-      <h1 class="h4 mb-1">{{ plant.get_plant_type_display }}</h1>
-      <div class="d-flex gap-2 align-items-center">
-        <span class="growth-badge growth-{{ plant.growth_stage }}">{{ plant.get_growth_stage_display }}</span>
-        <span class="badge badge-natural plant-status-{{ plant.status }}">{{ plant.get_status_display }}</span>
-      </div>
-      <p class="text-muted small mt-2 mb-0">{{ plant.variety|default:"Sort qeyd edilməyib" }}</p>
-    </div>
-
-    <div class="d-flex gap-2">
-      <a href="{% url 'plants:edit_plant' plant.id %}" class="btn btn-outline-primary btn-sm">
-        <i class="fas fa-edit me-1"></i> Redaktə
-      </a>
-      <a href="{% url 'plants:delete_plant' plant.id %}" class="btn btn-outline-danger btn-sm">
-        <i class="fas fa-trash me-1"></i> Sil
-      </a>
-    </div>
-  </div>
-
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-      <div class="row g-3">
-        <div class="col-md-6 col-lg-4">
-          <div class="d-flex align-items-start gap-3">
-            <div class="plant-type-icon"><i class="fas fa-leaf"></i></div>
-            <div>
-              <h5 class="mb-1">{{ plant.get_plant_type_display }}</h5>
-              <p class="small text-muted mb-0">{{ plant.variety|default:"Qeyd edilməyib" }}</p>
-            </div>
-          </div>
+    <div class="row align-items-center mb-4">
+        <div class="col-md-7">
+            <h1 class="display-6 fw-bold mb-1">{{ plant.get_plant_type_display }}</h1>
+            <p class="text-muted"><i class="fas fa-fingerprint me-2"></i>Sort: {{ plant.variety|default:"Yerli Sort" }}</p>
         </div>
-
-        <div class="col-md-6 col-lg-8">
-          <div class="row">
-            <div class="col-6 col-sm-4 mb-2">
-              <div class="text-muted small">Sahə</div>
-              <div class="fw-medium">{{ plant.field.name }}</div>
+        <div class="col-md-5 text-md-end">
+            <div class="d-flex gap-2 justify-content-md-end">
+                <a href="{% url 'plants:edit_plant' plant.id %}" class="btn btn-white border shadow-sm rounded-pill px-4">
+                    <i class="fas fa-edit text-primary me-2"></i>Redaktə
+                </a>
+                <a href="{% url 'plants:delete_plant' plant.id %}" class="btn btn-white border shadow-sm rounded-pill px-4">
+                    <i class="fas fa-trash text-danger me-2"></i>Sil
+                </a>
             </div>
-            <div class="col-6 col-sm-4 mb-2">
-              <div class="text-muted small">Əkin Tarixi</div>
-              <div>{{ plant.planting_date }}</div>
-            </div>
-            <div class="col-6 col-sm-4 mb-2">
-              <div class="text-muted small">Gözlənilən Yığım</div>
-              <div>{{ plant.expected_harvest_date|default:"Qeyd edilməyib" }}</div>
-            </div>
-            <div class="col-6 col-sm-4 mb-2">
-              <div class="text-muted small">Faktiki Yığım</div>
-              <div>{{ plant.actual_harvest_date|default:"Hələ yığılmayıb" }}</div>
-            </div>
-            <div class="col-6 col-sm-4 mb-2">
-              <div class="text-muted small">Böyümə Mərhələsi</div>
-              <div>{{ plant.get_growth_stage_display }}</div>
-            </div>
-            <div class="col-6 col-sm-4 mb-2">
-              <div class="text-muted small">Sahə ölçüsü</div>
-              <div>{{ plant.area_hectares }} ha</div>
-            </div>
-          </div>
         </div>
-      </div>
-
-      {% if plant.notes %}
-      <hr>
-      <div>
-        <h6 class="mb-2">Qeydlər</h6>
-        <p class="mb-0 text-muted">{{ plant.notes }}</p>
-      </div>
-      {% endif %}
     </div>
-  </div>
 
-  <div class="d-flex gap-2">
-    <a href="{% url 'plants:plant_list' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i> Bitkilərə qayıt</a>
-    <a href="{% url 'fields:field_detail' plant.field.id %}" class="btn btn-primary btn-sm"><i class="fas fa-tractor me-1"></i> Sahəni göstər</a>
-  </div>
+    <a href="{% url 'plants:harvest_prediction' plant.id %}" class="prediction-banner d-flex align-items-center p-4 mb-4 text-decoration-none shadow-sm">
+        <div class="flex-shrink-0 bg-white rounded-circle p-3 text-success me-4">
+            <i class="fas fa-robot fa-2x"></i>
+        </div>
+        <div class="flex-grow-1">
+            <h5 class="mb-1 fw-bold">Süni İntellekt Analizi</h5>
+            <p class="mb-0 opacity-75 small">Hava və sağlamlıq faktorlarına əsasən dəqiq yığım vaxtını öyrənin.</p>
+        </div>
+        <div class="ms-auto">
+            <i class="fas fa-chevron-right fa-2x opacity-50"></i>
+        </div>
+    </a>
+
+    <div class="card detail-card shadow-sm">
+        <div class="card-body p-4 p-md-5">
+            <div class="row g-5">
+                <div class="col-lg-5">
+                    <div class="img-frame overflow-hidden">
+                        {% if plant.image %}
+                            <img src="{{ plant.image.url }}" class="img-fluid w-100" style="min-height: 350px; object-fit: cover;" alt="Plant Image">
+                        {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="min-height: 350px;">
+                                <i class="fas fa-seedling fa-5x text-muted opacity-25"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="row g-4 mb-5">
+                        <div class="col-6 col-md-4">
+                            <div class="plant-info-label">Sahə</div>
+                            <div class="plant-info-value"><i class="fas fa-tractor text-success me-2 small"></i>{{ plant.field.name }}</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="plant-info-label">Status</div>
+                            <div class="badge {% if plant.status == 'active' %}bg-success{% else %}bg-warning text-dark{% endif %} rounded-pill px-3">
+                                {{ plant.get_status_display }}
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="plant-info-label">Ölçü (Ha)</div>
+                            <div class="plant-info-value">{{ plant.area_hectares }}</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="plant-info-label">Əkin Tarixi</div>
+                            <div class="plant-info-value">{{ plant.planting_date|date:"d M, Y" }}</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="plant-info-label">İnkişaf</div>
+                            <div class="plant-info-value text-primary">{{ plant.get_growth_stage_display }}</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="plant-info-label">Gözlənilən Yığım</div>
+                            <div class="plant-info-value">{{ plant.expected_harvest_date|date:"d M, Y"|default:"N/A" }}</div>
+                        </div>
+                    </div>
+
+                    {% if plant.notes %}
+                    <div class="p-4 bg-light rounded-4 border-start border-4 border-success">
+                        <h6 class="fw-bold mb-2"><i class="fas fa-sticky-note me-2 text-success"></i>Fermer Qeydləri</h6>
+                        <p class="mb-0 text-muted fst-italic">{{ plant.notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-3">
+        <a href="{% url 'plants:plant_list' %}" class="btn btn-light rounded-pill px-4 border">
+            <i class="fas fa-arrow-left me-2"></i>Siyahıya qayıt
+        </a>
+        <a href="{% url 'fields:field_detail' plant.field.id %}" class="btn btn-outline-success rounded-pill px-4">
+            <i class="fas fa-map-marker-alt me-2"></i>Sahəni gör
+        </a>
+    </div>
 </div>
 {% endblock %}

@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Suvarma Detalı - Smart Farm{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-card { border-radius: 20px; border: none; overflow: hidden; background: #fff; }
+    .info-box {
+        padding: 20px;
+        border-radius: 15px;
+        background: #f8f9fa;
+        transition: transform 0.2s;
+        height: 100%;
+    }
+    .info-box:hover { transform: translateY(-5px); }
+    .status-badge-lg {
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+    /* Status rəngləri */
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-completed { background: #d4edda; color: #155724; }
+    
+    .weather-widget {
+        background: linear-gradient(135deg, #6dd5ed, #2193b0);
+        color: white;
+        border-radius: 20px;
+        padding: 25px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 pb-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'irrigation:irrigation_list' %}" class="text-success text-decoration-none">Suvarmalar</a></li>
+            <li class="breadcrumb-item active">Hesabat #{{ object.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card detail-card shadow-sm p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-start mb-5">
+                    <div>
+                        <span class="text-uppercase text-muted small fw-bold tracking-wider">Suvarma Hesabatı</span>
+                        <h2 class="fw-bold text-dark mt-1">{{ object.field.name }}</h2>
+                        <div class="d-flex align-items-center text-success fw-600">
+                            <i class="fas fa-seedling me-2"></i> {{ object.plant.name|default:"Ümumi Sahə" }}
+                        </div>
+                    </div>
+                    <span class="status-badge-lg status-{{ object.status }}">
+                        <i class="fas fa-circle me-2 small"></i>{{ object.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="row g-3 mb-5">
+                    <div class="col-6 col-md-3">
+                        <div class="info-box text-center">
+                            <i class="fas fa-tint text-primary mb-2 fs-4"></i>
+                            <div class="small text-muted">Həcm</div>
+                            <div class="fw-bold fs-5">{{ object.water_volume_liters }} L</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="info-box text-center">
+                            <i class="fas fa-clock text-warning mb-2 fs-4"></i>
+                            <div class="small text-muted">Müddət</div>
+                            <div class="fw-bold fs-5">{{ object.duration_minutes|default:"0" }} dəq</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="info-box text-center">
+                            <i class="fas fa-percentage text-info mb-2 fs-4"></i>
+                            <div class="small text-muted">Rütubət</div>
+                            <div class="fw-bold fs-5">{{ object.soil_moisture_level|default:"--" }}%</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="info-box text-center">
+                            <i class="fas fa-bolt text-danger mb-2 fs-4"></i>
+                            <div class="small text-muted">Enerji</div>
+                            <div class="fw-bold fs-5">{{ object.energy_consumption|default:"0" }} <small>kWh</small></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-list-ul me-2 text-success"></i>Texniki Məlumat</h6>
+                        <table class="table table-sm table-borderless">
+                            <tr><td class="text-muted small">Metod:</td> <td class="fw-bold">{{ object.get_irrigation_type_display }}</td></tr>
+                            <tr><td class="text-muted small">Tarix:</td> <td class="fw-bold">{{ object.irrigation_date|date:"d F Y" }}</td></tr>
+                            <tr><td class="text-muted small">Zaman:</td> <td class="fw-bold">{{ object.start_time }} - {{ object.end_time|default:"..." }}</td></tr>
+                            <tr><td class="text-muted small">Növ:</td> <td class="fw-bold">{% if object.is_automated %}Avtomatik{% else %}Manual{% endif %}</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-sticky-note me-2 text-success"></i>Operator Qeydləri</h6>
+                        <div class="p-3 bg-light rounded-3 italic text-muted shadow-inner" style="border-left: 4px solid #198754;">
+                            "{{ object.notes|default:"Heç bir qeyd əlavə edilməyib." }}"
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="weather-widget shadow-sm mb-4">
+                <h6 class="fw-bold mb-3 opacity-75"><i class="fas fa-cloud-sun me-2"></i>Həmin Günün Havası</h6>
+                {% if object.weather_data %}
+                    <div class="d-flex align-items-center">
+                        <h1 class="display-4 fw-bold mb-0 me-3">24°C</h1>
+                        <div>
+                            <div class="fw-bold">Günüvüz xeyir!</div>
+                            <div class="small opacity-75">Yağıntı ehtimalı: 10%</div>
+                        </div>
+                    </div>
+                {% else %}
+                   <div class="weather-widget shadow-sm mb-4">
+    <h6 class="fw-bold mb-3 opacity-75"><i class="fas fa-cloud-sun me-2"></i>Həmin Günün Havası</h6>
+    
+    {% comment %} 
+       Məntiq: Suvarmanın aid olduğu sahənin (field), 
+       həmin tarixdəki (irrigation_date) hava məlumatını tapırıq.
+    {% endcomment %}
+    
+    {% with weather=object.field.weather_data.all|first %} {% if weather %}
+        <div class="d-flex align-items-center">
+            <h1 class="display-4 fw-bold mb-0 me-3">{{ weather.temperature_avg }}°C</h1>
+            <div>
+                <div class="fw-bold">{{ weather.get_weather_condition_display }}</div>
+                <div class="small opacity-75">Yağıntı: {{ weather.precipitation_mm }} mm</div>
+            </div>
+        </div>
+        {% if weather.precipitation_mm > 0 %}
+            <div class="mt-2 small bg-white bg-opacity-25 rounded p-2">
+                <i class="fas fa-info-circle"></i> Yağıntılı hava qeydə alınıb.
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-2">
+            <i class="fas fa-exclamation-triangle mb-2 opacity-50"></i>
+            <p class="mb-0 small">Bu tarix ({{ object.irrigation_date|date:"d.m.Y" }}) üçün sistemdə hava məlumatı tapılmadı.</p>
+        </div>
+    {% endif %}
+    {% endwith %}
+</div>
+                {% endif %}
+            </div>
+
+            <div class="card border-0 shadow-sm p-3 mb-4 rounded-4">
+                <h6 class="fw-bold mb-3 px-2">İdarəetmə Paneli</h6>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'irrigation:irrigation_update' object.pk %}" class="btn btn-outline-primary rounded-pill">
+                        <i class="fas fa-edit me-2"></i>Məlumatı Yenilə
+                    </a>
+                    <button class="btn btn-outline-dark rounded-pill" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>PDF Hesabat Yüklə
+                    </button>
+                    <hr>
+                    <a href="{% url 'irrigation:irrigation_delete' object.pk %}" class="btn btn-link text-danger text-decoration-none btn-sm">
+                        <i class="fas fa-trash-alt me-1"></i> Bu qeydi sil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

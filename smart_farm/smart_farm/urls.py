@@ -30,6 +30,7 @@ urlpatterns = [
     path('sensors/', include('sensors.urls', namespace='sensors')),
     path('inventory/', include('inventory.urls', namespace='inventory')),
     path('weather/', include('weather.urls', namespace='weather')),   
+    path('irrigation/', include('irrigation.urls', namespace='irrigation')),
 ]
 
 if settings.DEBUG:

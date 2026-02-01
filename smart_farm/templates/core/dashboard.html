@@ -1,151 +1,203 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Dashboard - Smart Farm{% endblock %}
+
+{% block title %}İdarə Paneli - AgroVision{% endblock %}
 
 {% block content %}
-<div class="app-container py-4">
-    <div class="row">
-        <!-- 📊 STATISTICS CARDS -->
-        <div class="col-12 mb-4">
-            <h1 class="h4 mb-3">Ferma Dashboard</h1>
-            <div class="row g-3">
-                <!-- Sahələr -->
-                <div class="col-6 col-md-3">
-                    <div class="card stat-card bg-primary text-white">
-                        <div class="card-body text-center">
-                            <i class="fas fa-map fa-2x mb-2"></i>
-                            <h3 class="h2">{{ total_fields }}</h3>
-                            <p class="mb-0">Sahə</p>
-                        </div>
+<div class="container-fluid py-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark m-0">Xoş gördük, {{ user.first_name|default:user.username }}! 🚜</h2>
+            <p class="text-muted m-0">Fermadakı real zamanlı göstəricilər:</p>
+        </div>
+        <div class="bg-white p-2 px-3 rounded-pill shadow-sm d-flex align-items-center border">
+            <span class="badge bg-success rounded-circle p-1 me-2"><span class="visually-hidden">Online</span></span>
+            <small class="fw-bold text-uppercase text-secondary">Sistem Aktivdir</small>
+            <div class="vr mx-2"></div>
+            <small class="fw-bold text-primary">{% now "d F Y" %}</small>
+        </div>
+    </div>
+
+    <div class="alert alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" 
+         style="background-color: {% if ai_msg.type == 'danger' %}#ffeaea{% elif ai_msg.type == 'warning' %}#fff8e1{% else %}#e8f5e9{% endif %};
+                border-left: 5px solid {% if ai_msg.type == 'danger' %}#dc3545{% elif ai_msg.type == 'warning' %}#ffc107{% else %}#28a745{% endif %};">
+        <div class="d-flex align-items-center">
+            <div class="me-3 display-6">
+                <i class="fas {{ ai_msg.icon }} {% if ai_msg.type == 'danger' %}text-danger{% elif ai_msg.type == 'warning' %}text-warning{% else %}text-success{% endif %}"></i>
+            </div>
+            <div>
+                <h5 class="alert-heading fw-bold mb-1">{{ ai_msg.title }}</h5>
+                <p class="mb-0 text-dark opacity-75">{{ ai_msg.text }}</p>
+            </div>
+            {% if ai_msg.type == 'danger' or ai_msg.type == 'warning' %}
+            <div class="ms-auto">
+                <a class="btn btn-sm btn-dark rounded-pill px-3" href="{% url 'irrigation:irrigation_list' %}">Tədbir Gör</a>
+            </div>
+            {% endif %}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-white">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-square bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                        <i class="fas fa-map-marked-alt fa-2x"></i>
                     </div>
-                </div>
-                
-                <!-- Bitkilər -->
-                <div class="col-6 col-md-3">
-                    <div class="card stat-card bg-success text-white">
-                        <div class="card-body text-center">
-                            <i class="fas fa-seedling fa-2x mb-2"></i>
-                            <h3 class="h2">{{ total_plants }}</h3>
-                            <p class="mb-0">Bitki</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Sensorlar -->
-                <div class="col-6 col-md-3">
-                    <div class="card stat-card bg-info text-white">
-                        <div class="card-body text-center">
-                            <i class="fas fa-satellite-dish fa-2x mb-2"></i>
-                            <h3 class="h2">{{ total_sensors }}</h3>
-                            <p class="mb-0">Sensor</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Anbar -->
-                <div class="col-6 col-md-3">
-                    <div class="card stat-card bg-warning text-dark">
-                        <div class="card-body text-center">
-                            <i class="fas fa-box fa-2x mb-2"></i>
-                            <h3 class="h2">{{ total_inventory }}</h3>
-                            <p class="mb-0">Məhsul</p>
-                        </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small fw-bold text-uppercase">Ümumi Sahə</h6>
+                        <h3 class="fw-bold mb-0">{{ total_fields|default:"0" }}</h3>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- 📋 SON ƏMƏLİYYATLAR -->
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Son Əməliyyatlar</h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group list-group-flush">
-                        <!-- Burada son əməliyyatlar göstəriləcək -->
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-plus text-success me-2"></i>
-                                <span>Yeni məhsul əlavə edildi</span>
-                            </div>
-                            <small class="text-muted">5 dəqiqə əvvəl</small>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-seedling text-primary me-2"></i>
-                                <span>Yeni bitki əlavə edildi</span>
-                            </div>
-                            <small class="text-muted">1 saat əvvəl</small>
-                        </div>
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-exclamation-triangle text-danger me-2"></i>
-                                <span>Aşağı stok xəbərdarlığı</span>
-                            </div>
-                            <small class="text-muted">2 saat əvvəl</small>
-                        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-white">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-square bg-success bg-opacity-10 text-success rounded-3 p-3 me-3">
+                        <i class="fas fa-seedling fa-2x"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small fw-bold text-uppercase">Aktiv Bitki</h6>
+                        <h3 class="fw-bold mb-0">{{ total_plants|default:"0" }}</h3>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- ⚠️ XƏBƏRDARLIQLAR -->
-        <div class="col-md-4">
-            <div class="card shadow-sm border-warning">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Xəbərdarlıqlar</h5>
-                </div>
-                <div class="card-body">
-                    {% if low_stock_count > 0 %}
-                    <div class="alert alert-danger">
-                        <i class="fas fa-box me-2"></i>
-                        <strong>{{ low_stock_count }} məhsul</strong> aşağı stokdadır.
-                        <a href="{% url 'inventory:low_stock' %}" class="alert-link">Bax</a>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-white border-bottom border-primary border-4">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-square bg-info bg-opacity-10 text-info rounded-3 p-3 me-3">
+                        <i class="fas fa-tint fa-2x"></i>
                     </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small fw-bold text-uppercase">Bugünkü Su</h6>
+                        <h3 class="fw-bold mb-0 text-primary">{{ water_usage|floatformat:0 }} <small class="fs-6 text-muted">L</small></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 bg-white">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-square bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3">
+                        <i class="fas fa-microchip fa-2x"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0 small fw-bold text-uppercase">Onlayn Cihaz</h6>
+                        <h3 class="fw-bold mb-0">{{ total_sensors|default:"0" }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                    <h6 class="fw-bold m-0 text-dark"><i class="fas fa-calendar-alt text-primary me-2"></i>Növbəti Suvarmalar</h6>
+                    <a href="{% url 'irrigation:irrigation_list' %}" class="btn btn-sm btn-light rounded-pill">Hamısına bax</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light text-secondary small">
+                            <tr>
+                                <th class="ps-4">Vaxt</th>
+                                <th>Sahə</th>
+                                <th>Suvarma Növü</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for plan in upcoming_irrigations %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">{{ plan.irrigation_date|date:"d M" }}</div>
+                                    <small class="text-muted"><i class="far fa-clock me-1"></i>{{ plan.start_time|time:"H:i" }}</small>
+                                </td>
+                                <td><span class="fw-bold">{{ plan.field.name }}</span></td>
+                                <td><span class="badge bg-light text-dark border">{{ plan.get_irrigation_type_display }}</span></td>
+                                <td><span class="badge bg-primary bg-opacity-10 text-primary border-0 px-3">{{ plan.get_status_display }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <i class="fas fa-check-circle mb-2 d-block fa-2x opacity-25"></i>
+                                    Yaxın 24 saat üçün planlaşdırılan suvarma yoxdur.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4 text-white overflow-hidden" 
+                 style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 200px;">
+                <div class="card-body p-4 text-center position-relative">
+                    {% if latest_weather %}
+                        <div class="position-absolute top-0 end-0 p-3 opacity-25">
+                            <i class="fas fa-wind fa-3x"></i>
+                        </div>
+                        <h5 class="mb-1 fw-bold"><i class="fas fa-map-marker-alt me-2 text-warning"></i>{{ latest_weather.field.name }}</h5>
+                        <div class="my-3">
+                            {% if latest_weather.precipitation_mm > 0 %}
+                                <i class="fas fa-cloud-showers-heavy fa-4x animate-pulse text-info"></i>
+                            {% elif latest_weather.temperature_max > 28 %}
+                                <i class="fas fa-sun fa-4x animate-pulse text-warning"></i>
+                            {% else %}
+                                <i class="fas fa-cloud-sun fa-4x animate-pulse"></i>
+                            {% endif %}
+                        </div>
+                        <h2 class="display-4 fw-bold mb-0">{{ latest_weather.temperature_max|floatformat:1 }}°C</h2>
+                        <p class="mb-0 opacity-75 fw-bold text-uppercase small ls-1">{{ latest_weather.get_weather_condition_display }}</p>
                     {% else %}
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i>
-                        Heç bir xəbərdarlıq yoxdur.
-                    </div>
+                        <div class="py-4">
+                            <i class="fas fa-cloud fa-3x mb-3 opacity-50"></i>
+                            <p class="mb-0">Hava məlumatı əlçatan deyil</p>
+                            <small class="opacity-50">Zəhmət olmasa sahəyə hava datası əlavə edin.</small>
+                        </div>
                     {% endif %}
-                    
-                    <!-- Digər xəbərdarlıqlar burada əlavə oluna bilər -->
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Hava proqnozu: Sabah yağış gözlənilir.
-                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold m-0"><i class="fas fa-boxes text-warning me-2"></i>Anbar Qalıqları</h6>
+                    <a class="text-decoration-none small fw-bold" href="{% url 'inventory:low_stock' %}">Hamısı</a>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for item in low_stock_items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border-0 border-bottom">
+                            <div>
+                                <div class="fw-bold text-dark">{{ item.item_name }}</div>
+                                <small class="text-danger fw-bold">Kritik: {{ item.quantity }} {{ item.unit }}</small>
+                            </div>
+                            <span class="badge bg-danger rounded-pill">Azalır</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center py-4 text-muted small border-0">
+                            <i class="fas fa-thumbs-up text-success d-block mb-2 fa-lg"></i>
+                            Anbarda hər şey qaydasındadır.
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 🎨 STYLES -->
 <style>
-.stat-card {
-    border: none;
-    border-radius: 12px;
-    transition: transform 0.2s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-3px);
-}
-
-.app-container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.card {
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-}
-
-.list-group-item {
-    border: none;
-    padding: 12px 0;
-}
+    .icon-square { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
+    .animate-pulse { animation: pulse 2.5s infinite; }
+    @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+    .ls-1 { letter-spacing: 1px; }
 </style>
 {% endblock %}

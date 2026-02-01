@@ -55,7 +55,7 @@ class SensorFilterForm(forms.Form):
     )
     
     status = forms.ChoiceField(
-        choices=[('', 'Bütün statuslar'), ('active', 'Aktiv'), ('inactive', 'Qeyri-aktiv')],
+        choices=[('', 'Bütün statuslar'), ('True', 'Aktiv'), ('False', 'Qeyri-aktiv')],
         required=False,
         label='Status',
         widget=forms.Select(attrs={'class': 'form-control'})

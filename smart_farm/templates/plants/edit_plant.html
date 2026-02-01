@@ -1,60 +1,111 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Bitki Redaktə - {{ plant.get_plant_type_display }}{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/plants.css' %}">
-{% endblock %}
-
 {% block content %}
-<div class="container">
-  <div class="d-flex align-items-center mb-3">
-    <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-light btn-sm me-3" aria-label="geri">
-      <i class="fas fa-arrow-left"></i>
-    </a>
-    <div>
-      <h3 class="mb-0">{{ plant.get_plant_type_display }} — Redaktə</h3>
-      <small class="text-muted">Bitki məlumatlarını yeniləyin</small>
-    </div>
-  </div>
-
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form method="post" novalidate>
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-        {% endif %}
-
-        <div class="row g-3">
-          {% for field in form %}
-            <div class="col-12 col-md-6">
-              <label for="{{ field.id_for_label }}" class="form-label">
-                {% if field.name == 'field' %}<i class="fas fa-tractor me-1"></i>{% endif %}
-                {{ field.label }}
-              </label>
-              {{ field }}
-              {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-              {% for error in field.errors %}
-                <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</div>
-              {% endfor %}
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center">
+            <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-outline-success border-2 rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h3 class="fw-bold mb-0 text-dark">{{ plant.get_plant_type_display }} <span class="text-muted fw-light">| Redaktə</span></h3>
+                <p class="text-muted small mb-0">{{ plant.field.name }} sahəsindəki bitki məlumatları</p>
             </div>
-          {% endfor %}
+        </div>
+        <div class="badge bg-light text-success border border-success px-3 py-2 rounded-pill">
+            ID: #{{ plant.id }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger rounded-3 border-0 shadow-sm">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="row g-4">
+                            {% for field in form %}
+                            <div class="{% if field.name == 'notes' %}col-12{% else %}col-md-6{% endif %}">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-bold text-secondary small uppercase">
+                                    {% if field.name == 'field' %}<i class="fas fa-map-marked-alt text-success me-1"></i>
+                                    {% elif field.name == 'area_hectares' %}<i class="fas fa-ruler-combined text-success me-1"></i>
+                                    {% elif field.name == 'planting_date' %}<i class="fas fa-calendar-alt text-success me-1"></i>
+                                    {% endif %}
+                                    {{ field.label }}
+                                </label>
+                                
+                                {{ field }}
+
+                                {% if field.help_text %}
+                                    <div class="form-text mt-1 italic">{{ field.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in field.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-5 pt-3 border-top d-flex gap-2">
+                            <button class="btn btn-success px-5 py-2 rounded-pill shadow-sm fw-bold" type="submit">
+                                <i class="fas fa-check-circle me-2"></i>Dəyişiklikləri Yadda Saxla
+                            </button>
+                            <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-light px-4 py-2 rounded-pill text-muted">
+                                İmtina
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <div class="mt-3 d-flex gap-2">
-          <button class="btn btn-primary" type="submit"><i class="fas fa-save me-1"></i>Yadda saxla</button>
-          <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-outline-secondary">İmtina</a>
+        <div class="col-lg-4">
+            <div class="card border-0 bg-success text-white rounded-4 shadow-sm mb-4">
+                <div class="card-body p-4 text-center">
+                    <i class="fas fa-info-circle fa-2x mb-3 opacity-50"></i>
+                    <h5>Nəyə diqqət etməli?</h5>
+                    <p class="small mb-0 opacity-75">
+                        Bitkinin böyümə mərhələsini yeniləmək, süni intellekt proqnozlarının daha dəqiq işləməsinə kömək edir.
+                    </p>
+                </div>
+            </div>
+            
+            {% if plant.image %}
+            <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
+                <div class="card-header bg-white fw-bold small text-muted text-center border-0 py-3">CARİ ŞƏKİL</div>
+                <img src="{{ plant.image.url }}" class="img-fluid" alt="Plant current state">
+            </div>
+            {% endif %}
         </div>
-      </form>
     </div>
-  </div>
 </div>
+
+<style>
+    /* Inputlara xüsusi stil */
+    .form-control, .form-select {
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e0e6ed;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #27ae60;
+        box-shadow: 0 0 0 0.25rem rgba(39, 174, 96, 0.1);
+    }
+    .form-label {
+        letter-spacing: 0.5px;
+        font-size: 0.75rem;
+    }
+</style>
 {% endblock %}

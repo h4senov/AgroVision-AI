@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Suvarma İdarəetməsi - Smart Farm{% endblock %}
+
+{% block extra_css %}
+<style>
+    .fade-in-up { animation: fadeInUp 0.4s ease-out; }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .stat-card { border-radius: 20px; transition: transform 0.2s; border: none; }
+    .stat-card:hover { transform: translateY(-5px); }
+    .status-badge { padding: 6px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; }
+    .status-completed { background: #d4edda; color: #155724; }
+    .status-planned { background: #fff3cd; color: #856404; }
+    .status-active { background: #cce5ff; color: #004085; }
+    .status-failed { background: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 fade-in-up">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark mb-0"><i class="fas fa-tint text-success me-2"></i>Suvarma Paneli</h2>
+        <a href="{% url 'irrigation:irrigation_add' %}" class="btn btn-success rounded-pill px-4 shadow-sm">
+            <i class="fas fa-plus-circle me-2"></i>Yeni Plan
+        </a>
+    </div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm p-3 bg-white border-start border-4 border-primary">
+                <small class="text-muted fw-bold text-uppercase">Bugünkü İstehlak</small>
+                <h3 class="fw-bold text-dark mt-1">{{ today_consumption|default:"0" }} L</h3>
+                <span class="text-success small"><i class="fas fa-arrow-down me-1"></i>Normal səviyyə</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm p-3 bg-white border-start border-4 border-success">
+                <small class="text-muted fw-bold text-uppercase">Aktiv Zonalar</small>
+                <h3 class="fw-bold text-dark mt-1">{{ active_zones_count|default:"0" }}/{{ total_zones }}</h3>
+                <span class="text-muted small">Sistem aktivdir</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm p-3 bg-white border-start border-4 border-danger">
+                <small class="text-muted fw-bold text-uppercase">Problem Zonalar</small>
+                <h3 class="fw-bold {% if problem_zones > 0 %}text-danger{% else %}text-dark{% endif %} mt-1">{{ problem_zones }}</h3>
+                <span class="text-muted small">{% if problem_zones > 0 %}Diqqət tələb olunur{% else %}Hər şey qaydasındadır{% endif %}</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card shadow-sm p-3 bg-dark text-white shadow">
+                <small class="text-warning fw-bold text-uppercase">Növbəti Suvarma</small>
+                {% if next_irrigation %}
+                    <h3 class="fw-bold text-warning mt-1">{{ next_irrigation.time_until }}</h3>
+                    <small class="opacity-75">{{ next_irrigation.field.name }} ({{ next_irrigation.start_time|date:"H:i" }})</small>
+                {% else %}
+                    <h3 class="fw-bold mt-1">Plan yoxdur</h3>
+                    <small class="opacity-50">Cədvəl boşdur</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4 mb-4 rounded-4 bg-light">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control rounded-pill border-0 shadow-sm" placeholder="Sahə və ya bitki axtar..." value="{{ request.GET.q }}">
+            </div>
+            <div class="col-md-3">
+                <select name="type" class="form-select rounded-pill border-0 shadow-sm">
+                    <option value="">Bütün Metodlar</option>
+                    {% for key, val in irrigation_types %}
+                        <option value="{{ key }}" {% if request.GET.type == key %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select rounded-pill border-0 shadow-sm">
+                    <option value="">Bütün Statuslar</option>
+                    {% for key, val in status_choices %}
+                        <option value="{{ key }}" {% if request.GET.status == key %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark w-100 rounded-pill shadow-sm">Filtrlə</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="bg-light text-muted small text-uppercase">
+                    <tr>
+                        <th class="ps-4">Tarix / Vaxt</th>
+                        <th>Sahə & Bitki</th>
+                        <th>Həcm</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">İdarəetmə</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in schedules %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold text-dark">{{ item.irrigation_date|date:"d M Y" }}</div>
+                            <small class="text-muted"><i class="far fa-clock me-1"></i>{{ item.start_time|date:"H:i" }}</small>
+                        </td>
+                        <td>
+                            <a href="{% url 'irrigation:irrigation_detail' item.pk %}" class="text-decoration-none">
+                                <div class="fw-bold text-dark">{{ item.field.name }}</div>
+                                <small class="text-success"><i class="fas fa-seedling me-1"></i>{{ item.plant.name|default:"Ümumi" }}</small>
+                            </a>
+                        </td>
+                        <td><span class="fw-bold">{{ item.water_volume_liters }} L</span></td>
+                        <td>
+                            <span class="status-badge status-{{ item.status }}">
+                                {{ item.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'irrigation:irrigation_update' item.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'irrigation:irrigation_delete' item.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">Məlumat tapılmadı.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

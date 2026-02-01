@@ -1,44 +1,52 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block title %}Sahəni Sil — {{ field.name }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/fields.css' %}">
+<style>
+    .delete-container { min-height: 80vh; display: flex; align-items: center; justify-content: center; }
+    .delete-card { border: none; border-radius: 30px; border-top: 8px solid #dc3545; box-shadow: 0 15px 40px rgba(220, 53, 69, 0.1); }
+    .warning-icon { font-size: 4rem; color: #dc3545; animation: pulse 2s infinite; }
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="app-container py-4">
-  <div class="row justify-content-center">
-    <div class="col-lg-6">
-      <div class="text-center mb-4">
-        <div class="text-danger mb-2"><i class="fas fa-exclamation-triangle fa-2x"></i></div>
-        <h1 class="h5 mb-1">Sahəni Sil</h1>
-        <p class="text-muted small mb-0">Bu əməliyyat geri alınmaz.</p>
-      </div>
+<div class="container delete-container">
+    <div class="row justify-content-center w-100">
+        <div class="col-md-5">
+            <div class="card delete-card text-center p-4 p-md-5">
+                <div class="mb-4">
+                    <i class="fas fa-exclamation-circle warning-icon"></i>
+                </div>
+                
+                <h3 class="fw-bold text-dark mb-2">Əminsiniz?</h3>
+                <p class="text-muted mb-4">
+                    <strong>“{{ field.name }}”</strong> sahəsini və ona aid olan <strong>{{ field.plants.count }} bitki</strong> məlumatını tamamilə silmək üzrəsiniz. Bu əməliyyatı geri qaytarmaq mümkün olmayacaq.
+                </p>
 
-      <div class="card border-0 shadow-sm">
-        <div class="card-body text-center">
-          <h4 class="h6 mb-3">“{{ field.name }}” sahəsini silmək istədiyinizə əminsiniz?</h4>
+                <div class="bg-light rounded-4 p-3 mb-4 d-flex justify-content-center gap-3">
+                    <span class="small fw-bold"><i class="fas fa-vector-square me-1"></i> {{ field.area_hectares }} ha</span>
+                    <span class="small fw-bold border-start ps-3"><i class="fas fa-mountain me-1"></i> {{ field.get_soil_type_display }}</span>
+                </div>
 
-          <div class="mb-3">
-            <span class="soil-badge">{{ field.get_soil_type_display }}</span>
-            <span class="text-muted ms-2">{{ field.area_hectares }} ha</span>
-          </div>
-
-          <p class="small text-muted mb-4">Bu sahə ilə əlaqəli bütün bitki məlumatları da silinəcək.</p>
-
-          <form method="post">
-            {% csrf_token %}
-            <div class="d-flex justify-content-center gap-2">
-              <button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i> Bəli, Sil</button>
-              <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-outline-secondary">Ləğv et</a>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger py-3 rounded-pill fw-bold shadow">
+                            <i class="fas fa-trash-alt me-2"></i>Bəli, Hər Şeyi Sil
+                        </button>
+                        <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-outline-secondary py-3 rounded-pill fw-bold mt-2">
+                            Xeyr, Geri Qayıt
+                        </a>
+                    </div>
+                </form>
             </div>
-          </form>
         </div>
-      </div>
-
     </div>
-  </div>
 </div>
 {% endblock %}

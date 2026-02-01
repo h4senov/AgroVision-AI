@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Smart Farm{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        border-radius: 20px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-left: none;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25 rgba(25, 135, 84, 0.25);
+    }
+    label {
+        color: #495057;
+        margin-bottom: 5px;
+    }
+    .bg-light-custom {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    .btn-lg-custom {
+        transition: all 0.3s ease;
+    }
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(25, 135, 84, 0.3);
+    }
+    @media (max-width: 768px) {
+        .container { margin-top: 20px; }
+        .btn-lg-custom { width: 100%; margin-bottom: 10px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <div class="card form-card shadow-lg border-0">
+                
+                <div class="card-header bg-success text-white py-3">
+                    <h4 class="card-title mb-0 d-flex align-items-center">
+                        <i class="fas fa-tint me-3"></i>
+                        <span>{{ title|default:"Suvarma Qeydiyyatı" }}</span>
+                    </h4>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" id="irrigationForm" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger rounded-3">
+                            {% for error in form.non_field_errors %}
+                                <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-uppercase">
+                                    <i class="fas fa-map-marker-alt text-success me-1"></i> {{ form.field.label }}
+                                </label>
+                                {{ form.field }}
+                                {% if form.field.errors %}<div class="text-danger small mt-1">{{ form.field.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-uppercase">
+                                    <i class="fas fa-seedling text-success me-1"></i> {{ form.plant.label }}
+                                </label>
+                                {{ form.plant }}
+                                {% if form.plant.errors %}<div class="text-danger small mt-1">{{ form.plant.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4 p-3 bg-light-custom rounded-4">
+                            <div class="col-md-4">
+                                <label class="small fw-bold">{{ form.irrigation_date.label }}</label>
+                                {{ form.irrigation_date }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-primary"><i class="far fa-clock me-1"></i> {{ form.start_time.label }}</label>
+                                {{ form.start_time }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-danger"><i class="fas fa-history me-1"></i> {{ form.end_time.label }}</label>
+                                {{ form.end_time }}
+                                {% if form.end_time.errors %}<div class="text-danger small mt-1">{{ form.end_time.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="small fw-bold">{{ form.irrigation_type.label }}</label>
+                                {{ form.irrigation_type }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold">{{ form.water_volume_liters.label }}</label>
+                                <div class="input-group">
+                                    {{ form.water_volume_liters }}
+                                    <span class="input-group-text">Litr</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4 align-items-end">
+                            <div class="col-md-6">
+                                <label class="small fw-bold">{{ form.status.label }}</label>
+                                {{ form.status }}
+                            </div>
+                            <div class="col-md-6 pb-2">
+                                <div class="form-check form-switch card p-2 px-5 border-0 bg-light">
+                                    {{ form.is_automated }}
+                                    <label class="form-check-label fw-bold ms-2" for="{{ form.is_automated.id_for_label }}">
+                                        {{ form.is_automated.label }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="small fw-bold">{{ form.notes.label }}</label>
+                            {{ form.notes }}
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                            <a href="{% url 'irrigation:irrigation_list' %}" class="btn btn-light btn-lg-custom px-4 rounded-pill border">
+                                <i class="fas fa-times me-2"></i>Ləğv et
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg-custom px-5 rounded-pill shadow-sm fw-bold">
+                                <i class="fas fa-check-circle me-2"></i>Məlumatı Yadda Saxla
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const fieldSelect = document.getElementById("id_field");
+        const plantSelect = document.getElementById("id_plant");
+
+        if (fieldSelect) {
+            fieldSelect.addEventListener("change", function() {
+                const fieldId = this.value;
+                
+                if (!fieldId) {
+                    plantSelect.innerHTML = '<option value="">---------</option>';
+                    return;
+                }
+
+                fetch(`{% url 'irrigation:ajax_load_plants' %}?field_id=${fieldId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        plantSelect.innerHTML = '<option value="">---------</option>';
+                        data.forEach(plant => {
+                            const option = document.createElement("option");
+                            option.value = plant.id;
+                            option.text = plant.name;
+                            plantSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Xəta:', error));
+            });
+        }
+    });
+</script>
+{% endblock %}

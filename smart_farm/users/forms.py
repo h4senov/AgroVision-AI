@@ -15,38 +15,42 @@ class CustomUserCreationForm(UserCreationForm):
         initial='farmer',
         label='Rol'
     )
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'email', 'farm_name', 'phone', 
-                  'location', 'role', 'password1', 'password2')
     
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data.get('email')
-        user.farm_name = self.cleaned_data.get('farm_name')
-        user.phone = self.cleaned_data.get('phone')
-        user.location = self.cleaned_data.get('location')
-        user.role = self.cleaned_data.get('role')
+    class Meta(UserCreationForm.Meta):
+        model = CustomUser
+        fields = UserCreationForm.Meta.fields + ('email', 'farm_name', 'phone', 'location', 'role')
 
-        if commit:
-            user.save()
-        return user  
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control shadow-none'})  
     
 class CustomUserUpdateForm(UserChangeForm):
-    password = None 
-    
+    password = None  # Şifrə dəyişməyəcək, bunun üçün ayrı formun var zaten
+
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'farm_name', 'phone', 'location', 'role')
+        fields = ('username', 'email', 'farm_name', 'phone', 'location', 'role', 'avatar') # avatar əlavə edildi
         labels = {
             'username': 'İstifadəçi adı',
             'email': 'Email',
             'farm_name': 'Ferma adı', 
             'phone': 'Telefon',
             'location': 'Yerləşdiyi yer',
-            'role': 'Rol'
+            'role': 'Rol',
+            'avatar': 'Profil şəkli'
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Bütün sahələrə dinamik olaraq Bootstrap klassı əlavə edirik
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control shadow-none'})
+        
+        # Əgər istifadəçi admin deyilsə, rolunu özü dəyişə bilməsin
+        instance = kwargs.get('instance')
+        if instance and not instance.can_manage_system():
+            self.fields['role'].disabled = True # və ya self.fields.pop('role')
 
 class CustomPasswordChangeForm(PasswordChangeForm):
     old_password = forms.CharField(

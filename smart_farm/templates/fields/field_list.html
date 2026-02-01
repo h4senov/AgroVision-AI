@@ -1,71 +1,144 @@
-<!-- fields/field_list.html -->
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Sahələr - Smart Farm{% endblock %}
+{% block extra_css %}
+<style>
+    /* Animasiya və Kart Dizaynı */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .field-card {
+        border: none;
+        border-radius: 20px;
+        background: #fff;
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.5s ease backwards;
+        border: 1px solid #f0f0f0;
+    }
+
+    .field-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+        border-color: #2ecc71;
+    }
+
+    /* Filtr Paneli Stili */
+    .filter-section {
+        background: #fdfdfd;
+        border-radius: 20px;
+        border: 1px solid #eee;
+        padding: 25px;
+        margin-bottom: 40px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+
+    .form-control:focus {
+        border-color: #2ecc71;
+        box-shadow: none;
+    }
+
+    .btn-filter {
+        background: #2ecc71;
+        color: white;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-filter:hover {
+        background: #27ae60;
+        color: white;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>🗺️ Sahələr</h1>
-        <a href="{% url 'fields:add_field' %}" class="btn btn-success">
-            ➕ Yeni Sahə
+        <h2 class="fw-bold mb-0">🗺️ Sahələrin İdarə Edilməsi</h2>
+        <a href="{% url 'fields:add_field' %}" class="btn btn-dark rounded-pill px-4 shadow-sm">
+            <i class="fas fa-plus me-2"></i>Yeni Sahə
         </a>
     </div>
 
-    <!-- Axtarış və Filter Form -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-4">
-                    {{ search_form.search.label_tag }}
-                    {{ search_form.search }}
-                </div>
-                <div class="col-md-2">
-                    {{ filter_form.soil_type.label_tag }}
-                    {{ filter_form.soil_type }}
-                </div>
-                <div class="col-md-2">
-                    {{ filter_form.min_area.label_tag }}
-                    {{ filter_form.min_area }}
-                </div>
-                <div class="col-md-2">
-                    {{ filter_form.max_area.label_tag }}
-                    {{ filter_form.max_area }}
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Axtar</button>
-                </div>
-            </form>
-        </div>
+    <div class="filter-section shadow-sm">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-muted">Ad ilə axtar</label>
+                {{ search_form.search }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">Torpaq Tipi</label>
+                {{ filter_form.soil_type }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">Min. Sahə</label>
+                {{ filter_form.min_area }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">Suvarma</label>
+                {{ filter_form.irrigated }}
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-filter w-100">
+                    <i class="fas fa-search me-2"></i>Axtar
+                </button>
+            </div>
+        </form>
     </div>
 
-    <!-- Sahə List -->
-    {% if fields %}
-    <div class="row">
+    <div class="row g-4">
         {% for field in fields %}
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ field.name }}</h5>
-                    <p class="card-text">
-                        Sahə: {{ field.area_hectares }} ha<br>
-                        Torpaq növü: {{ field.get_soil_type_display }}<br>
-                        Yaradılma: {{ field.created_at|date:"d.m.Y" }}
-                    </p>
+        <div class="col-md-6 col-lg-4">
+            <div class="card field-card h-100 p-4">
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
+                        {{ field.get_soil_type_display }}
+                    </span>
+                    <small class="text-muted">{{ field.created_at|date:"d.m.Y" }}</small>
                 </div>
-                <div class="card-footer">
-                    <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-primary btn-sm">Detallar</a>
-                    <a href="{% url 'fields:field_metrics' field.id %}" class="btn btn-info btn-sm">Metrikalar</a>
+
+                <h5 class="fw-bold mb-2">{{ field.name }}</h5>
+                
+                <div class="mb-4">
+                    <div class="d-flex align-items-center text-muted mb-2">
+                        <i class="fas fa-vector-square me-2"></i>
+                        <span>Sahə: <strong>{{ field.area_hectares }} ha</strong></span>
+                    </div>
+                    <div class="d-flex align-items-center text-muted">
+                        <i class="fas fa-tint me-2"></i>
+                        <span>Vəziyyət: 
+                            {% if field.is_irrigated %}
+                                <strong class="text-primary">Suvarılıb</strong>
+                            {% else %}
+                                <strong class="text-warning">Suvarma gözləyir</strong>
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
+
+                <div class="d-grid gap-2 mt-auto">
+                    <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-outline-dark rounded-pill btn-sm">
+                        Detallara bax
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="alert alert-info rounded-4 border-0 shadow-sm">
+                Axtarışa uyğun sahə tapılmadı. <a href="{% url 'fields:field_list' %}" class="fw-bold text-decoration-none">Sıfırla</a>
             </div>
         </div>
         {% endfor %}
     </div>
-    {% else %}
-    <div class="alert alert-info">
-        Heç bir sahə tapılmadı.
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

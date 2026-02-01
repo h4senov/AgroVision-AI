@@ -1,98 +1,95 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from fields.models import Field
-from plants.models import Plant
-from sensors.models import Sensor
-from django.db.models import Sum, Count
+from django.db.models import Sum, F, Q, Count
 from django.utils import timezone
 from datetime import timedelta
-from weather.models import WeatherData
 
+ 
 def home(request):
-    if request.user.is_authenticated:
-        total_fields = Field.objects.filter(user=request.user).count()
-        total_plants = Plant.objects.filter(user=request.user).count()
-    else:
-        total_fields = 0
-        total_plants = 0
-    
+    """
+    Landing Page: Layihənin məqsədini, qlobal statistikaları və animasiyalı təqdimatı göstərir.
+    User login olsa belə, bura ana səhifə kimi görünür, amma "Dashboarda Keç" düyməsi olur.
+    """
+    # Bu rəqəmlər saytın ümumi "gücünü" göstərmək üçün marketinq məqsədlidir (simulyasiya)
+    # Reallıqda bütün userlərin cəmini hesablaya bilərsən.
     context = {
-        'total_fields': total_fields,
-        'total_plants': total_plants,
+        'global_water_saved': 15400,  # Tonla
+        'global_active_sensors': 450,
+        'global_ai_analysis': 12000,
+        'farmers_count': 85
     }
     return render(request, 'core/home.html', context)
 
+from irrigation.models import IrrigationSchedule
+from inventory.models import Inventory
+
 @login_required
 def dashboard(request):
-    # Fields
-    fields = Field.objects.filter(user=request.user)
-    total_fields = fields.count()
-    total_farm_area = fields.aggregate(total=Sum('area_hectares'))['total'] or 0
+    user = request.user
+    today = timezone.now().date()
     
-    # Plants
-    plants = Plant.objects.filter(user=request.user)
-    total_plants = plants.count()
-    total_plant_area = plants.aggregate(total=Sum('area_hectares'))['total'] or 0
-    active_plants_count = plants.filter(status='active').count()
+    # 1. Real Statistikalar
+    total_fields = user.fields.count()
+    total_plants = user.fields.filter(plants__isnull=False).distinct().count()
+    total_sensors = user.fields.aggregate(Count('sensors'))['sensors__count'] or 0
     
-    # Upcoming harvests
-    next_week = timezone.now().date() + timedelta(days=7)
-    upcoming_harvests = plants.filter(
-        status='active',
-        expected_harvest_date__lte=next_week,
-        expected_harvest_date__gte=timezone.now().date()
-    ).count()
-    
-    # Sensors
-    sensors = Sensor.objects.filter(user=request.user)
-    total_sensors = sensors.count()
-    active_sensors = sensors.filter(is_active=True).count()
-    
-    # Recent plants for activity
-    recent_plants = plants.order_by('-created_at')[:5]
-    
-    # Plant distribution
-    plant_distribution = plants.values('plant_type').annotate(
-        count=Count('id'),
-        total_area=Sum('area_hectares')
-    ).order_by('-count')
+    # Su Sərfiyyatı (Yalnız tamamlanmış və bugünkü)
+    water_usage = IrrigationSchedule.objects.filter(
+        field__user=user, 
+        status='completed',
+        irrigation_date=today
+    ).aggregate(Sum('water_volume_liters'))['water_volume_liters__sum'] or 0
 
-    
-    
-    week_ago = timezone.now().date() - timedelta(days=7)
-    recent_weather = WeatherData.objects.filter(
-        field__user=request.user, 
-        weather_date__gte=week_ago
-    ).order_by('-weather_date')[:5]
+    # 2. Növbəti Suvarmalar (Bazadan real gələn planlar)
+    upcoming_irrigations = IrrigationSchedule.objects.filter(
+        field__user=user,
+        status='planned',
+        irrigation_date__gte=today
+    ).order_by('irrigation_date', 'start_time')[:5]
 
-    # Field metrics üçün nümunə
-    sample_field = fields.first()
-    field_metrics = None
-    if sample_field:
-        field_metrics = Field.objects.calculate_field_metrics(sample_field.id)
+    # 3. Anbar Xəbərdarlığı (Real kritik stok)
+    # Kritik səviyyəsi 10-dan aşağı olan mallar
+    low_stock_items = Inventory.objects.filter(user=user, quantity__lt=10)[:3]
 
-    # Plant predictions
-    upcoming_plants = plants.filter(status='active')[:3]
-    plant_predictions = {}
-    for plant in upcoming_plants:
-        plant_predictions[plant.id] = Plant.objects.predict_harvest_time(plant.id)
+    # 4. Dinamik AI Mesajı (Real data analizi)
+    # Son suvarma qeydində rütubəti 20-dən aşağı olan sahə varmı?
+    critical_field = IrrigationSchedule.objects.filter(
+        field__user=user, 
+        soil_moisture_level__lt=20
+    ).order_by('-irrigation_date').first()
 
+    if critical_field:
+        ai_msg = {
+            'title': 'Təcili Müdaxilə!',
+            'text': f"{critical_field.field.name} sahəsində rütubət {critical_field.soil_moisture_level}%-ə düşüb. Bitki təhlükədədir!",
+            'type': 'danger', 'icon': 'fa-exclamation-triangle'
+        }
+    elif low_stock_items.exists():
+        ai_msg = {
+            'title': 'Anbar xəbərdarlığı',
+            'text': f"Anbarda {low_stock_items.first().item_name} bitmək üzrədir. Tədarük planlayın.",
+            'type': 'warning', 'icon': 'fa-boxes'
+        }
+    else:
+        ai_msg = {
+            'title': 'Hər şey qaydasındadır',
+            'text': 'Sistem stabil işləyir, kritik bir vəziyyət aşkarlanmadı.',
+            'type': 'success', 'icon': 'fa-check-circle'
+        }
 
+    # 5. Son Hava Məlumatı (Ən son hansı sahəyə hava daxil edilibsə)
+    # Bu hissə sənin WeatherData modelindən gəlir
+    from weather.models import WeatherData # Modelin adını dəqiqləşdir
+    latest_weather = WeatherData.objects.filter(field__user=user).order_by('-weather_date').first()
 
     context = {
         'total_fields': total_fields,
         'total_plants': total_plants,
+        'water_usage': water_usage,
         'total_sensors': total_sensors,
-        'active_sensors': active_sensors,
-        'total_farm_area': total_farm_area,
-        'total_plant_area': total_plant_area,
-        'active_plants_count': active_plants_count,
-        'upcoming_harvests': upcoming_harvests,
-        'recent_plants': recent_plants,
-        'plant_distribution': plant_distribution,
-        'recent_weather': recent_weather,
-        'field_metrics': field_metrics,
-        'plant_predictions': plant_predictions,
+        'upcoming_irrigations': upcoming_irrigations,
+        'low_stock_items': low_stock_items,
+        'ai_msg': ai_msg,
+        'latest_weather': latest_weather,
     }
-    
     return render(request, 'core/dashboard.html', context)

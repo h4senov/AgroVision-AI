@@ -1,3 +1,4 @@
+from pyexpat.errors import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from sensors.models import Sensor
@@ -33,6 +34,7 @@ def field_list(request):
         'soil_type': request.GET.get('soil_type', ''),
         'min_area': request.GET.get('min_area', ''),
         'max_area': request.GET.get('max_area', ''),
+        'irrigated': request.GET.get('irrigated', ''),
     }
 
     fields = Field.objects.search_fields(query, request.user, filters)    
@@ -52,33 +54,20 @@ def field_list(request):
 
 @login_required
 def field_detail(request, field_id):
-    
     field = get_object_or_404(Field, id=field_id, user=request.user)
-
-    plants = field.plants.all()
-
-    total_plants = plants.count()
     
-    active_plants  = plants.filter(status='active').count()
-
-    total_area =  plants.aggregate(total=Sum('area_hectares'))['total'] or 0
-
-     
-
+    # Sənin Manager-dəki o möhtəşəm metodunu çağırırıq
+    metrics = Field.objects.calculate_field_metrics(field_id)
+    
+    # Bu sahəyə aid olan bitkilər
+    plants = field.plants.all()
+    
     context = {
-
         'field': field,
+        'metrics': metrics,  # Bütün hesablamalar buradadır
         'plants': plants,
-        'total_plants': total_plants,
-        'active_plants': active_plants,
-        'total_area': total_area,
     }
-
-
-
     return render(request, 'fields/field_detail.html', context)
-
-
 
 
 @login_required
@@ -89,6 +78,7 @@ def add_field(request):
             field = form.save(commit=False)
             field.user = request.user  
             field.save()
+            messages.success(request, f'"{field.name}" sahəsi uğurla yaradıldı!')
             return redirect('fields:field_list')
     else:
         form = FieldForm()

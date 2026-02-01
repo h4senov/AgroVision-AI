@@ -1,79 +1,77 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Bitki Sil - {{ plant.get_plant_type_display }}{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/plants.css' %}">
-{% endblock %}
+{% block title %}Bitkini Sil - {{ plant.get_plant_type_display }}{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <!-- Header -->
-            <div class="text-center mb-4">
-                <div class="empty-state-icon-natural text-danger">
-                    <i class="fas fa-exclamation-triangle"></i>
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="bg-danger py-3 text-center text-white">
+                    <i class="fas fa-exclamation-circle fa-3x mb-2"></i>
+                    <h4 class="fw-bold mb-0">Təsdiqləyin</h4>
                 </div>
-                <h1 class="h3 mb-2" style="color: var(--plant-text);">Bitki Sil</h1>
-                <p class="text-muted">Bu əməliyyat geri alına bilməz</p>
-            </div>
 
-            <!-- Bitki Məlumatları -->
-            <div class="plant-card">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="plant-type-icon">
-                        <i class="fas fa-leaf"></i>
-                    </div>
-                    <div>
-                        <h3 class="h5 mb-1" style="color: var(--plant-text);">{{ plant.get_plant_type_display }}</h3>
-                        <p class="mb-0" style="color: var(--plant-brown);">{{ plant.variety|default:"Sort qeyd edilməyib" }}</p>
-                    </div>
-                </div>
-                
-                <div class="plant-info-grid" style="grid-template-columns: 1fr; gap: 0.75rem; padding: 0;">
-                    <div class="d-flex justify-content-between">
-                        <span style="color: var(--plant-brown);">Sahə:</span>
-                        <span style="color: var(--plant-text);">{{ plant.field.name }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span style="color: var(--plant-brown);">Əkin Tarixi:</span>
-                        <span style="color: var(--plant-text);">{{ plant.planting_date }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span style="color: var(--plant-brown);">Böyümə Mərhələsi:</span>
-                        <span class="growth-badge growth-{{ plant.growth_stage }}">
-                            {{ plant.get_growth_stage_display }}
-                        </span>
-                    </div>
-                </div>
-            </div>
+                <div class="card-body p-4 p-md-5 text-center">
+                    <h2 class="h4 fw-bold text-dark mb-3">Bitki silinsin?</h2>
+                    <p class="text-muted mb-4">Aşağıdakı bitki və ona aid bütün proqnozlar, qeydlər sistemdən <strong>daimi olaraq</strong> silinəcək:</p>
 
-            <!-- Xəbərdarlıq -->
-            <div class="alert-natural alert-danger-natural mt-4">
-                <div class="text-center">
-                    <h4 class="h5 mb-3">"{{ plant.get_plant_type_display }}" bitkisini silmək istədiyinizə əminsiniz?</h4>
-                    <p class="mb-0">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Bu bitki ilə əlaqəli bütün məlumatlar silinəcək
-                    </p>
+                    <div class="d-flex align-items-center p-3 bg-light rounded-4 mb-5 border">
+                        <div class="flex-shrink-0">
+                            {% if plant.image %}
+                                <img src="{{ plant.image.url }}" class="rounded-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary bg-opacity-10 rounded-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                    <i class="fas fa-seedling text-secondary"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 ms-3 text-start">
+                            <h6 class="fw-bold mb-0 text-dark">{{ plant.get_plant_type_display }}</h6>
+                            <small class="text-muted">{{ plant.variety|default:"Sort qeyd edilməyib" }}</small>
+                            <div class="small text-success fw-bold">{{ plant.field.name }} sahəsi</div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger py-3 rounded-pill fw-bold shadow-sm">
+                                <i class="fas fa-trash-alt me-2"></i>Bəli, tamamilə sil
+                            </button>
+                            <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-light py-3 rounded-pill fw-bold text-muted mt-2">
+                                Xeyr, geri qayıt
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <form method="post" class="text-center mt-4">
-                {% csrf_token %}
-                <div class="d-flex gap-3 justify-content-center">
-                    <button type="submit" class="btn-natural btn-danger-natural">
-                        <i class="fas fa-trash me-2"></i>Bəli, Sil
-                    </button>
-                    <a href="{% url 'plants:plant_detail' plant.id %}" class="btn-natural btn-secondary-natural">
-                        <i class="fas fa-times me-2"></i>Ləğv et
-                    </a>
-                </div>
-            </form>
+            <p class="text-center text-muted mt-4 small">
+                <i class="fas fa-info-circle me-1"></i> Bu əməliyyat geri qaytarıla bilməz.
+            </p>
         </div>
     </div>
 </div>
+
+<style>
+    /* Silmə səhifəsinə özəl sadə effekt */
+    .card {
+        animation: slideUp 0.4s ease-out;
+    }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        border: none;
+        transition: all 0.3s;
+    }
+    .btn-danger:hover {
+        background-color: #bb2d3b;
+        transform: scale(1.02);
+    }
+</style>
 {% endblock %}

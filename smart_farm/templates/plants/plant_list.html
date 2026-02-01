@@ -1,73 +1,189 @@
-<!-- plants/plant_list.html -->
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Bitkilər - Smart Farm{% endblock %}
-
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>🌱 Bitkilər</h1>
-        <a href="{% url 'plants:add_plant' %}" class="btn btn-success">
-            ➕ Yeni Bitki
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body { font-family: 'Poppins', sans-serif; background-color: #f8faf9; }
+    
+    .filter-card {
+        background: white; border-radius: 20px; padding: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: none; margin-bottom: 40px;
+    }
+
+    .plant-card {
+        background: white; border-radius: 25px; overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border: 1px solid #f0f0f0; height: 100%; position: relative;
+    }
+
+    .plant-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 20px 40px rgba(46, 204, 113, 0.12);
+        border-color: #2ecc71;
+    }
+
+    .img-container { height: 220px; overflow: hidden; position: relative; }
+    .img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    .plant-card:hover .img-container img { transform: scale(1.1); }
+
+    .status-badge {
+        position: absolute; top: 15px; right: 15px;
+        backdrop-filter: blur(8px); background: rgba(255,255,255,0.85);
+        padding: 6px 15px; border-radius: 50px; font-weight: 700; font-size: 0.75rem;
+    }
+
+    .progress { background-color: #edf2f0; border-radius: 10px; height: 8px; }
+    
+    .btn-action {
+        border-radius: 12px; padding: 10px; font-weight: 600;
+        transition: 0.3s; flex: 1; text-align: center; text-decoration: none;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-dark mb-1">🌱 Bitki İdarəetmə Paneli</h1>
+            <p class="text-muted small">Sahələrinizdəki cari məhsul vəziyyəti</p>
+        </div>
+        <a href="{% url 'plants:add_plant' %}" class="btn btn-success rounded-pill px-4 py-2 shadow-sm fw-bold">
+            <i class="fas fa-plus me-2"></i>Yeni Əkin
         </a>
     </div>
 
-    <!-- Axtarış və Filter Form -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-3">
-                    {{ search_form.search.label_tag }}
-                    {{ search_form.search }}
-                </div>
-                <div class="col-md-2">
-                    {{ filter_form.plant_type.label_tag }}
-                    {{ filter_form.plant_type }}
-                </div>
-                <div class="col-md-2">
-                    {{ filter_form.growth_stage.label_tag }}
-                    {{ filter_form.growth_stage }}
-                </div>
-                <div class="col-md-2">
-                    {{ filter_form.status.label_tag }}
-                    {{ filter_form.status }}
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Axtar</button>
-                </div>
-            </form>
-        </div>
+    <div class="filter-card">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="small fw-bold text-muted mb-2 text-uppercase">Axtarış</label>
+                {{ search_form.search }}
+            </div>
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted mb-2 text-uppercase">Bitki</label>
+                {{ filter_form.plant_type }}
+            </div>
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted mb-2 text-uppercase">Mərhələ</label>
+                {{ filter_form.growth_stage }}
+            </div>
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted mb-2 text-uppercase">Status</label>
+                {{ filter_form.status }}
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-dark w-100 rounded-pill py-2 fw-bold">Filtrlə</button>
+            </div>
+        </form>
     </div>
 
-    <!-- Bitki List -->
-    {% if plants %}
-    <div class="row">
+    <div class="row g-4">
         {% for plant in plants %}
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ plant.get_plant_type_display }}</h5>
-                    <p class="card-text">
-                        Sahə: {{ plant.field.name }}<br>
-                        Sort: {{ plant.variety|default:"N/A" }}<br>
-                        Sahə: {{ plant.area_hectares }} ha<br>
-                        Əkilib: {{ plant.planting_date|date:"d.m.Y" }}<br>
-                        Böyümə mərhələsi: {{ plant.get_growth_stage_display }}
-                    </p>
+        <div class="col-md-6 col-lg-4">
+            <div class="plant-card shadow-sm">
+                <div class="img-container">
+                    {% if plant.image %}
+                        <img src="{{ plant.image.url }}" alt="{{ plant.get_plant_type_display }}">
+                    {% else %}
+                        <img src="{% static 'images/default_plant.jpg' %}" alt="Default">
+                    {% endif %}
+                    <div class="status-badge {% if plant.status == 'active' %}text-success{% else %}text-muted{% endif %} shadow-sm">
+                        {{ plant.get_status_display }}
+                    </div>
                 </div>
-                <div class="card-footer">
-                    <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-primary btn-sm">Detallar</a>
-                    <a href="{% url 'plants:harvest_prediction' plant.id %}" class="btn btn-warning btn-sm">Proqnoz</a>
+
+                <div class="p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="fw-bold mb-0 text-dark">{{ plant.get_plant_type_display }}</h5>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                            {{ plant.variety|default:"Yerli Sort" }}
+                        </span>
+                    </div>
+                    
+                    <p class="text-muted small mb-4">
+                        <i class="fas fa-map-marker-alt text-danger me-1"></i> {{ plant.field.name }}
+                    </p>
+                    
+                    <div class="row g-2 mb-4">
+                         <div class="row g-2 mb-4">
+    <div class="col-6">
+        <div class="p-2 border rounded-3 bg-light text-center">
+            <small class="text-muted d-block" style="font-size: 0.6rem;">SAHƏ</small>
+            <span class="fw-bold text-dark">{{ plant.field.name }}</span>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="p-2 border rounded-3 bg-light text-center">
+            <small class="text-muted d-block" style="font-size: 0.6rem;">ƏRAZİ</small>
+            <span class="fw-bold text-success">
+                {% if plant.area_hectares %}
+                    {{ plant.area_hectares }}
+                {% else %}
+                    {{ plant.field.area_hectares|default:"0.00" }}
+                {% endif %} 
+                ha
+            </span>
+        </div>
+    </div>
+</div>
+                        <div class="col-6">
+                            <div class="p-2 border rounded-3 bg-light text-center">
+                                <small class="text-muted d-block" style="font-size: 0.6rem;">ƏKİLİB</small>
+                                <span class="fw-bold" style="font-size: 0.8rem;">{{ plant.planting_date|date:"d M Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="growth-section mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="fw-bold text-muted">Mərhələ: {{ plant.get_growth_stage_display }}</small>
+                            <small class="text-success fw-bold stage-percent" data-stage="{{ plant.growth_stage }}"></small>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <a href="{% url 'plants:plant_detail' plant.id %}" class="btn-action bg-dark text-white">Detallar</a>
+                        <a href="{% url 'plants:harvest_prediction' plant.id %}" class="btn-action bg-warning text-dark" title="Proqnoz">
+                            <i class="fas fa-magic"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h4 class="text-muted">Bitki tapılmadı.</h4>
+        </div>
         {% endfor %}
     </div>
-    {% else %}
-    <div class="alert alert-info">
-        Heç bir bitki tapılmadı.
-    </div>
-    {% endif %}
 </div>
+
+<script>
+    // Dinamik faiz hesablama məntiqi
+    document.addEventListener("DOMContentLoaded", function() {
+        const stageMap = {
+            'seedling': 15,    // Toxum/Cücərmə
+            'vegetative': 40,  // Vegetativ böyümə
+            'flowering': 70,   // Çiçəkləmə
+            'fruiting': 85,    // Meyvə vermə
+            'mature': 100,     // Yetişmiş
+            'harvested': 0     // Yığılıb
+        };
+
+        document.querySelectorAll('.growth-section').forEach(section => {
+            const percentLabel = section.querySelector('.stage-percent');
+            const progressBar = section.querySelector('.progress-bar');
+            const stageKey = percentLabel.getAttribute('data-stage');
+            
+            const percentage = stageMap[stageKey] || 5; // Əgər tapılmasa 5% göstər
+            
+            percentLabel.innerText = percentage + '%';
+            progressBar.style.width = percentage + '%';
+        });
+    });
+</script>
 {% endblock %}

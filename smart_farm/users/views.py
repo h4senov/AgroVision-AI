@@ -23,7 +23,7 @@ def user_register(request):
             user = form.save()
             login(request, user)
             messages.success(request,'🎉 Uğurla qeydiyyatdan keçdiniz!')
-            return redirect('fields:field_list')
+            return redirect('core:dashboard')
     else :
         form = CustomUserCreationForm()
     return render(request, 'users/register.html', {'form' : form})
@@ -42,7 +42,7 @@ def user_login(request):
                 user.last_login = timezone.now()
                 user.save()
                 messages.success(request, f'👋 Xoş gəldiniz, {user.username}!')
-                return redirect('fields:field_list')
+                return redirect('core:dashboard')
             else:
                 messages.error(request, '❌ Hesabınız deaktiv edilib.')
         else:
@@ -104,33 +104,41 @@ def change_password(request):
     return render(request, 'users/change_password.html', {'form': form})
 
 
-@login_required
-@admin_required
+from django.shortcuts import get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required  # Yalnız admin heyəti daxil ola bilsin
 def deactivate_user(request, user_id):
+    # Deaktiv ediləcək istifadəçini tapırıq
+    target_user = get_object_or_404(CustomUser, id=user_id)
     
-    user_to_deactivate = get_object_or_404(CustomUser, id=user_id)
-    
-   
-    if user_to_deactivate == request.user:
-        messages.error(request, '❌ Öz hesabınızı deaktiv edə bilməzsiniz!')
+    # Admin özünü səhvən deaktiv etməsin deyə qoruma
+    if target_user == request.user:
+        messages.error(request, "Öz hesabınızı deaktiv edə bilməzsiniz!")
         return redirect('users:user_statistics')
-    
+
     if request.method == 'POST':
         form = UserDeactivationForm(request.POST)
         if form.is_valid():
-            user_to_deactivate.is_active = False
-            user_to_deactivate.save()
+            # Məntiqi deaktivasiya
+            target_user.is_active = False
+            target_user.save()
             
+            # Burada səbəbi log-a yaza və ya adminə bildiriş göndərə bilərsən
             reason = form.cleaned_data['deactivate_reason']
-            messages.success(request, f'✅ {user_to_deactivate.username} deaktiv edildi. Səbəb: {reason}')
+            
+            messages.success(request, f"{target_user.username} uğurla deaktiv edildi. Səbəb: {reason}")
             return redirect('users:user_statistics')
     else:
         form = UserDeactivationForm()
-    
+
     return render(request, 'users/deactivate_user.html', {
-        'user': user_to_deactivate,
-        'form': form
+        'form': form,
+        'user': target_user  # HTML-də istifadəçinin adını göstərmək üçün
     })
+def terms_view(request):
+    return render(request, 'users/terms.html')
+
 
 @login_required
 @admin_required
@@ -156,7 +164,7 @@ class UserStatisticsListView(ListView):
     def get_queryset(self):
         
         return CustomUser.objects.annotate(
-            fields_count=Count('field', distinct=True),
+            fields_count=Count('fields', distinct=True),
             plants_count=Count('plant', distinct=True),
             sensors_count=Count('sensor', distinct=True),
             inventory_count=Count('inventory', distinct=True),

@@ -1,95 +1,207 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ field.name }} — Smart Farm{% endblock %}
-
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/fields.css' %}">
+<style>
+    :root {
+        --farm-green: #2ecc71;
+        --farm-blue: #3498db;
+        --farm-yellow: #f1c40f;
+    }
+    .detail-header {
+        background: linear-gradient(135deg, #1a472a 0%, #2ecc71 100%);
+        border-radius: 0 0 40px 40px;
+        padding: 60px 0 100px 0;
+        color: white;
+        margin-top: -24px;
+    }
+    .main-card-container {
+        margin-top: -60px;
+    }
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    .health-indicator {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: conic-gradient(var(--farm-green) {{ metrics.field_health_score }}%, #eee 0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    .health-inner {
+        width: 100px;
+        height: 100px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .metric-pill {
+        border-radius: 20px;
+        padding: 15px;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .plant-grid-item {
+        border: 1px solid #f0f0f0;
+        border-radius: 20px;
+        padding: 20px;
+        transition: 0.3s;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    .plant-grid-item:hover {
+        background: #f8fff9;
+        border-color: var(--farm-green);
+        transform: translateY(-5px);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="app-container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-0">
-          <li class="breadcrumb-item"><a href="{% url 'fields:field_list' %}">Sahələr</a></li>
-          <li class="breadcrumb-item active" aria-current="page">{{ field.name }}</li>
-        </ol>
-      </nav>
-      <h1 class="h5 mb-1">{{ field.name }}</h1>
-      <span class="soil-badge">{{ field.get_soil_type_display }}</span>
+<div class="detail-header shadow-lg">
+    <div class="container text-center">
+        <span class="badge bg-white text-success rounded-pill px-3 mb-2">{{ field.get_soil_type_display }}</span>
+        <h1 class="display-5 fw-bold">{{ field.name }}</h1>
+        <p class="opacity-75"><i class="fas fa-map-marker-alt me-2"></i>{{ field.area_hectares }} Hektar Ərazi</p>
     </div>
+</div>
 
-    <div class="d-flex gap-2">
-      <a href="{% url 'fields:edit_field' field.id %}" class="btn btn-outline-primary btn-sm"><i class="fas fa-edit me-1"></i> Redaktə</a>
-      <a href="{% url 'fields:delete_field' field.id %}" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i> Sil</a>
+<div class="container main-card-container pb-5">
+    <div class="row g-4">
+         <div class="col-lg-4">
+    <div class="glass-card p-4 h-100 text-center d-flex flex-column">
+        <h6 class="text-uppercase fw-bold text-muted small mb-4">Ümumi Vəziyyət</h6>
+        
+        <div class="health-indicator mb-3">
+            <div class="health-inner">
+                <span class="h2 fw-black mb-0 text-success">{{ metrics.field_health_score }}%</span>
+                <small class="text-muted" style="font-size: 0.6rem;">SAĞLAMLIQ</small>
+            </div>
+        </div>
+
+        <p class="small text-muted mb-4 px-3">
+            Sahənizdəki aktiv bitki və sensorların vəziyyətinə görə analiz nəticəsi.
+        </p>
+
+        <div class="d-grid gap-2 mt-auto">
+            <a href="{% url 'fields:field_metrics' field.id %}" class="btn btn-success rounded-pill shadow mb-2">
+                <i class="fas fa-chart-pie me-2"></i>Detallı Analiz
+            </a>
+            
+            <div class="row g-2">
+                <div class="col-6">
+                    <a href="{% url 'fields:edit_field' field.id %}" class="btn btn-outline-dark rounded-pill w-100 btn-sm py-2">
+                        <i class="fas fa-edit me-1"></i> Redaktə
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="{% url 'fields:delete_field' field.id %}" class="btn btn-outline-danger rounded-pill w-100 btn-sm py-2">
+                        <i class="fas fa-trash-alt me-1"></i> Sil
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 
-  <div class="row">
-    <div class="col-lg-8">
-      <div class="row g-3 mb-3">
-        <div class="col-6 col-sm-3">
-          <div class="stat-card">
-            <div class="stat-number">{{ field.area_hectares }}</div>
-            <div class="stat-label small text-muted">Ümumi Sahə (ha)</div>
-          </div>
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <h6 class="text-uppercase fw-bold text-muted small mb-4">Canlı Göstəricilər</h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="metric-pill bg-warning-subtle text-warning">
+                            <i class="fas fa-thermometer-half fa-2x"></i>
+                            <div>
+                                <div class="h4 mb-0 fw-bold">{{ metrics.avg_temperature_last_week }}°C</div>
+                                <small class="text-dark opacity-50">Həftəlik Temperatur</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="metric-pill bg-info-subtle text-info">
+                            <i class="fas fa-cloud-rain fa-2x"></i>
+                            <div>
+                                <div class="h4 mb-0 fw-bold">{{ metrics.total_precipitation_last_week }} mm</div>
+                                <small class="text-dark opacity-50">Cəmi Yağıntı</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="metric-pill bg-success-subtle text-success">
+                            <i class="fas fa-star fa-2x"></i>
+                            <div>
+                                <div class="h4 mb-0 fw-bold">{{ metrics.plant_success_rate }}%</div>
+                                <small class="text-dark opacity-50">Məhsul Uğuru</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="metric-pill bg-danger-subtle text-danger">
+                            <i class="fas fa-signal fa-2x"></i>
+                            <div>
+                                <div class="h4 mb-0 fw-bold">{{ metrics.sensor_health_rate }}%</div>
+                                <small class="text-dark opacity-50">Sensor Aktivliyi</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="col-6 col-sm-3">
-          <div class="stat-card">
-            <div class="stat-number">{{ total_plants }}</div>
-            <div class="stat-label small text-muted">Bitki Sayı</div>
-          </div>
-        </div>
-
-        <div class="col-6 col-sm-3">
-          <div class="stat-card">
-            <div class="stat-number">{{ active_plants }}</div>
-            <div class="stat-label small text-muted">Aktiv Bitkilər</div>
-          </div>
-        </div>
-
-        <div class="col-6 col-sm-3">
-          <div class="stat-card">
-            <div class="stat-number">{{ total_area|floatformat:2 }}</div>
-            <div class="stat-label small text-muted">Bitki Sahəsi (ha)</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="mb-0"><i class="fas fa-seedling me-1 text-success"></i> Bu sahədəki bitkilər</h6>
-            <a href="{% url 'plants:add_plant' %}" class="btn btn-sm btn-primary"><i class="fas fa-plus me-1"></i>Bitki əlavə et</a>
-          </div>
-
-          {% if plants %}
-            <div class="list-group">
-              {% for plant in plants %}
-                <a href="{% url 'plants:plant_detail' plant.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                  <div>
-                    <div class="fw-semibold">{{ plant.get_plant_type_display }}</div>
-                    <small class="text-muted">{{ plant.variety|default:"Növ qeyd edilməyib" }} • {{ plant.get_growth_stage_display }}</small>
-                  </div>
-                  <span class="badge bg-light text-dark small">{{ plant.get_status_display }}</span>
+        <div class="col-12 mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">🌱 Əkilmiş Bitkilər</h4>
+                <a href="{% url 'plants:add_plant' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                    + Bitki Əlavə Et
                 </a>
-              {% endfor %}
             </div>
-          {% else %}
-            <div class="text-center py-4">
-              <i class="fas fa-seedling fa-2x text-muted mb-2"></i>
-              <div class="h6 mb-1">Bitki tapılmadı</div>
-              <p class="text-muted small mb-3">Bu sahədə hələ heç bir bitki yoxdur.</p>
-              <a href="{% url 'plants:add_plant' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>İlk bitkini əlavə et</a>
+            
+            <div class="row g-3">
+                {% for plant in plants %}
+                <div class="col-md-4">
+                    <a href="{% url 'plants:plant_detail' plant.id %}" class="glass-card plant-grid-item">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="p-2 bg-success text-white rounded-3">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <span class="badge {% if plant.status == 'active' %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
+                                {{ plant.get_status_display }}
+                            </span>
+                        </div>
+                        <h6 class="fw-bold mb-1">{{ plant.get_plant_type_display }}</h6>
+                        <p class="text-muted small mb-3">{{ plant.variety|default:"Növ yoxdur" }}</p>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar bg-success" style="width: 65%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="text-muted x-small">Mərhələ:</small>
+                            <small class="fw-bold x-small">{{ plant.get_growth_stage_display }}</small>
+                        </div>
+                    </a>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="glass-card p-5 text-center">
+                        <p class="text-muted">Bu sahədə hələ heç bir bitki yoxdur.</p>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-          {% endif %}
         </div>
-      </div>
-
     </div>
-  </div>
 </div>
 {% endblock %}

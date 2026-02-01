@@ -59,3 +59,42 @@
 @media (max-width: 575px) {
   .plant-type-icon { width:44px;height:44px;font-size:18px; }
 }
+/* Mövcud natural stillərinin davamı */
+.plant-card-img {
+    height: 180px;
+    width: 100%;
+    object-fit: cover;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.detail-img-wrapper {
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.prediction-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
+    border: 2px solid #c6f6d5;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.prediction-score {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2f855a;
+}
+
+/* Şəkil yoxdursa görünən hissə */
+.no-image-placeholder {
+    height: 180px;
+    background: #f7fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #cbd5e0;
+}

@@ -38,12 +38,15 @@ class WeatherDataForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        
-        self.user = kwargs.pop('user', None)
+
+        from fields.models import Field    
+
+
+        user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
-        if self.user:
-            self.fields['field'].queryset = self.user.field_set.all()
+        if user:
+            self.fields["field"].queryset = Field.objects.filter(user=user)
 
     def clean(self):
         cleaned = super().clean()

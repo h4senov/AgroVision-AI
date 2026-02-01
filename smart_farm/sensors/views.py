@@ -31,7 +31,7 @@ def sensor_list(request):
 
     filters = {
         'sensor_type': request.GET.get('sensor_type',''),
-        'is_active' : request.GET.get('is_active',''),
+        'is_active' : request.GET.get('status',''),
         'battery_level' : request.GET.get('battery_level',''),
     }
 

@@ -51,47 +51,44 @@ def plant_detail(request, plant_id):
     return render(request, 'plants/plant_detail.html', {'plant': plant})
 
 
-
 @login_required
 def add_plant(request):
     if request.method == 'POST':
-        form = PlantForm(request.POST)
-        if form.is_valid():
+        form = PlantForm(request.POST, request.FILES)
+        if form.is_valid(): # Yuxarıda yazdığımız 'clean' metodu burada işə düşür
             plant = form.save(commit=False)
             plant.user = request.user
             plant.save()
-            messages.success(request, 'Bitki uğurla əlavə edildi!')
             return redirect('plants:plant_list')
     else:
         form = PlantForm()
-        # Yalnız current user-ın sahələrini göstər
-        form.fields['field'].queryset = Field.objects.filter(user=request.user)
-    
     return render(request, 'plants/add_plant.html', {'form': form})
+
 
 @login_required
 def edit_plant(request, plant_id):
     plant = get_object_or_404(Plant, id=plant_id, user=request.user)
     
     if request.method == 'POST':
-        form = PlantForm(request.POST, instance=plant)
+        # request.FILES əlavə edildi ki, şəkil dəyişəndə bazaya yazılsın
+        form = PlantForm(request.POST, request.FILES, instance=plant)
         if form.is_valid():
             form.save()
             messages.success(request, 'Bitki məlumatları uğurla yeniləndi!')
             return redirect('plants:plant_detail', plant_id=plant.id)
     else:
         form = PlantForm(instance=plant)
+        # İstifadəçinin yalnız öz sahələrini görməsi üçün
         form.fields['field'].queryset = Field.objects.filter(user=request.user)
     
     return render(request, 'plants/edit_plant.html', {'form': form, 'plant': plant})
-
 @login_required
 def delete_plant(request, plant_id):
     plant = get_object_or_404(Plant, id=plant_id, user=request.user)
     
     if request.method == 'POST':
         plant.delete()
-        messages.success(request, 'Bitki uğurla silindi!')
+        messages.warning(request, f'{plant.get_plant_type_display()} bitkisi və bağlı məlumatlar silindi.')
         return redirect('plants:plant_list')
     
     return render(request, 'plants/delete_plant.html', {'plant': plant})

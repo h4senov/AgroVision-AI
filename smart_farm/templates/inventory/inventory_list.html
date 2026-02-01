@@ -2,7 +2,6 @@
 {% load static %}
 {% block title %}Anbar - Məhsullar{% endblock %}
 
-
 {% block content %}
 <div class="container-fluid py-4 px-lg-5">
     
@@ -18,7 +17,7 @@
 
     <ul class="nav nav-pills mb-4">
         <li class="nav-item">
-            <a class="nav-link active" href="{% url 'inventory:inventory_list' %}">
+            <a class="nav-link {% if not request.GET.stock_status %}active{% endif %}" href="{% url 'inventory:inventory_list' %}">
                 <i class="fas fa-list me-2"></i>Bütün Məhsullar
             </a>
         </li>
@@ -28,15 +27,18 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-danger" style="background: #fff5f5; border-color: #feb2b2;" href="{% url 'inventory:low_stock' %}">
+            <a class="nav-link text-danger {% if request.GET.stock_status == 'low' %}active{% endif %}" 
+               style="background: #fff5f5; border-color: #feb2b2;" 
+               href="?stock_status=low">
                 <i class="fas fa-exclamation-triangle me-2"></i>Kritik Stok
             </a>
         </li>
     </ul>
-<div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
         <div class="card-body p-4">
             <form method="get" class="row g-3 align-items-end">
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <label class="form-label text-muted small fw-bold text-uppercase">Axtarış</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
@@ -45,8 +47,13 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label text-muted small fw-bold text-uppercase">Kateqoriya</label>
-                    {{ filter_form.category }} </div>
-                <div class="col-md-4 d-flex gap-2">
+                    {{ filter_form.category }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Stok Statusu</label>
+                    {{ filter_form.stock_status }}
+                </div>
+                <div class="col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-dark flex-grow-1">Filtrlə</button>
                     <a href="{% url 'inventory:inventory_list' %}" class="btn btn-light border">Sıfırla</a>
                 </div>
@@ -54,115 +61,109 @@
         </div>
     </div>
 
-  <!-- Məhsul Kartları -->
-  {% if items %}
-  <div class="row g-3">
-    {% for item in items %}
-    <div class="col-12 col-md-6 col-lg-4">
-      <div class="card shadow-sm h-100">
-        <div class="card-body d-flex flex-column">
-          <!-- Şəkil -->
-          <div class="text-center mb-3">
-            <img src="{{ item.get_image_url }}" 
-                 alt="{{ item.item_name }}" 
-                 class="img-fluid rounded"
-                 style="max-height: 150px; object-fit: cover;">
-          </div>
+    {% if items %}
+    <div class="row g-3">
+        {% for item in items %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100 border-0" style="border-radius: 12px; overflow: hidden;">
+                <div class="text-center bg-light p-3" style="height: 180px; display: flex; align-items: center; justify-content: center;">
+                    <img src="{{ item.get_image_url }}" 
+                         alt="{{ item.item_name }}" 
+                         class="img-fluid rounded"
+                         style="max-height: 100%; object-fit: contain;">
+                </div>
 
-          <!-- Məhsul Məlumatları -->
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <div>
-              <h6 class="mb-1 fw-semibold">{{ item.item_name }}</h6>
-              <div class="text-muted small">{{ item.item_code|default:"Kodsuz" }}</div>
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="mb-1 fw-bold text-truncate" style="max-width: 150px;">{{ item.item_name }}</h6>
+                            <span class="badge bg-light text-dark border">{{ item.item_code|default:"Kodsuz" }}</span>
+                        </div>
+                        <div class="text-end">
+                            {% with status=item.stock_status %}
+                                {% if status == 'low' %}
+                                    <span class="badge bg-danger">Aşağı Stok</span>
+                                {% elif status == 'high' %}
+                                    <span class="badge bg-warning text-dark">Yüksək Stok</span>
+                                {% else %}
+                                    <span class="badge bg-success">Normal</span>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+
+                    <ul class="list-unstyled small mb-3 flex-grow-1">
+                        <li class="mb-1 text-muted"><i class="fas fa-tag me-2"></i>{{ item.get_category_display }}</li>
+                        <li class="mb-1"><i class="fas fa-boxes me-2"></i><strong>{{ item.quantity }}</strong> {{ item.unit }}</li>
+                        <li class="mb-1"><i class="fas fa-lira-sign me-2"></i>{{ item.unit_price|default:"0" }} ₼</li>
+                        {% if item.expiration_date %}
+                        <li class="mt-2">
+                            <small class="{% if item.is_expired %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                <i class="fas fa-calendar-alt me-1"></i> Son istifadə: {{ item.expiration_date }}
+                            </small>
+                        </li>
+                        {% endif %}
+                    </ul>
+
+                    <div class="mt-auto d-flex gap-2">
+                        <a href="{% url 'inventory:inventory_detail' item.pk %}" class="btn btn-outline-primary btn-sm flex-fill">
+                            <i class="fas fa-eye me-1"></i>Bax
+                        </a>
+                        <a href="{% url 'inventory:edit_inventory' item.pk %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="text-end">
-              {% with status=item.stock_status %}
-                {% if status == 'low' %}
-                  <span class="badge bg-danger">Aşağı Stok</span>
-                {% elif status == 'normal' %}
-                  <span class="badge bg-success">Normal</span>
-                {% else %}
-                  <span class="badge bg-warning">Yüksək</span>
-                {% endif %}
-              {% endwith %}
-            </div>
-          </div>
-
-          <!-- Ətraflı Məlumat -->
-          <ul class="list-unstyled small mb-3 flex-grow-1">
-            <li><strong>Təchizatçı:</strong> {{ item.supplier_name|default:"-" }}</li>
-            <li><strong>Kateqoriya:</strong> {{ item.get_category_display }}</li>
-            <li><strong>Miqdar:</strong> {{ item.quantity }} {{ item.unit }}</li>
-            <li><strong>Qiymət:</strong> {{ item.unit_price|default:"0" }} ₺</li>
-            {% if item.expiration_date %}
-              <li><strong>Son istifadə:</strong> 
-                {% if item.is_expired %}
-                  <span class="text-danger">{{ item.expiration_date }}</span>
-                {% else %}
-                  {{ item.expiration_date }}
-                {% endif %}
-              </li>
-            {% endif %}
-          </ul>
-
-          <!-- Əməliyyat Düymələri -->
-          <div class="mt-auto d-flex gap-2">
-            <a href="{% url 'inventory:inventory_detail' item.pk %}" class="btn btn-outline-primary btn-sm flex-fill">
-              <i class="fas fa-eye me-1"></i>Bax
-            </a>
-            <a href="{% url 'inventory:edit_inventory' item.pk %}" class="btn btn-outline-secondary btn-sm">
-              <i class="fas fa-edit"></i>
-            </a>
-          </div>
         </div>
-      </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-  </div>
 
-  <!-- Pagination -->
-  {% if is_paginated %}
-  <nav class="mt-4">
-    <ul class="pagination justify-content-center">
-      {% if page_obj.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Əvvəlki</a>
-        </li>
-      {% endif %}
-      
-      {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
-          <li class="page-item active">
-            <span class="page-link">{{ num }}</span>
-          </li>
-        {% else %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">{{ num }}</a>
-          </li>
-        {% endif %}
-      {% endfor %}
-      
-      {% if page_obj.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Sonrakı</a>
-        </li>
-      {% endif %}
-    </ul>
-  </nav>
-  {% endif %}
+    {% if is_paginated %}
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link shadow-sm border-0" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
 
-  {% else %}
-  <!-- Boş State -->
-  <div class="card shadow-sm">
-    <div class="card-body text-center py-5">
-      <i class="fas fa-box-open fa-2x text-muted mb-2"></i>
-      <h5 class="mb-1">Məhsul tapılmadı</h5>
-      <p class="text-muted small mb-3">Heç bir məhsul tapılmadı və ya filter nəticə vermədi.</p>
-      <a href="{% url 'inventory:add_inventory' %}" class="btn btn-primary btn-sm">
-        <i class="fas fa-plus me-1"></i> İlk məhsulu əlavə et
-      </a>
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link shadow-sm border-0">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link shadow-sm border-0" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link shadow-sm border-0" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card-body text-center py-5">
+            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                <i class="fas fa-box-open fa-2x text-muted"></i>
+            </div>
+            <h5 class="fw-bold">Məhsul tapılmadı</h5>
+            <p class="text-muted">Axtarışınıza uyğun və ya anbarınızda məhsul yoxdur.</p>
+            <a href="{% url 'inventory:add_inventory' %}" class="btn btn-primary rounded-pill px-4">
+                <i class="fas fa-plus me-1"></i> İlk məhsulu əlavə et
+            </a>
+        </div>
     </div>
-  </div>
-  {% endif %}
+    {% endif %}
 </div>
 {% endblock %}

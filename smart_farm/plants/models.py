@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from fields.models import Field
 
-
 class PlantManager(models.Manager):
 
     def search_plants(self, query, user, filters=None):
@@ -31,36 +30,37 @@ class PlantManager(models.Manager):
         return qs.select_related('field')         
 
     def predict_harvest_time(self, plant_id):
-       
         try:
             plant = self.get(id=plant_id)
+            from django.utils import timezone
             
-            
-            growth_periods = {
-                'wheat': 120,      
-                'corn': 90,        
-                'barley': 110,     
-                'sunflower': 85,  
-                'cotton': 160,     
-                'tomato': 75,      
-                'potato': 100,
-                'other': 90,      
+            # 1. Baza Məlumatları (Günlər və Orta Məhsuldarlıq - Ton/Hektar)
+            growth_data = {
+                'wheat': {'days': 120, 'yield_per_ha': 3.5},      
+                'corn': {'days': 90, 'yield_per_ha': 6.0},        
+                'barley': {'days': 110, 'yield_per_ha': 3.0},     
+                'sunflower': {'days': 85, 'yield_per_ha': 2.5},  
+                'cotton': {'days': 160, 'yield_per_ha': 4.0},     
+                'tomato': {'days': 75, 'yield_per_ha': 25.0},      
+                'potato': {'days': 100, 'yield_per_ha': 20.0},
+                'other': {'days': 90, 'yield_per_ha': 5.0},      
             }
             
-            base_growth_days = growth_periods.get(plant.plant_type, 90)
+            data = growth_data.get(plant.plant_type, growth_data['other'])
+            base_growth_days = data['days']
+            avg_yield_per_ha = data['yield_per_ha']
             
-            
+            # 2. Faktorların Hesablanması
             weather_factor = self._calculate_weather_factor(plant.field)
-            
-           
             health_factor = self._calculate_health_factor(plant)
             
-           
-            adjusted_growth_days = base_growth_days * weather_factor * health_factor
+            # 3. Vaxt Proqnozu
+            adjusted_growth_days = base_growth_days * (2.0 - weather_factor) * (2.0 - health_factor)
+            predicted_harvest_date = plant.planting_date + timezone.timedelta(days=round(adjusted_growth_days))
             
-            
-            from django.utils import timezone
-            predicted_harvest_date = plant.planting_date + timezone.timedelta(days=adjusted_growth_days)
+            # 4. Məhsul Həcmi Proqnozu (Yield Prediction)
+            # Hava və sağlamlıq faktorları məhsuldarlığa birbaşa təsir edir
+            estimated_total_yield = float(plant.area_hectares) * avg_yield_per_ha * weather_factor * health_factor
             
             prediction = {
                 'plant_name': str(plant),
@@ -69,13 +69,18 @@ class PlantManager(models.Manager):
                 'adjusted_growth_days': round(adjusted_growth_days),
                 'predicted_harvest_date': predicted_harvest_date,
                 'days_remaining': (predicted_harvest_date - timezone.now().date()).days,
-                'confidence_score': round(min(weather_factor * health_factor * 100, 95), 2),
+                'confidence_score': round(min(weather_factor * health_factor * 100, 98), 1),
+                
+                # Yeni Məlumatlar
+                'estimated_yield_ton': round(estimated_total_yield, 2),
+                'yield_per_ha': round(avg_yield_per_ha * weather_factor * health_factor, 2),
+                
                 'factors': {
-                    'weather_impact': round((weather_factor - 1) * 100, 2),
-                    'health_impact': round((health_factor - 1) * 100, 2),
+                    'weather_impact': round((weather_factor - 1) * 100, 1),
+                    'health_impact': round((health_factor - 1) * 100, 1),
+                    'overall_efficiency': round(weather_factor * health_factor, 2)
                 }
             }
-            
             return prediction
             
         except Plant.DoesNotExist:
@@ -136,8 +141,6 @@ class PlantManager(models.Manager):
             status_factor = 0.5
         
         return growth_factor * status_factor
-
-
 
 
 
@@ -233,6 +236,21 @@ class Plant(models.Model):
         verbose_name='Yenilənmə tarixi'
     )
 
+    def plant_image_path(instance, filename):
+        import os
+        name, ext = os.path.splitext(filename)
+        clean_name = name.replace(" ", "_")
+
+        return f"plants/user_{instance.user.id}/{instance.plant_type}/{clean_name}{ext}"
+
+    image = models.ImageField(
+        upload_to=plant_image_path,  
+        null=True,
+        blank=True,
+        verbose_name='Şəkil',
+        help_text='Bitkiin şəklini yükləyin (max 5MB)',
+        validators=[],
+    )
     objects = PlantManager()
     
     def __str__(self):

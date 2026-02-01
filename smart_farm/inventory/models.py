@@ -29,10 +29,6 @@ class InventoryManager(models.Manager):
                 
         return qs
 
-
-
-
-
 def inventory_image_path(instance, filename):
 
     name, ext = os.path.splitext(filename)
@@ -52,19 +48,46 @@ class Inventory(models.Model):
         ('fuel', '⛽ Yanacaq'),
     ]
     
+    UNIT_CHOICES = [
+        ('kg', 'Kiloqram (kg)'),
+        ('g', 'Qram (g)'),
+        ('l', 'Litr (l)'),
+        ('ml', 'Millilitr (ml)'),
+        ('pcs', 'Ədəd (pcs)'),
+        ('boxes', 'Qutu (boxes)'),
+        ('tons', 'Ton (tons)'),
+    ]
+
+    STORAGE_CHOICES = [
+        ('main_warehouse', 'Əsas Anbar'),
+        ('cold_storage', 'Soyuducu Anbar'),
+        ('shelf_a', 'Rəf A'),
+        ('shelf_b', 'Rəf B'),
+        ('external', 'Xarici Sahə'),
+        ('other', 'Digər'),
+    ]
+
+
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     item_name = models.CharField(max_length=100, verbose_name='Məhsul adı')
     item_code = models.CharField(max_length=50, unique=True, verbose_name='Məhsul kodu')
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, verbose_name='Kateqoriya')
     quantity = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Miqdar')
-    unit = models.CharField(max_length=20, verbose_name='Vahid')
+    unit = models.CharField(max_length=20, choices=UNIT_CHOICES, verbose_name='Vahid')
     min_stock_level = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Minimum stok')
     max_stock_level = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Maksimum stok')
     supplier_name = models.CharField(max_length=100, blank=True, verbose_name='Təchizatçı')
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Vahid qiyməti')
     total_value = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True, verbose_name='Ümumi dəyər')
     expiration_date = models.DateField(null=True, blank=True, verbose_name='Son istifadə tarixi')
-    storage_location = models.CharField(max_length=100, blank=True, verbose_name='Saxlama yeri')
+    storage_location = models.CharField(
+        max_length=50, 
+        blank=True,
+        choices=STORAGE_CHOICES, 
+        default='main_warehouse',
+        verbose_name='Saxlama yeri'
+    )
     notes = models.TextField(blank=True, verbose_name='Qeydlər')
     
     created_at = models.DateTimeField(auto_now_add=True)

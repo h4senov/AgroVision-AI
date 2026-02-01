@@ -1,122 +1,104 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Qeydiyyat - Smart Farm{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/components/users.css' %}">
-{% endblock %}
+{% block title %}Qeydiyyat - AgroVision AI{% endblock %}
 
 {% block content %}
-<div class="app-container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="auth-card">
-                <div class="auth-header text-center mb-4">
-                    <i class="fas fa-user-plus fa-2x text-success mb-3"></i>
-                    <h2 class="h4 mb-2">Yeni Hesab Yarat</h2>
-                    <p class="text-muted">Smart Farm sistemində qeydiyyatdan keçin</p>
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
+    <div class="row g-0 auth-wrapper shadow-lg rounded-5 overflow-hidden bg-white" style="max-width: 1000px; width: 100%;">
+        
+        <div class="col-lg-5 d-none d-lg-block position-relative" style="background: url('https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80') center/cover;">
+            <div class="overlay position-absolute w-100 h-100" style="background: rgba(46, 125, 50, 0.85); backdrop-filter: blur(2px);"></div>
+            <div class="position-relative z-3 p-5 text-white h-100 d-flex flex-column justify-content-center">
+                <h2 class="fw-bold mb-4">Gələcəyə addım atın!</h2>
+                <ul class="list-unstyled">
+                    <li class="mb-3"><i class="fas fa-check-circle me-2 text-warning"></i> Saniyəlik sensor datası</li>
+                    <li class="mb-3"><i class="fas fa-check-circle me-2 text-warning"></i> Süni İntellekt tövsiyələri</li>
+                    <li class="mb-3"><i class="fas fa-check-circle me-2 text-warning"></i> Su və gübrə qənaəti</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-7 p-4 p-md-5">
+            <div class="auth-header mb-4">
+                <h3 class="fw-bold text-dark">Yeni Hesab</h3>
+                <p class="text-muted">Məlumatları daxil edərək sistemə qoşulun.</p>
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger border-0 rounded-4">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold">İstifadəçi adı</label>
+                        {{ form.username }}
+                        <small class="text-danger">{{ form.username.errors.0 }}</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold">Email</label>
+                        {{ form.email }}
+                        <small class="text-danger">{{ form.email.errors.0 }}</small>
+                    </div>
                 </div>
 
-                <form method="post" novalidate>
-                    {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Təsərrüfatın Adı</label>
+                    {{ form.farm_name }}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold">Şifrə</label>
+                        {{ form.password1 }}
+                        <small class="text-danger">{{ form.password1.errors.0 }}</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold">Şifrə (Təkrar)</label>
+                        {{ form.password2 }}
+                    </div>
+                </div>
+
+                <div class="form-check mb-4">
                     
-                    {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {% for error in form.non_field_errors %}
-                        <div class="small">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
+                        <div class="form-check mb-4">
+            <input class="form-check-input shadow-none" type="checkbox" id="terms" required>
+            <label class="form-check-label small text-muted" for="terms">
+                <a href="{% url 'users:terms' %}" target="_blank" class="text-success text-decoration-none fw-bold">İstifadə qaydaları</a> ilə razıyam.
+            </label>
+        </div>
+                    </label>
+                </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">{{ form.username.label }} *</label>
-                                {{ form.username }}
-                                {% for error in form.username.errors %}
-                                <div class="text-danger small mt-1">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">{{ form.email.label }} *</label>
-                                {{ form.email }}
-                                {% for error in form.email.errors %}
-                                <div class="text-danger small mt-1">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
+                <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill shadow-sm">
+                    Qeydiyyatı Tamamla <i class="fas fa-paper-plane ms-2"></i>
+                </button>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">{{ form.farm_name.label }}</label>
-                                {{ form.farm_name }}
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">{{ form.phone.label }}</label>
-                                {{ form.phone }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">{{ form.location.label }}</label>
-                        {{ form.location }}
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">{{ form.role.label }} *</label>
-                        {{ form.role }}
-                        <div class="form-text">
-                            <small>
-                                👨‍🌾 Fermer - Öz məlumatlarını idarə edir<br>
-                                👨‍🔬 Mütəxəssis - Fermerlərə məsləhət verir<br>
-                                👋 Qonaq - Yalnız məlumatları görə bilər
-                            </small>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">{{ form.password1.label }} *</label>
-                                {{ form.password1 }}
-                                {% for error in form.password1.errors %}
-                                <div class="text-danger small mt-1">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">{{ form.password2.label }} *</label>
-                                {{ form.password2 }}
-                                {% for error in form.password2.errors %}
-                                <div class="text-danger small mt-1">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success btn-lg">
-                            <i class="fas fa-user-plus me-2"></i>Qeydiyyatdan Keç
-                        </button>
-                    </div>
-
-                    <div class="text-center mt-3">
-                        <p class="text-muted">
-                            Artıq hesabınız var? 
-                            <a href="{% url 'users:user_login' %}" class="text-success text-decoration-none">Daxil olun</a>
-                        </p>
-                    </div>
-                </form>
-            </div>
+                <div class="text-center mt-4">
+                    <span class="text-muted small">Hesabınız var?</span>
+                    <a href="{% url 'users:user_login' %}" class="text-success fw-bold text-decoration-none ms-1">Daxil Ol</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<style>
+    .auth-wrapper { min-height: 600px; }
+    .form-control { 
+        border-radius: 12px; 
+        padding: 12px 15px; 
+        border: 1px solid #e0e0e0;
+        background-color: #f8f9fa;
+    }
+    .form-control:focus {
+        border-color: #2e7d32;
+        box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.1);
+        background-color: #fff;
+    }
+</style>
 {% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}İstifadə Qaydaları - AgroVision AI{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
+
+                <h1 class="fw-bold mb-4 text-success">
+                    <i class="fas fa-file-contract me-2"></i>
+                    İstifadə Qaydaları və Şərtlər
+                </h1>
+
+                <p class="text-muted small">Son yenilənmə: 1 fevral 2026</p>
+                <hr>
+
+                <div class="terms-content mt-4">
+
+                    <h5 class="fw-bold">1. Xidmətin Təsviri</h5>
+                    <p>
+                        AgroVision AI IoT sensorlar və Süni İntellekt vasitəsilə
+                        kənd təsərrüfatı sahələrinin monitorinqi və analizi üçün
+                        platformadır. Tövsiyələr sensor məlumatlarına əsaslanır.
+                    </p>
+
+                    <h5 class="fw-bold mt-4">2. Hesab Qaydaları</h5>
+                    <ul>
+                        <li>Düzgün məlumatla qeydiyyat vacibdir</li>
+                        <li>Şifrəni qorumaq istifadəçinin məsuliyyətidir</li>
+                        <li>Hesab paylaşmaq qadağandır</li>
+                    </ul>
+
+                    <h5 class="fw-bold mt-4">3. Məlumatların Gizliliyi</h5>
+                    <p>
+                        Rütubət, PH, NPK və digər sahə dataları yalnız analiz
+                        üçün istifadə olunur və üçüncü tərəfə satılmır.
+                    </p>
+
+                    <h5 class="fw-bold mt-4">4. AI Tövsiyələri</h5>
+                    <p>
+                        AI tövsiyələri köməkçi xarakterlidir.
+                        Son qərar fermerə məxsusdur.
+                    </p>
+
+                    <h5 class="fw-bold mt-4">5. Avtomatik İdarəetmə</h5>
+                    <p>
+                        Tam Avtomatik rejimdə sistem klapanları və
+                        avadanlıqları özü idarə edə bilər.
+                    </p>
+
+                    <h5 class="fw-bold mt-4">6. Ödəniş və Abunə</h5>
+                    <p>
+                        Bəzi funksiyalar ödənişlidir.
+                        Abunə planları platformada göstərilir.
+                    </p>
+
+                    <h5 class="fw-bold mt-4">7. Təhlükəsizlik</h5>
+                    <p>
+                        Məlumatlar şifrələnir və qorunur,
+                        lakin 100% təhlükəsizlik zəmanəti yoxdur.
+                    </p>
+
+                    <h5 class="fw-bold mt-4">8. Hesabın Ləğvi</h5>
+                    <p>
+                        Qaydalar pozularsa hesab bloklana bilər.
+                    </p>
+
+                    <h5 class="fw-bold mt-4">9. Qaydaların Dəyişməsi</h5>
+                    <p>
+                        AgroVision AI qaydaları yeniləyə bilər.
+                        Davamlı istifadə razılıq sayılır.
+                    </p>
+
+                    <h5 class="fw-bold mt-4">10. Əlaqə</h5>
+                    <p>
+                        support@agrovision.az
+                    </p>
+
+                </div>
+
+                <div class="mt-5">
+                    <a href="{% url 'users:user_register' %}" 
+                       class="btn btn-outline-success rounded-pill px-4">
+                       Geri qayıt
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.terms-content p, .terms-content li {
+    color: #555;
+    line-height: 1.7;
+}
+</style>
+
+{% endblock %}

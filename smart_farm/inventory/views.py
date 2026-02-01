@@ -1,3 +1,4 @@
+from multiprocessing import context
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.db.models import Q, F
@@ -30,10 +31,33 @@ class InventoryListView(LoginRequiredMixin, ListView):
                 Q(supplier_name__icontains=search_query)
             )
         
+        
         category_filter = self.request.GET.get('category','')
-
         if category_filter:
             inventory = inventory.filter(category=category_filter)
+
+
+        status_filter = self.request.GET.get('stock_status', '')
+        if status_filter == 'low':
+            
+            inventory = inventory.filter(
+                min_stock_level__isnull=False, 
+                quantity__lte=F('min_stock_level')
+            )
+        elif status_filter == 'high':
+            
+            inventory = inventory.filter(
+                max_stock_level__isnull=False, 
+                quantity__gte=F('max_stock_level')
+            )
+        elif status_filter == 'normal':
+            
+            inventory = inventory.filter(
+                quantity__gt=F('min_stock_level'),
+                quantity__lt=F('max_stock_level')
+            )
+
+
 
         return inventory
     
@@ -44,8 +68,7 @@ class InventoryListView(LoginRequiredMixin, ListView):
         category_filter = self.request.GET.get('category', '')
 
         context['search_form'] = InventorySearchForm(initial={'search': search_query})
-        context['filter_form'] = InventoryFilterForm(initial={'category': category_filter})
-
+        context['filter_form'] = InventoryFilterForm(self.request.GET)
         return context
     
 class InventoryDetailView(LoginRequiredMixin, DetailView):
