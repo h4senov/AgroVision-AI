@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ vacancy.title }} | Karyera{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-lg-7 reveal">
+            <a href="{% url 'careers:career_list' %}" class="text-decoration-none text-muted mb-3 d-inline-block">
+                <i class="fas fa-arrow-left me-1"></i> Geri qayıt
+            </a>
+            <h1 class="fw-bold text-success mb-2">{{ vacancy.title }}</h1>
+            <div class="d-flex gap-3 text-muted mb-4 small">
+                <span><i class="fas fa-building me-1"></i> {{ vacancy.department }}</span>
+                <span><i class="fas fa-map-marker-alt me-1"></i> {{ vacancy.location }}</span>
+                <span><i class="far fa-calendar-alt me-1"></i> {{ vacancy.created_at|date:"d M, Y" }}</span>
+            </div>
+            
+            <div class="bg-white p-4 rounded-4 shadow-sm border">
+                <h5 class="fw-bold border-bottom pb-2 mb-3">Vəzifə Təsviri</h5>
+                <div class="article-content text-secondary">
+                    {{ vacancy.description|linebreaks }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 reveal">
+            <div class="custom-card p-4 border-top border-5 border-success">
+                <h3 class="fw-bold mb-3">Müraciət et</h3>
+                <p class="text-muted small mb-4">Məlumatlarınızı daxil edin və CV-nizi yükləyin.</p>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Ad, Soyad</label>
+                        {{ form.name }} 
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Email</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Telefon</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">CV (PDF)</label>
+                        {{ form.cv }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Motivasiya Məktubu</label>
+                        {{ form.cover_letter }}
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 py-2 rounded-pill fw-bold shadow-sm hover-scale">
+                        Müraciəti Göndər <i class="fas fa-paper-plane ms-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

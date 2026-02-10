@@ -1,0 +1,28 @@
+/* career.css */
+@import url('shared.css'); /* əgər static yolun işləyirsə import edə bilərsən, yoxsa templates-də hər ikisini çağır */
+
+.vacancy-list { display: grid; gap: 16px; grid-template-columns: repeat(2, 1fr); }
+@media (max-width:900px){ .vacancy-list{ grid-template-columns:1fr; } }
+
+.cv-card { border-radius: 12px; overflow:hidden; background:#fff; box-shadow:0 8px 26px rgba(2,6,23,0.04); transition: transform .18s, box-shadow .18s; }
+.cv-card:hover{ transform: translateY(-6px); box-shadow:0 18px 48px rgba(2,6,23,0.08); }
+
+.card-header-lite{ padding:14px 18px; border-bottom:1px solid #f1f5f9; background:linear-gradient(180deg,#fbfff9,#ffffff); display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+
+.vacancy-title{ font-size:1.05rem; font-weight:700; color:#0f1724; }
+.vacancy-meta{ font-size:.88rem; color:#4b5563; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+
+.btn-apply{ background: linear-gradient(180deg,#12663b,#0b5d35); color:#fff; border:none; padding:10px 14px; border-radius:8px; font-weight:700; box-shadow:0 6px 18px rgba(11,93,53,0.12); }
+
+.form-compact .form-control, .form-compact .form-select{ border-radius:8px; padding:10px 12px; }
+
+.file-input-wrap{ display:flex; gap:8px; align-items:center; }
+.file-name{ font-size:.9rem; color:#374151; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+
+.modal .modal-content { border-radius: 12px; overflow: hidden; }
+
+/* touch improvements for modal buttons */
+@media (max-width:600px){
+  .btn-apply{ width:100%; padding:12px; font-size:1rem; }
+  .file-name{ max-width:140px; }
+}

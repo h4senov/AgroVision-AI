@@ -1,0 +1,8 @@
+/* pages.css */
+@import url('shared.css');
+
+.contact-card{ padding:18px; border-radius:12px; background:#fff; box-shadow:0 8px 20px rgba(2,6,23,0.06); }
+.contact-row{ display:flex; gap:12px; }
+@media (max-width:900px){ .contact-row{ flex-direction:column; } }
+
+.form-note{ font-size:.9rem; color:#6b7280; margin-top:6px; }

@@ -46,13 +46,31 @@ INSTALLED_APPS = [
     'inventory',
     'weather',
     'irrigation',
+    'pages',
+    'news',
+    'careers',        
+    'products',
     
-    
+]
+
+LANGUAGES = [
+    ('az', 'Azerbaijani'),
+    ('en', 'English'),
+    ('ru', 'Russian'),
+    ('tr', 'Turkish'),
+]
+USE_I18N = True
+LANGUAGE_CODE = 'az' # Susmaya görə dil
+
+# Dil fayllarının qovluğu
+LOCALE_PATHS = [
+    BASE_DIR / 'locale/',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

@@ -5,20 +5,46 @@ from django.utils import timezone
 from datetime import timedelta
 
  
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from irrigation.models import IrrigationSchedule
+
 def home(request):
-    """
-    Landing Page: Layihənin məqsədini, qlobal statistikaları və animasiyalı təqdimatı göstərir.
-    User login olsa belə, bura ana səhifə kimi görünür, amma "Dashboarda Keç" düyməsi olur.
-    """
-    # Bu rəqəmlər saytın ümumi "gücünü" göstərmək üçün marketinq məqsədlidir (simulyasiya)
-    # Reallıqda bütün userlərin cəmini hesablaya bilərsən.
-    context = {
-        'global_water_saved': 15400,  # Tonla
-        'global_active_sensors': 450,
-        'global_ai_analysis': 12000,
-        'farmers_count': 85
-    }
+    context = {}
+
+    if request.user.is_authenticated:
+        user = request.user
+        today = timezone.now().date()
+
+        # Sahə nəmliyi: son suvarma və ya ortalama dəyər
+        last_moisture = IrrigationSchedule.objects.filter(
+            field__user=user
+        ).order_by('-irrigation_date').first()
+
+        if last_moisture:
+            field_moisture = last_moisture.soil_moisture_level
+        else:
+            field_moisture = 15  # Default dəyər
+
+        # AI mesajı (dashboard-dan götürülən logic)
+        critical_field = IrrigationSchedule.objects.filter(
+            field__user=user,
+            soil_moisture_level__lt=20
+        ).order_by('-irrigation_date').first()
+
+        if critical_field:
+            ai_message = f"{critical_field.field.name} sahəsində rütubət {critical_field.soil_moisture_level}% düşüb. Bitki təhlükədədir!"
+        else:
+            ai_message = "Sistem stabil işləyir, kritik vəziyyət aşkarlanmadı."
+
+        context.update({
+            'field_moisture': field_moisture,
+            'ai_message': ai_message
+        })
+
     return render(request, 'core/home.html', context)
+
 
 from irrigation.models import IrrigationSchedule
 from inventory.models import Inventory
@@ -32,7 +58,18 @@ def dashboard(request):
     total_fields = user.fields.count()
     total_plants = user.fields.filter(plants__isnull=False).distinct().count()
     total_sensors = user.fields.aggregate(Count('sensors'))['sensors__count'] or 0
-    
+
+    from weather.models import WeatherData
+    temp_data = WeatherData.objects.filter(field__user=user).order_by('weather_date')[:6]
+    chart_temp_labels = [d.weather_date.strftime('%H:%M') for d in temp_data]
+    chart_temp_values = [float(d.temperature_max) for d in temp_data]
+
+    latest_weather = WeatherData.objects.filter(field__user=user).order_by('-weather_date').first()
+
+    ph_optimal = user.fields.filter(ph_level__gte=6.5, ph_level__lte=7.5).count()
+    ph_acidic = user.fields.filter(ph_level__lt=6.5).count()
+    ph_alkaline = user.fields.filter(ph_level__gt=7.5).count()
+
     # Su Sərfiyyatı (Yalnız tamamlanmış və bugünkü)
     water_usage = IrrigationSchedule.objects.filter(
         field__user=user, 
@@ -77,10 +114,8 @@ def dashboard(request):
             'type': 'success', 'icon': 'fa-check-circle'
         }
 
-    # 5. Son Hava Məlumatı (Ən son hansı sahəyə hava daxil edilibsə)
-    # Bu hissə sənin WeatherData modelindən gəlir
-    from weather.models import WeatherData # Modelin adını dəqiqləşdir
-    latest_weather = WeatherData.objects.filter(field__user=user).order_by('-weather_date').first()
+    recent_activities = IrrigationSchedule.objects.filter(field__user=user).order_by('-irrigation_date')[:3]
+     
 
     context = {
         'total_fields': total_fields,
@@ -91,5 +126,10 @@ def dashboard(request):
         'low_stock_items': low_stock_items,
         'ai_msg': ai_msg,
         'latest_weather': latest_weather,
+        'chart_temp_labels': chart_temp_labels,
+        'chart_temp_values': chart_temp_values,
+        'ph_dist': [ph_optimal, ph_acidic, ph_alkaline],
+        'recent_activities': recent_activities,
+        
     }
     return render(request, 'core/dashboard.html', context)

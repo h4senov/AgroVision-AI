@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5 text-center">
+
+<div class="card p-4 shadow" style="max-width:500px;margin:auto">
+<h4>Silinsin?</h4>
+
+<p><b>{{product.name}}</b> silinəcək.</p>
+
+<form method="POST">
+{% csrf_token %}
+<button class="btn btn-danger">Bəli, sil</button>
+<a href="{% url 'products:product_detail' product.pk %}" class="btn btn-secondary">İmtina</a>
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}

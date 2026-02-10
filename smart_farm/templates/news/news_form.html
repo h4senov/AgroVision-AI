@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<style>
+.form-card { transition: transform .18s ease, box-shadow .18s ease; }
+.form-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(2,6,23,0.06); }
+.preview-img { width:100%; max-height:280px; object-fit:cover; border-radius:8px; margin-bottom:12px; }
+</style>
+{% endblock %}
+
+{% block title %}{{ title|default:_("Xəbər formu") }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card form-card shadow-sm animate__animated animate__fadeInUp">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            {% if news %}{% trans "Xəbəri redaktə et" %}{% else %}{% trans "Yeni Xəbər əlavə et" %}{% endif %}
+          </h5>
+        </div>
+
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            
+            <div class="mb-3">
+              <label class="form-label">{% trans "Başlıq" %}</label>
+              {{ form.title }}
+              {{ form.title.errors }}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">{% trans "Link (slug)" %}</label>
+              {{ form.slug }}
+              {{ form.slug.errors }}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">{% trans "Məzmun" %}</label>
+              {{ form.content }}
+              {{ form.content.errors }}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">{% trans "Şəkil" %}</label>
+              {% if news and news.image %}
+                <img id="preview" src="{{ news.image.url }}" class="preview-img" alt="Preview">
+              {% else %}
+                <img id="preview" class="preview-img d-none" alt="Preview">
+              {% endif %}
+              {{ form.image }}
+              {{ form.image.errors }}
+            </div>
+
+            <div class="form-check mb-3">
+              {{ form.is_published }}
+              <label class="form-check-label ms-2">{% trans "Dərc et" %}</label>
+              {{ form.is_published.errors }}
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'news:news_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> {% trans "Geri" %}
+              </a>
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-save me-1"></i>
+                {% if news %}{% trans "Yadda saxla" %}{% else %}{% trans "Yarat" %}{% endif %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Image preview
+  (function () {
+    const fileInput = document.querySelector('input[type="file"][name="image"]');
+    const preview = document.getElementById('preview');
+    if (!fileInput) return;
+
+    fileInput.addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) {
+        if (preview) preview.classList.add('d-none');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        if (preview) {
+          preview.src = ev.target.result;
+          preview.classList.remove('d-none');
+        }
+      }
+      reader.readAsDataURL(file);
+    });
+  })();
+</script>
+{% endblock %}

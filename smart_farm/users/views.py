@@ -16,17 +16,23 @@ def admin_required(function):
     )
     return actual_decorator(function)
 
+# users/views.py
+
 def user_register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            messages.success(request,'🎉 Uğurla qeydiyyatdan keçdiniz!')
+            # Backend-i dəqiqləşdiririk ki, login problemi olmasın
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            messages.success(request, '🎉 Uğurla qeydiyyatdan keçdiniz!')
             return redirect('core:dashboard')
-    else :
+        else:
+            # Form valid deyilsə, xəta mesajı verək
+            messages.error(request, '❌ Zəhmət olmasa xətaları düzəldin.')
+    else:
         form = CustomUserCreationForm()
-    return render(request, 'users/register.html', {'form' : form})
+    return render(request, 'users/register.html', {'form': form})
 
 # ============ AUTH VIEWS ============
 

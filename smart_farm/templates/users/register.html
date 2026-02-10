@@ -26,7 +26,17 @@
 
             <form method="post" novalidate>
                 {% csrf_token %}
-                
+                {% if form.errors %}
+    <div class="alert alert-danger border-0 rounded-4 mb-3">
+        <ul class="mb-0 ps-3">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
                 {% if form.non_field_errors %}
                 <div class="alert alert-danger border-0 rounded-4">
                     {% for error in form.non_field_errors %}{{ error }}{% endfor %}
@@ -64,13 +74,14 @@
                 </div>
 
                 <div class="form-check mb-4">
-                    
-                        <div class="form-check mb-4">
-            <input class="form-check-input shadow-none" type="checkbox" id="terms" required>
-            <label class="form-check-label small text-muted" for="terms">
-                <a href="{% url 'users:terms' %}" target="_blank" class="text-success text-decoration-none fw-bold">İstifadə qaydaları</a> ilə razıyam.
-            </label>
-        </div>
+                    {{ form.terms_confirmed }}
+                    <label class="form-check-label small text-muted ms-2" for="{{ form.terms_confirmed.id_for_label }}">
+                        <a href="{% url 'users:terms' %}" target="_blank" class="text-success text-decoration-none fw-bold">İstifadə qaydaları</a> ilə razıyam.
+                    </label>
+                    {% if form.terms_confirmed.errors %}
+                        <div class="text-danger small mt-1">{{ form.terms_confirmed.errors.0 }}</div>
+                    {% endif %}
+                </div>
                     </label>
                 </div>
 

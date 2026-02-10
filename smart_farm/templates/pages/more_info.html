@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ətraflı Məlumat | Agrovision AI{% endblock %}
+
+{% block extra_css %}
+
+<style>
+.info-header {
+    background: linear-gradient(135deg, #198754 0%, #0b3d22 100%);
+    padding: 56px 0;
+    color: white;
+}
+.feature-icon-small {
+    width: 56px;
+    height: 56px;
+    background: rgba(25,135,84,0.08);
+    color: #198754;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    font-size: 1.15rem;
+}
+.process-step {
+    border-left: 3px dashed #e9efe8;
+    padding-left: 30px;
+    position: relative;
+    margin-bottom: 2.2rem;
+}
+.process-step::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 6px;
+    width: 16px;
+    height: 16px;
+    background: #198754;
+    border-radius: 50%;
+}
+.ai-badge {
+    background: #e7f3ee;
+    color: #198754;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+}
+.card-feat {
+    border-radius: 12px;
+    box-shadow: 0 14px 36px rgba(2,6,23,0.06);
+}
+.kv-box {
+    background: linear-gradient(180deg, rgba(25,135,84,0.06), rgba(25,135,84,0.02));
+    border-radius: 12px;
+    padding: 18px;
+    text-align:center;
+}
+.small-muted { color:#6b766d; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="info-header">
+    <div class="container text-center">
+        <h1 class="fw-bold display-6">Texnologiyamız Necə İşləyir?</h1>
+        <p class="lead opacity-85 mt-3" style="max-width:820px; margin:auto;">
+            Torpaqdan götürdüyümüz hər siqnalı — nəmə, PH-ə, temperatur və hava məlumatlarına çevrilən istifadə üçün əlçatan tövsiyələrə çeviririk.
+            Məqsədimiz: fermerin qərar verməsini asanlaşdırmaq, riskləri azaltmaq və mənfəəti artırmaq.
+        </p>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-lg-7">
+            <h3 class="fw-bold mb-4">Məlumatın Yolçuluğu — sadə və etibarlı</h3>
+
+            <div class="process-step">
+                <span class="ai-badge">Addım 1 — Toplama</span>
+                <h5 class="mt-3">Sensorlar və Peyk Məlumatları</h5>
+                <p class="small-muted">
+                    Torpaq altlığına yerləşdirilmiş IoT sensorlar (nəmlik, temperatur, pH, tuzluq) və peyk görüntüləri 24/7 toplanır.
+                    Məlumatlar şifrələnərək buludumuzda toplanır — lokal və qlobal kontekstlərlə birləşdirilir.
+                </p>
+            </div>
+
+            <div class="process-step">
+                <span class="ai-badge">Addım 2 — Emal</span>
+                <h5 class="mt-3">Model əsaslı analiz və kontekstləşdirmə</h5>
+                <p class="small-muted">
+                    Toplanmış siqnallar meteoroloji proqnozlarla sinkronizasiya edilir. AI modellərimiz:
+                </p>
+                <ul>
+                    <li>Su tələbatını və buxarlanmanı proqnozlaşdırır</li>
+                    <li>Zərərvericilərin riskini əvvəlcədən qiymətləndirir</li>
+                    <li>Gübrə ehtiyacını sahə və bitki növünə görə təyin edir</li>
+                </ul>
+            </div>
+
+            <div class="process-step">
+                <span class="ai-badge">Addım 3 — İcra və bildiriş</span>
+                <h5 class="mt-3">Avtomatlaşdırma və fermerə bildiriş</h5>
+                <p class="small-muted">
+                    Sistem avtomatik əməliyyat (məs. suvarma klapanı) təklif edə və ya fermerə mobil bildiriş göndərə bilər.
+                    Hər qərar üçün etimad səviyyəsi (confidence score) göstərilir — beləliklə istifadəçi nə üçün məsləhət verildiyini görür.
+                </p>
+            </div>
+
+            <h4 class="mt-4">Nəticə — Praktik faydalar</h4>
+            <ul>
+                <li><strong>Məhsuldarlıq:</strong> Optimizə edilmiş gübrə və su istifadəsi ilə məhsul verimi yüksəlir.</li>
+                <li><strong>Resursların qorunması:</strong> Su, gübrə və enerji istifadə xərclərində qənaət.</li>
+                <li><strong>Riskin azaldılması:</strong> Zərərvericilər və xəstəliklər erkən aşkarlanır.</li>
+            </ul>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card card-feat p-4 mb-4">
+                <h5 class="fw-bold">Biz nəyi izləyirik?</h5>
+
+                <div class="d-flex mb-3">
+                    <div class="feature-icon-small me-3"><i class="fas fa-tint" aria-hidden="true"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Torpaq və su</h6>
+                        <small class="text-muted">Nəm, drenaj, su stoku və su stressi.</small>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-3">
+                    <div class="feature-icon-small me-3"><i class="fas fa-cloud-sun" aria-hidden="true"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Hava</h6>
+                        <small class="text-muted">Yağış, temperatur, külək və proqnozlar.</small>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-3">
+                    <div class="feature-icon-small me-3"><i class="fas fa-bug" aria-hidden="true"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Zərərvericilər</h6>
+                        <small class="text-muted">Risk göstəriciləri və müdaxilə vaxtı.</small>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="kv-box">
+                    <div class="small text-muted">İndi sistemə daxil olaraq demo panelə baxın</div>
+                    <div class="fw-bold display-6">İndi sınayın</div>
+                    <div class="mt-3">
+                        <a href="{% url 'core:dashboard' %}" class="btn btn-success w-100 rounded-pill">Demo Panelə Bax</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-3">
+                <h6 class="fw-bold">Tez-tez verilən suallar</h6>
+                <details class="mt-2">
+                    <summary><strong>1. Sensora necə qoşuluram?</strong></summary>
+                    <p class="small text-muted mt-2">Bizim texniki qrup cihazları sahəyə quraşdırır və platformaya qoşur. Təlim və dəstək daxildir.</p>
+                </details>
+
+                <details class="mt-2">
+                    <summary><strong>2. Sistem nə dərəcədə dəqiqdir?</strong></summary>
+                    <p class="small text-muted mt-2">Modelimiz sahə əsaslı öyrədilib — ümumi dəqiqlik və etibarlılıq 80-95% arası dəyişir, sahədən asılıdır.</p>
+                </details>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Visual banner with CTA -->
+<div class="container pb-5">
+    <div class="rounded-4 overflow-hidden shadow-lg position-relative">
+        <img src="{% static 'images/field-banner.jpg' %}" class="w-100" style="height:360px; object-fit:cover; filter:brightness(0.6);" alt="Smart Farm sahə">
+        <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-90">
+            <h2 class="fw-bold">Hər Damla Suya Nəzarət — Hər Məhsul Daha Dəyərli</h2>
+            <p class="mt-2 small-muted" style="color: rgba(255,255,255,0.9); max-width:760px; margin:auto;">
+                AgroVision ilə daha az resursla daha çox məhsul əldə edin. Bizim məqsədimiz fermerin hər qərarını məlumatla dəstəkləməkdir.
+            </p>
+            <div class="mt-3" style="max-width:320px; margin:auto;">
+                <a href="{% url 'pages:contact_index' %}" class="btn btn-light w-100 rounded-pill fw-bold">Məlumat Almaq Üçün Əlaqə</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Small JS: smooth reveal on scroll -->
+<script>
+(function(){
+    const revealEls = document.querySelectorAll('.process-step, .card-feat, .kv-box');
+    function onScroll() {
+        revealEls.forEach((el, i)=>{
+            const rect = el.getBoundingClientRect();
+            if(rect.top < window.innerHeight - 80){
+                el.style.opacity = 1;
+                el.style.transform = 'translateY(0)';
+                el.style.transition = `opacity .6s ease ${(i*0.08)}s, transform .6s ease ${(i*0.08)}s`;
+            } else {
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(18px)';
+            }
+        });
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    window.addEventListener('load', onScroll);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,114 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-04 12:16+0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+#: .\templates\base.html:32
+msgid "Dashboard"
+msgstr ""
+
+#: .\templates\base.html:37
+msgid "Sahələr"
+msgstr ""
+
+#: .\templates\base.html:42
+msgid "Bitkilər"
+msgstr ""
+
+#: .\templates\base.html:47
+msgid "Suvarma"
+msgstr ""
+
+#: .\templates\base.html:52
+msgid "Sensorlar"
+msgstr ""
+
+#: .\templates\base.html:57
+msgid "Anbar"
+msgstr ""
+
+#: .\templates\base.html:63
+msgid "Hava"
+msgstr ""
+
+#: .\templates\base.html:70
+msgid "HAQQIMIZDA"
+msgstr ""
+
+#: .\templates\base.html:73
+msgid "Ümumi Məlumatlar"
+msgstr ""
+
+#: .\templates\base.html:74
+msgid "Məqsədlərimiz"
+msgstr ""
+
+#: .\templates\base.html:75
+msgid "Uğurlarımız"
+msgstr ""
+
+#: .\templates\base.html:81
+msgid "KARYERA"
+msgstr ""
+
+#: .\templates\base.html:87
+msgid "MEDIA"
+msgstr ""
+
+#: .\templates\base.html:93
+msgid "İSTEHSALAT"
+msgstr ""
+
+#: .\templates\base.html:96
+msgid "Cihazlarımız"
+msgstr ""
+
+#: .\templates\base.html:97
+msgid "Keyfiyyət Standartları"
+msgstr ""
+
+#: .\templates\base.html:98
+msgid "Texnoloji Yeniliklər"
+msgstr ""
+
+#: .\templates\base.html:104
+msgid "ƏLAQƏ"
+msgstr ""
+
+#: .\templates\base.html:145
+msgid "Profil"
+msgstr ""
+
+#: .\templates\base.html:146
+msgid "Redaktə et"
+msgstr ""
+
+#: .\templates\base.html:151
+msgid "Çıxış"
+msgstr ""
+
+#: .\templates\base.html:159
+msgid "Giriş"
+msgstr ""
+
+#: .\templates\base.html:162
+msgid "Qeydiyyat"
+msgstr ""
+
+#: .\templates\base.html:180
+msgid "Bütün hüquqlar qorunur."
+msgstr ""

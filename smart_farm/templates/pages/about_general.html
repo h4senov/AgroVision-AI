@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Smart Farm — Gələcəyin Əkinçiliyi{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Hero layout */
+.hero-section {
+    background: linear-gradient(180deg, #f8fbf8 0%, #f4fbff 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 60px 0;
+}
+
+/* Animated blobs */
+.blob-shape {
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle at 30% 30%, rgba(25,135,84,0.12), rgba(25,135,84,0.04));
+    border-radius: 48% 52% 60% 40% / 50% 40% 60% 50%;
+    z-index: 0;
+    transform-origin: center;
+    animation: float 8s ease-in-out infinite;
+    pointer-events: none;
+    filter: blur(8px);
+}
+.blob-1 { top: -80px; right: -80px; animation-delay: 0s; }
+.blob-2 { bottom: -80px; left: -80px; animation-delay: 2s; }
+
+@keyframes float {
+    0% { transform: translateY(0) rotate(0deg) scale(1); }
+    50% { transform: translateY(12px) rotate(6deg) scale(1.03); }
+    100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+
+/* Hero content */
+.hero-card {
+    position: relative;
+    z-index: 2;
+}
+.lead-plain { color: #4f5b4e; font-size:1.05rem; line-height:1.8; }
+
+/* CTA buttons */
+.btn-cta {
+    border-radius: 999px;
+    padding: 12px 26px;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(16,185,129,0.08);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.btn-cta:active{ transform: translateY(1px); }
+
+/* small animated icon */
+.icon-rise {
+    display:inline-block;
+    transform-origin:center;
+    transition: transform .25s ease;
+}
+.btn-cta:hover .icon-rise { transform: translateY(-3px) rotate(-6deg); }
+
+/* image card */
+.hero-image {
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow: 0 18px 40px rgba(2,6,23,0.08);
+    transition: transform .35s ease;
+}
+.hero-image:hover { transform: translateY(-8px) scale(1.01); }
+
+/* reveal animations */
+.reveal {
+    opacity:0;
+    transform: translateY(14px);
+    transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.visible { opacity:1; transform: translateY(0); }
+
+/* small stat badges */
+.stat-badge {
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px 14px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="blob-shape blob-1" aria-hidden="true"></div>
+    <div class="blob-shape blob-2" aria-hidden="true"></div>
+
+    <div class="container hero-card">
+        <div class="row align-items-center gy-5">
+            <div class="col-lg-6">
+                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill mb-3 fw-bold">
+                    <i class="fas fa-seedling me-2" aria-hidden="true"></i> Gələcəyin Əkinçiliyi
+                </span>
+
+                <h1 class="display-5 fw-bold text-dark">Smart Farm ilə daha ağıllı, daha səmərəli və daha davamlı əkinçilik</h1>
+
+                <p class="lead-plain mt-3 mb-4">
+                    Biz fermerlərə torpaq, hava və bitki ehtiyacını **real vaxtda** göstərən platforma təqdim edirik.
+                    Sensorlar, peyk və hava proqnozu məlumatlarını birləşdirərək, hər tələb üçün konkret və praktik tövsiyələr yaradırıq.
+                </p>
+
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2"><strong>24/7 Monitorinq</strong> — Torpaq nəmliyi, pH və temperaturu canlı izləyin.</li>
+                    <li class="mb-2"><strong>Əsaslı qərarlar</strong> — Süni intellekt əsaslı tövsiyələr: suvarma, gübrələmə və zərərverici nəzarəti.</li>
+                    <li class="mb-2"><strong>Məqsəd:</strong> Məhsuldarlığı artırmaq və resurs israfını azaltmaq.</li>
+                </ul>
+
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                    <a href="{% url 'pages:more_info' %}" class="btn btn-success btn-cta d-inline-flex align-items-center" aria-label="Daha çox oxu">
+                        Daha çox oxu <span class="icon-rise ms-2"><i class="fas fa-long-arrow-alt-right"></i></span>
+                    </a>
+
+                    <a href="{% url 'pages:contact_index' %}" class="btn btn-outline-success btn-cta d-inline-flex align-items-center" aria-label="Əlaqə">
+                        Bizimlə əlaqə <i class="fas fa-phone-alt ms-2"></i>
+                    </a>
+                </div>
+
+                <div class="d-flex gap-3 mt-4">
+                    <div class="stat-badge">
+                        <div class="small text-muted">Orta məhsuldarlığın artımı</div>
+                        <div class="fw-bold">+30%</div>
+                    </div>
+                    <div class="stat-badge">
+                        <div class="small text-muted">Su sərfiyyatında azalma</div>
+                        <div class="fw-bold">-25%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 text-center">
+                <div class="hero-image reveal" id="heroImg" role="img" aria-label="Ağıllı fermer paneli">
+                    <img src="{% static 'images/hero-field.jpg' %}" alt="Smart Farm sahə şəkli" style="width:100%; height:420px; object-fit:cover;">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Scroll-reveal for elements with .reveal
+function revealOnScroll(){
+    document.querySelectorAll('.reveal').forEach(el=>{
+        const rect = el.getBoundingClientRect();
+        if(rect.top < (window.innerHeight - 80)){
+            el.classList.add('visible');
+        }
+    });
+}
+document.addEventListener('scroll', revealOnScroll, {passive:true});
+window.addEventListener('load', revealOnScroll);
+
+// Keyboard accessible focus for CTA
+document.querySelectorAll('.btn-cta').forEach(btn=>{
+    btn.addEventListener('focus', () => btn.classList.add('focus-visible'));
+    btn.addEventListener('blur', () => btn.classList.remove('focus-visible'));
+});
+</script>
+{% endblock %}

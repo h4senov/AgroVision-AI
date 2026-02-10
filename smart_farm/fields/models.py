@@ -57,6 +57,17 @@ class FieldManager(models.Manager):
             total_sensors = sensors.count()
             active_sensors = sensors.filter(is_active=True).count()
             
+            # pH Analizi: 6.0 - 7.5 arası optimal sayılır
+            ph = float(field.ph_level)
+            ph_status = "Optimal"
+            if ph < 6.0: ph_status = "Turşulu"
+            elif ph > 7.5: ph_status = "Qələvili"
+
+            base_score = self._calculate_field_health_score(field)
+            if ph_status != "Optimal":
+                base_score = round(base_score * 0.9, 2)
+
+
             # Hava durumu (Son 7 gün)
             week_ago = timezone.now().date() - timedelta(days=7)
             daily_weather = field.weather_data.filter(
@@ -87,7 +98,9 @@ class FieldManager(models.Manager):
                 'soil_type': field.get_soil_type_display(),
                 'field_health_score': self._calculate_field_health_score(field),
                 'weather_labels': weather_labels,
-                'weather_temps': weather_temps, # Yazı xətası düzəldi
+                'weather_temps': weather_temps, 
+                'ph_level': field.ph_level,
+                'ph_status': ph_status,
             }
 
         except self.model.DoesNotExist: 
@@ -139,6 +152,7 @@ class Field(models.Model):
     name = models.CharField(max_length=100)
     area_hectares = models.DecimalField(max_digits=10, decimal_places=2)
     soil_type = models.CharField(max_length=20, choices=SOIL_TYPES, default='loamy')
+    ph_level = models.DecimalField(max_digits=3, decimal_places=1, default=7.0)
     created_at = models.DateTimeField(auto_now_add=True)
     
     objects = FieldManager()

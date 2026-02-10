@@ -1,27 +1,16 @@
-"""
-URL configuration for smart_farm project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-
+from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
-from django.urls import path, include
+from django.conf.urls.i18n import i18n_patterns # Bu vacibdir
 
+# 1. Dil dəyişmə funksiyası (prefixsiz qalır)
 urlpatterns = [
+    path('i18n/', include('django.conf.urls.i18n')),
+]
+
+# 2. Bütün digər səhifələr dil prefixi (məs: /az/dashboard/) alır
+urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
     path('', include('core.urls', namespace='core')),
     path('users/', include('users.urls', namespace='users')),
@@ -31,7 +20,15 @@ urlpatterns = [
     path('inventory/', include('inventory.urls', namespace='inventory')),
     path('weather/', include('weather.urls', namespace='weather')),   
     path('irrigation/', include('irrigation.urls', namespace='irrigation')),
-]
+   
+    path('careers/', include('careers.urls')),
+    path('news/', include('news.urls')),
+    path('products/', include('products.urls')),
+    path('info/', include('pages.urls')),
+    
+    
+    # prefix_default_language=False 
+)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

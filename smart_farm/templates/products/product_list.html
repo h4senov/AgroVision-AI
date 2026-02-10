@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.product-card{
+    transition:0.3s;
+    border-radius:12px;
+    overflow:hidden;
+}
+.product-card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
+.fade-in{
+    animation:fadeIn .6s ease-in;
+}
+@keyframes fadeIn{
+    from{opacity:0;transform:translateY(10px)}
+    to{opacity:1}
+}
+</style>
+
+<div class="container mt-4">
+
+<form method="GET" class="row mb-4">
+    <div class="col-md-4">
+        <input name="q" class="form-control" placeholder="Axtar...">
+    </div>
+
+    <div class="col-md-3">
+        <select name="category" class="form-select">
+            <option value="">Kateqoriya</option>
+            {% for c in categories %}
+            <option value="{{c.slug}}">{{c.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button class="btn btn-dark w-100">Filtrlə</button>
+    </div>
+</form>
+
+<div class="row">
+{% for p in products %}
+<div class="col-md-4 mb-4 fade-in">
+    <div class="card product-card h-100">
+
+        {% if p.images.first %}
+        <img src="{{p.images.first.image.url}}" style="height:220px;object-fit:cover">
+        {% endif %}
+
+        <div class="card-body">
+            <h5>{{p.name}}</h5>
+            <p class="text-muted">{{p.short_description|truncatechars:80}}</p>
+            <b>{{p.price}} ₼</b>
+        </div>
+
+        <div class="card-footer bg-white">
+            <a href="{% url 'products:product_detail' p.pk %}" class="btn btn-outline-dark w-100">
+                Bax
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endfor %}
+</div>
+
+</div>
+
+{% endblock %}

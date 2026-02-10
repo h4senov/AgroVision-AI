@@ -4,26 +4,43 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from .models import CustomUser
 
+# users/forms.py
 
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True,label='Email')
-    farm_name = forms.CharField(max_length=100, required=False,label='Fermer adı')
-    phone = forms.CharField(max_length=20,required=False,label='Telefon')
-    location = forms.CharField(max_length=255,required=False,label='Yerləşdiyi yer')
-    role = forms.ChoiceField(
-        choices=CustomUser.ROLE_CHOICES, 
-        initial='farmer',
-        label='Rol'
-    )
+    email = forms.EmailField(required=True, label='Email')
+    farm_name = forms.CharField(max_length=100, required=False, label='Fermer adı')
+    phone = forms.CharField(max_length=20, required=False, label='Telefon')
+    location = forms.CharField(max_length=255, required=False, label='Yerləşdiyi yer')
     
+    # DİQQƏT: role sahəsini buradan sildim. İstifadəçi qeydiyyatda rol seçməməlidir.
+    # Model-də onsuz da default='guest' var.
+    terms_confirmed = forms.BooleanField(
+        required=True,
+        label="İstifadə qaydaları ilə razıyam",
+        error_messages={'required': 'Qeydiyyatı tamamlamaq üçün qaydalarla razılaşmalısınız.'}
+    )
+
     class Meta(UserCreationForm.Meta):
         model = CustomUser
-        fields = UserCreationForm.Meta.fields + ('email', 'farm_name', 'phone', 'location', 'role')
+        # terms_confirmed bura düşmür, çünki modeldə yoxdur, sadəcə formadadır.
+        fields = UserCreationForm.Meta.fields + ('email', 'farm_name', 'phone', 'location') # role sildik
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields:
-            self.fields[field].widget.attrs.update({'class': 'form-control shadow-none'})  
+            # Checkbox üçün ayrıca stil lazımdır, ona form-control vermirik
+            if field != 'terms_confirmed':
+                self.fields[field].widget.attrs.update({'class': 'form-control shadow-none'})
+            else:
+                self.fields[field].widget.attrs.update({'class': 'form-check-input shadow-none'})
+
+    # Əgər mütləq hamı 'farmer' olsun istəyirsənsə, save metodunu belə yaza bilərsən:
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.role = 'farmer'  # Hamı avtomatik fermer olur
+        if commit:
+            user.save()
+        return user
     
 class CustomUserUpdateForm(UserChangeForm):
     password = None  # Şifrə dəyişməyəcək, bunun üçün ayrı formun var zaten

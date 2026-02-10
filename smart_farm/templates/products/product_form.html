@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.card {
+    max-width: 900px;
+    margin: 40px auto;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    background: #f8f9fa;
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.form-section {
+    margin-bottom: 18px;
+}
+
+.tag-box {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+}
+</style>
+
+<div class="card">
+    <div class="card-header">
+        {{ title }}
+    </div>
+
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- NAME -->
+            <div class="form-section">
+                <label>Ad</label>
+                {{ form.name }}
+            </div>
+
+            <!-- SLUG -->
+            <div class="form-section">
+                <label>Slug</label>
+                {{ form.slug }}
+                <small class="text-muted">Avtomatik yaradılır</small>
+            </div>
+
+            <!-- CATEGORY -->
+            <div class="form-section">
+                <label>Kateqoriya</label>
+                {{ form.category }}
+            </div>
+
+            <!-- SHORT DESC -->
+            <div class="form-section">
+                <label>Qısa Təsvir</label>
+                {{ form.short_description }}
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="form-section">
+                <label>Açıqlama</label>
+                {{ form.description }}
+            </div>
+
+            <!-- PRICE & STOCK -->
+            <div class="row">
+                <div class="col-md-6 form-section">
+                    <label>Qiymət</label>
+                    {{ form.price }}
+                </div>
+
+                <div class="col-md-6 form-section">
+                    <label>Stock</label>
+                    {{ form.stock }}
+                </div>
+            </div>
+
+            <!-- FLAGS -->
+            <div class="form-check">
+                {{ form.is_published }} <label>Dərc olunsun</label>
+            </div>
+
+            <div class="form-check mb-3">
+                {{ form.is_featured }} <label>Önə çıxsın</label>
+            </div>
+
+            <!-- TAGS -->
+            <div class="form-section">
+                <label>Teqlər</label>
+                <div class="tag-box">
+                    {{ form.tags }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                Saxla
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+// SLUG AUTO GENERATE
+const nameInput = document.getElementById("id_name");
+const slugInput = document.getElementById("id_slug");
+
+function slugify(text){
+    return text.toString().toLowerCase()
+        .replace(/\s+/g,'-')
+        .replace(/[^\w\-]+/g,'')
+        .replace(/\-\-+/g,'-')
+        .replace(/^-+/,'')
+        .replace(/-+$/,'');
+}
+
+nameInput.addEventListener("keyup", () => {
+    if(!slugInput.value){
+        slugInput.value = slugify(nameInput.value);
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Məqsədlərimiz | Agrovision AI{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Container & header */
+.goals-hero {
+    background: linear-gradient(180deg, #f7fbf7 0%, #f1fbff 100%);
+    padding: 62px 0;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(2,6,23,0.04);
+}
+.goals-hero h1 { font-weight:800; }
+.goals-intro { color: #4d5b4f; line-height:1.8; }
+
+/* Cards grid */
+.goals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 28px; }
+@media (max-width: 992px) { .goals-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .goals-grid { grid-template-columns: 1fr; } }
+
+.goal-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s;
+    box-shadow: 0 10px 28px rgba(2,6,23,0.04);
+}
+.goal-card:hover { transform: translateY(-10px); box-shadow: 0 18px 48px rgba(2,6,23,0.08); }
+
+.goal-icon {
+    width:64px;
+    height:64px;
+    border-radius:12px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.35rem;
+    margin-bottom: 16px;
+    background: linear-gradient(180deg, rgba(25,135,84,0.08), rgba(25,135,84,0.02));
+}
+
+/* Title and summary */
+.goal-title { font-weight:700; margin-bottom:8px; }
+.goal-summary { color:#6b766d; font-size:0.98rem; line-height:1.6; }
+
+/* Details area (visible on click) */
+.goal-more { margin-top:12px; color:#556055; font-size:0.95rem; display:none; }
+.goal-card.expanded .goal-more { display:block; }
+
+/* KPI row */
+.kpi-row { display:flex; gap:12px; margin-top:18px; flex-wrap:wrap; }
+.kpi {
+    background:#fff;
+    border-radius:10px;
+    padding:10px 14px;
+    box-shadow: 0 8px 22px rgba(2,6,23,0.03);
+    min-width:120px;
+    text-align:center;
+}
+.kpi .num { font-weight:800; font-size:1.25rem; }
+.kpi .label { font-size:0.85rem; color:#6b766d; }
+
+/* Progress bars */
+.progress-wrap { margin-top:16px; }
+.progress-track {
+    background:#ecf6ef;
+    height:10px;
+    border-radius:999px;
+    overflow:hidden;
+}
+.progress-fill {
+    height:100%;
+    width:0%;
+    border-radius:999px;
+    transition: width 1.2s cubic-bezier(.2,.9,.2,1);
+    background: linear-gradient(90deg, #198754, #6dd89d);
+}
+
+/* Accordion style for deep-dive section */
+.deep-accordion { margin-top:24px; }
+.deep-accordion details { background:#fff; border-radius:10px; padding:12px 14px; box-shadow: 0 8px 20px rgba(2,6,23,0.04); margin-bottom:10px; }
+.deep-accordion summary { list-style:none; cursor:pointer; font-weight:700; }
+.deep-accordion summary::-webkit-details-marker { display:none; }
+
+/* CTA strip */
+.goals-cta {
+    margin-top:34px;
+    background: linear-gradient(90deg, rgba(25,135,84,0.06), rgba(25,135,84,0.02));
+    padding:22px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+@media (max-width:720px){ .goals-cta { flex-direction:column; text-align:center; } }
+
+/* small reveal helpers */
+.reveal { opacity:0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity:1; transform: translateY(0); }
+
+/* accessible focus */
+.goal-card:focus-within { outline: 3px solid rgba(25,135,84,0.12); }
+
+/* fine typography */
+.lead-strong { color:#2f4b3f; font-weight:700; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="goals-hero p-4 p-md-5 reveal" role="region" aria-labelledby="goalsHeading">
+        <div class="row align-items-center py-4">
+    <div class="col-lg-8">
+        <h1 id="goalsHeading" class="display-5 fw-bold">Əsas Məqsədlərimiz</h1>
+        <p class="goals-intro mt-3 lead">
+            Fermerlər üçün qərar verməyi asanlaşdırır, təbii resursları qoruyur və məhsuldarlığı artırırıq.
+            Məqsədimiz sadədir: davamlı, məlumatla dəstəklənmiş və praktik həllər təqdim etmək.
+        </p>
+    </div>
+
+    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+        <div class="small text-muted mb-1">Qısa Baxış</div>
+        <div class="fw-bold fs-5 mb-2">Davamlılıq • Avtomatlaşdırma • Məhsuldarlıq</div>
+        <a href="{% url 'pages:contact_index' %}" class="btn btn-success btn-sm">Əlaqə və Təklif Al</a>
+    </div>
+</div>
+
+
+        <!-- Cards -->
+        <div class="goals-grid mt-4">
+            <!-- Sustainability -->
+            <article class="goal-card reveal" tabindex="0" aria-labelledby="g1-title" data-goal="sustainability">
+                <div class="goal-icon" aria-hidden="true"><i class="fas fa-seedling"></i></div>
+                <h3 id="g1-title" class="goal-title">Davamlılıq</h3>
+                <p class="goal-summary">Su, torpaq və kimyəvi maddələrin istifadəni optimallaşdırmaq — məqsədimiz ekosistemi bərpa edərək gələcək nəsillərə sağlam torpaq saxlamaqdır.</p>
+
+                <div class="goal-more">
+                    <p>
+                        Biz suvarma dövrlərini real vaxt məlumatına və proqnoza görə tənzimləyirik, kimyəvi gübrələrin yerini dəqiq hədəflənmiş qarışıqlar alır və torpaq strukturunu uzun müddətli olaraq yaxşılaşdırırıq.
+                        Bu yanaşma ekosistemin tarazlığını pozmadan məhsuldarlığı qorumağa kömək edir.
+                    </p>
+
+                    <div class="kpi-row" aria-hidden="true">
+                        <div class="kpi"><div class="num" data-target="25">0</div><div class="label">Su israfında azalma (%)</div></div>
+                        <div class="kpi"><div class="num" data-target="40">0</div><div class="label">Kimyəvi gübrə azaldılması (%)</div></div>
+                    </div>
+
+                    <div class="progress-wrap mt-3" aria-hidden="true">
+                        <div class="small text-muted">Davamlılıq hədəfinin icrası</div>
+                        <div class="progress-track mt-2" aria-hidden="true">
+                            <div class="progress-fill" data-fill="70"></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Automation -->
+            <article class="goal-card reveal" tabindex="0" aria-labelledby="g2-title" data-goal="automation">
+                <div class="goal-icon" aria-hidden="true"><i class="fas fa-robot"></i></div>
+                <h3 id="g2-title" class="goal-title">Avtomatlaşdırma & Operativlik</h3>
+                <p class="goal-summary">Fərdi müdaxilə olmadan vaxtında hərəkət edə bilən sistemlər — fermerin yükünü azaldır və operativ qərar qəbulunu sürətləndirir.</p>
+
+                <div class="goal-more">
+                    <p>
+                        Avtomatik klapan idarəsi, hədəflənmiş pest control skriptləri və planlaşdırılmış əməliyyatlar sayəsində insan səhvləri minimuma endirilir.
+                        Hər əməliyyatın etimad səviyyəsi göstərildiyi üçün fermer nəzarətdə qalır.
+                    </p>
+
+                    <div class="kpi-row" aria-hidden="true">
+                        <div class="kpi"><div class="num" data-target="95">0</div><div class="label">Sistem iş vaxtı (%)</div></div>
+                        <div class="kpi"><div class="num" data-target="80">0</div><div class="label">Avtomatik tövsiyələrin qəbul nisbəti (%)</div></div>
+                    </div>
+
+                    <div class="progress-wrap mt-3" aria-hidden="true">
+                        <div class="small text-muted">Avtomatlaşdırmanın yayılması</div>
+                        <div class="progress-track mt-2"><div class="progress-fill" data-fill="60"></div></div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Productivity -->
+            <article class="goal-card reveal" tabindex="0" aria-labelledby="g3-title" data-goal="productivity">
+                <div class="goal-icon" aria-hidden="true"><i class="fas fa-chart-line"></i></div>
+                <h3 id="g3-title" class="goal-title">Məhsuldarlıq və Mənfəət</h3>
+                <p class="goal-summary">Hər hektardan daha çox məhsul — ölçülən, davamlı və məlumatla dəstəklənmiş qərarlarla mənfəəti artırmaq.</p>
+
+                <div class="goal-more">
+                    <p>
+                        Əkin dövrlərinin optimallaşdırılması, gübrə və su balansının təyini ilə məhsul dəyəri artırılır. Biz proqnozlar əsasında vaxtında müdaxilə tövsiyə edirik.
+                    </p>
+
+                    <div class="kpi-row" aria-hidden="true">
+                        <div class="kpi"><div class="num" data-target="30">0</div><div class="label">Orta məhsuldarlıq artımı (%)</div></div>
+                        <div class="kpi"><div class="num" data-target="18">0</div><div class="label">Xərc optimizasiyası (%)</div></div>
+                    </div>
+
+                    <div class="progress-wrap mt-3" aria-hidden="true">
+                        <div class="small text-muted">Məhsuldarlıq layihələrinin icrası</div>
+                        <div class="progress-track mt-2"><div class="progress-fill" data-fill="55"></div></div>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <!-- Deep goals: community, transparence, scalability -->
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="deep-accordion reveal">
+                    <details>
+                        <summary>İcma və Təlim — Fermerlərə Dəstək</summary>
+                        <div class="mt-2">
+                            Biz sadəcə texnologiya satmırıq — təlim, sahə dəstəyi və knowledge-base ilə fermerin bilik səviyyəsini artırırıq. Məqsədimiz fermerin texnologiyanı öz şəraitinə uyğun istifadə edə bilməsidir.
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>Məlumatın Şəffaflığı və Etibarlılığı</summary>
+                        <div class="mt-2">
+                            Hər tövsiyə üçün nə üçün belə qərar verildiyi, istifadə olunan ölçülər və etimad (confidence) göstərilir. Verilənlər şifrələnir və istifadəçinin nəzarətindedir.
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>Skalabillik və Uyğunlaşma</summary>
+                        <div class="mt-2">
+                            Kiçik sahələrdən tutmuş kooperativlərə qədər həllərimizi uyğunlaşdırırıq — modul yanaşma sayəsində sadəcə daha çox sensor əlavə etməklə sistem böyüyür.
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card p-3 reveal">
+                    
+
+                    
+
+                    <div class="small text-muted">Əlavə sualın varsa</div>
+                    <div class="mt-2">
+                        <a href="{% url 'pages:contact_index' %}" class="btn btn-outline-success w-100">Bizimlə əlaqə</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="goals-cta reveal" role="region" aria-label="Məqsədlər üçün CTA">
+            <div>
+                <div class="small text-muted">Başlamaq üçün</div>
+                <div class="fw-bold">Sənin sahən üçün xüsusi plan hazırlayaq</div>
+            </div>
+            <div>
+                 
+                <a href="{% url 'core:dashboard' %}" class="btn btn-outline-success rounded-pill">Demo Panelə Bax</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS: reveal, counters, progress fill, toggle expand on card click -->
+<script>
+(function(){
+    // Reveal on scroll
+    const reveals = document.querySelectorAll('.reveal');
+    function revealOnScroll(){
+        reveals.forEach(el=>{
+            const rect = el.getBoundingClientRect();
+            if(rect.top < window.innerHeight - 80){
+                el.classList.add('visible');
+            }
+        });
+    }
+    window.addEventListener('load', revealOnScroll);
+    window.addEventListener('scroll', revealOnScroll, {passive:true});
+
+    // Card expand on click / keyboard accessible
+    document.querySelectorAll('.goal-card').forEach(card=>{
+        card.addEventListener('click', (e)=>{
+            // don't toggle when click on links or buttons inside
+            const tag = e.target.tagName.toLowerCase();
+            if(['a','button','summary'].includes(tag)) return;
+            card.classList.toggle('expanded');
+        });
+        // keyboard: Enter or Space to toggle
+        card.addEventListener('keydown', (e)=>{
+            if(e.key === 'Enter' || e.key === ' '){
+                e.preventDefault();
+                card.classList.toggle('expanded');
+            }
+        });
+    });
+
+    // Animate KPI numbers when visible
+    const counters = document.querySelectorAll('.kpi .num');
+    function animateCounters(){
+        counters.forEach(el=>{
+            if(el.dataset.animated) return;
+            const rect = el.getBoundingClientRect();
+            if(rect.top < window.innerHeight - 40){
+                el.dataset.animated = '1';
+                const target = parseInt(el.getAttribute('data-target') || '0', 10);
+                const duration = 1100;
+                const start = performance.now();
+                const from = 0;
+                function step(ts){
+                    const t = Math.min((ts - start) / duration, 1);
+                    const val = Math.round(from + (target - from) * (t));
+                    el.textContent = val + (el.dataset.suffix || '');
+                    if(t < 1) requestAnimationFrame(step);
+                }
+                requestAnimationFrame(step);
+            }
+        });
+    }
+    window.addEventListener('scroll', animateCounters, {passive:true});
+    window.addEventListener('load', animateCounters);
+
+    // Fill progress bars when visible
+    const fills = document.querySelectorAll('.progress-fill');
+    function fillOnVisible(){
+        fills.forEach(f=>{
+            if(f.dataset.done) return;
+            const rect = f.getBoundingClientRect();
+            if(rect.top < window.innerHeight - 60){
+                f.dataset.done = '1';
+                const target = parseInt(f.getAttribute('data-fill') || '0', 10);
+                f.style.width = target + '%';
+            }
+        });
+    }
+    window.addEventListener('scroll', fillOnVisible, {passive:true});
+    window.addEventListener('load', fillOnVisible);
+})();
+</script>
+{% endblock %}

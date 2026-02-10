@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="page-header reveal">
+    <div class="container">
+        <h1 class="fw-bold">Komandaya Qoşulun</h1>
+        <p class="opacity-75">Agrovision AI ailəsində gələcəyinizi qurun.</p>
+    </div>
+</section>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="row g-4">
+                {% for vacancy in vacancies %}
+                <div class="col-12 reveal">
+                    <div class="custom-card p-4 hover-lift border-start border-success border-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h4 class="fw-bold mb-1">{{ vacancy.title }}</h4>
+                                <div class="d-flex gap-3 text-muted small">
+                                    <span><i class="fas fa-building me-1"></i> {{ vacancy.department }}</span>
+                                    <span><i class="fas fa-map-marker-alt me-1"></i> {{ vacancy.location }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <a href="{% url 'careers:career_detail' vacancy.pk %}" class="btn btn-outline-success px-4 rounded-pill fw-bold">
+                                    Müraciət Et
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-5">
+                    <i class="fas fa-briefcase fa-3x text-light mb-3"></i>
+                    <h5 class="text-muted">Hazırda aktiv vakansiya yoxdur.</h5>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

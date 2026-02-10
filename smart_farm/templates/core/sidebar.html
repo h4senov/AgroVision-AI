@@ -1,0 +1,81 @@
+{% load i18n %}
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-white shadow-sm h-100 sidebar-container" style="width: 280px; min-height: 100vh;">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none px-2">
+        <i class="fas fa-leaf text-success fa-2x me-2"></i>
+        <span class="fs-4 fw-bold text-success tracking-tight">AgroVision</span>
+    </a>
+    <hr>
+    
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a href="#" class="nav-link active bg-success shadow-sm" aria-current="page">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                {% trans "İdarə Paneli" %}
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link link-dark hover-green">
+                <i class="fas fa-map-marked-alt me-2 text-muted"></i>
+                {% trans "Sahələr & Xəritə" %}
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link link-dark hover-green">
+                <i class="fas fa-tint me-2 text-muted"></i>
+                {% trans "Suvarma Sistemi" %}
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link link-dark hover-green">
+                <i class="fas fa-seedling me-2 text-muted"></i>
+                {% trans "Bitki Monitorinqi" %}
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link link-dark hover-green">
+                <i class="fas fa-warehouse me-2 text-muted"></i>
+                {% trans "Anbar & Ehtiyat" %}
+                <span class="badge bg-danger rounded-pill ms-auto">2</span>
+            </a>
+        </li>
+        <li>
+            <a href="#" class="nav-link link-dark hover-green">
+                <i class="fas fa-chart-line me-2 text-muted"></i>
+                {% trans "Hesabatlar" %}
+            </a>
+        </li>
+    </ul>
+    
+    <hr>
+    
+    <div class="dropdown">
+        <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle px-2" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
+            <strong>{{ user.username }}</strong>
+        </a>
+        <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+            <li><a class="dropdown-item" href="#">{% trans "Profil" %}</a></li>
+            <li><a class="dropdown-item" href="#">{% trans "Ayarlar" %}</a></li>
+            
+            <li><hr class="dropdown-divider"></li>
+            
+            <li><h6 class="dropdown-header">{% trans "Dil Seçimi" %}</h6></li>
+            <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                <input name="next" type="hidden" value="{{ redirect_to }}">
+                <li><button name="language" value="az" class="dropdown-item" type="submit">🇦🇿 Azərbaycan</button></li>
+                <li><button name="language" value="en" class="dropdown-item" type="submit">🇺🇸 English</button></li>
+                <li><button name="language" value="ru" class="dropdown-item" type="submit">🇷🇺 Русский</button></li>
+                <li><button name="language" value="tr" class="dropdown-item" type="submit">🇹🇷 Türkçe</button></li>
+            </form>
+            
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#">{% trans "Çıxış" %}</a></li>
+        </ul>
+    </div>
+</div>
+
+<style>
+    .hover-green:hover { background-color: #e8f5e9; color: #198754 !important; }
+    .hover-green:hover i { color: #198754 !important; }
+    .nav-link { font-weight: 500; margin-bottom: 5px; border-radius: 8px; padding: 10px 15px; }
+</style>
