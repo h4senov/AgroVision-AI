@@ -37,11 +37,7 @@ Layihənin əsas gücü onun məlumat vizuallaşdırma qabiliyyətindədir. Aşa
 * **İkonlar:** FontAwesome 6
 * **Dillər:** Django i18n (Azərbaycan dili dəstəyi ilə)
 
-## 📱 Mobil Görünüş
-Sistem tam **Responsive** (mobil uyğun) dizayn edilib:
-* Ekran kiçildikdə menyu **Burger Menyu** halına keçir.
-* Bütün menyu elementləri mobil cihazlarda avtomatik mərkəzləşir.
-* Dropdown-lar (Haqqımızda, İstehsalat) yalnız klik edildikdə açılır, bu da istifadəçi təcrübəsini (UX) artırır.
+
 
 ## 🚀 Quraşdırma
 ```bash
