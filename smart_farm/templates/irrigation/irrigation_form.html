@@ -1,150 +1,223 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}{{ title }} - Smart Farm{% endblock %}
+{% load i18n %}
+{% block title %}{% if form.instance.pk %}{% trans "Suvarmanı Redaktə" %}{% else %}{% trans "Yeni Suvarma" %}{% endif %} - AgroVision{% endblock %}
 
 {% block extra_css %}
 <style>
-    .form-card {
-        border-radius: 20px;
-        overflow: hidden;
-        transition: transform 0.3s ease;
-    }
-    .input-group-text {
-        background-color: #f8f9fa;
-        border-left: none;
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: #198754;
-        box-shadow: 0 0 0 0.25 rgba(25, 135, 84, 0.25);
-    }
-    label {
-        color: #495057;
-        margin-bottom: 5px;
-    }
-    .bg-light-custom {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-    }
-    .btn-lg-custom {
-        transition: all 0.3s ease;
-    }
-    .btn-success:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(25, 135, 84, 0.3);
-    }
-    @media (max-width: 768px) {
-        .container { margin-top: 20px; }
-        .btn-lg-custom { width: 100%; margin-bottom: 10px; }
-    }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.form-wrap {
+    background:var(--bg-card) !important;
+    border-radius:24px; overflow:hidden;
+    animation:fadeInUp .5s ease backwards;
+    border:1px solid var(--border) !important;
+}
+.form-header {
+    background:linear-gradient(135deg,#182f4c,#2e8e63);
+    border-bottom:1px solid var(--border);
+    padding:28px 36px;
+}
+.form-header h4 { color:#fff; font-weight:700; }
+.form-header p  { color:rgba(255,255,255,.65) !important; }
+
+.form-control,.form-select {
+    background:var(--bg-secondary) !important; color:var(--text) !important;
+    border:1.5px solid var(--border) !important;
+    border-radius:10px; padding:10px 14px; font-size:.9rem;
+    transition:border-color .2s, box-shadow .2s;
+}
+.form-control:focus,.form-select:focus {
+    border-color:#3d9970 !important;
+    box-shadow:0 0 0 3px rgba(61,153,112,.12);
+}
+.form-control::placeholder { color:var(--text-muted) !important; opacity:.7; }
+.form-select option { background:var(--bg-card); color:var(--text); }
+
+.input-group-text {
+    background:var(--bg-secondary) !important;
+    border:1.5px solid var(--border) !important;
+    border-left:none; color:var(--text-muted);
+}
+
+.lbl {
+    font-size:.73rem; font-weight:700; text-transform:uppercase;
+    color:var(--text-muted); letter-spacing:.5px; margin-bottom:6px;
+    display:flex; align-items:center; gap:5px;
+}
+.lbl i { color:#3d9970; }
+
+.section-bg {
+    background:var(--bg-secondary) !important;
+    border:1px solid var(--border) !important;
+    border-radius:16px; padding:20px;
+}
+.plant-loading { display:none; font-size:.8rem; color:var(--text-muted); padding:4px 8px; }
+
+.auto-field {
+    background:rgba(61,153,112,.08);
+    border:1.5px dashed rgba(61,153,112,.5);
+    border-radius:10px; padding:10px 14px;
+    color:#3d9970; font-weight:600; font-size:.9rem;
+    display:flex; align-items:center; gap:8px;
+}
+
+.btn-submit {
+    background:#3d9970 !important; color:#fff !important; border:none;
+    padding:12px 36px; border-radius:12px; font-weight:700; transition:all .25s;
+}
+.btn-submit:hover { background:#2e8e63 !important; transform:translateY(-2px); box-shadow:0 6px 16px rgba(61,153,112,.25); }
+
+.btn-cancel {
+    background:var(--bg-secondary) !important;
+    border:1px solid var(--border) !important;
+    color:var(--text) !important;
+}
+.btn-cancel:hover { border-color:#3d9970 !important; color:#3d9970 !important; }
+
+.form-check-input { background-color:var(--bg-secondary); border-color:var(--border); }
+.form-check-input:checked { background-color:#3d9970; border-color:#3d9970; }
+.form-check-label { color:var(--text) !important; }
+
+.card-body { background:var(--bg-card) !important; }
+.text-danger { color:#ff7675 !important; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-10 col-xl-8">
-            <div class="card form-card shadow-lg border-0">
-                
-                <div class="card-header bg-success text-white py-3">
-                    <h4 class="card-title mb-0 d-flex align-items-center">
-                        <i class="fas fa-tint me-3"></i>
-                        <span>{{ title|default:"Suvarma Qeydiyyatı" }}</span>
+        <div class="col-lg-9">
+
+            <div class="mb-3">
+                <a href="{% url 'irrigation:irrigation_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="fas fa-arrow-left me-1"></i>{% trans "Geri" %}
+                </a>
+            </div>
+
+            <div class="card form-wrap shadow-sm">
+                <div class="form-header">
+                    <h4 class="mb-1">
+                        {% if form.instance.pk %}✏️ {% trans "Suvarmanı Redaktə Et" %}{% else %}💧 {% trans "Yeni Suvarma Planı" %}{% endif %}
                     </h4>
+                    <p class="small mb-0">
+                        {% if form.instance.pk %}
+                            {{ form.instance.field.name }} — {{ form.instance.irrigation_date|date:"d/m/Y" }}
+                        {% else %}
+                            {% trans "Sahə seçin, bitki avtomatik yüklənəcək" %}
+                        {% endif %}
+                    </p>
                 </div>
 
-                <div class="card-body p-4 p-md-5">
+                <div class="card-body p-4">
                     <form method="post" id="irrigationForm" novalidate>
                         {% csrf_token %}
 
                         {% if form.non_field_errors %}
-                        <div class="alert alert-danger rounded-3">
-                            {% for error in form.non_field_errors %}
-                                <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
-                            {% endfor %}
+                        <div class="alert border-0 rounded-3 small mb-4 bg-danger bg-opacity-10">
+                            <i class="fas fa-exclamation-circle me-2 text-danger"></i>
+                            <span class="text-danger">{% for error in form.non_field_errors %}{{ error }}{% endfor %}</span>
                         </div>
                         {% endif %}
 
-                        <div class="row g-3 mb-4">
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-bold small text-uppercase">
-                                    <i class="fas fa-map-marker-alt text-success me-1"></i> {{ form.field.label }}
-                                </label>
+                                <div class="lbl"><i class="fas fa-map-marker-alt"></i>{{ form.field.label }}</div>
                                 {{ form.field }}
-                                {% if form.field.errors %}<div class="text-danger small mt-1">{{ form.field.errors }}</div>{% endif %}
+                                {% if form.field.errors %}<div class="text-danger small mt-1">{{ form.field.errors|first }}</div>{% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold small text-uppercase">
-                                    <i class="fas fa-seedling text-success me-1"></i> {{ form.plant.label }}
-                                </label>
+                                <div class="lbl"><i class="fas fa-seedling"></i>{{ form.plant.label }}</div>
                                 {{ form.plant }}
-                                {% if form.plant.errors %}<div class="text-danger small mt-1">{{ form.plant.errors }}</div>{% endif %}
+                                <span class="plant-loading" id="plantLoading">
+                                    <i class="fas fa-spinner fa-spin me-1"></i>{% trans "Yüklənir..." %}
+                                </span>
+                                {% if form.plant.errors %}<div class="text-danger small mt-1">{{ form.plant.errors|first }}</div>{% endif %}
                             </div>
                         </div>
 
-                        <div class="row g-3 mb-4 p-3 bg-light-custom rounded-4">
-                            <div class="col-md-4">
-                                <label class="small fw-bold">{{ form.irrigation_date.label }}</label>
-                                {{ form.irrigation_date }}
-                            </div>
-                            <div class="col-md-4">
-                                <label class="small fw-bold text-primary"><i class="far fa-clock me-1"></i> {{ form.start_time.label }}</label>
-                                {{ form.start_time }}
-                            </div>
-                            <div class="col-md-4">
-                                <label class="small fw-bold text-danger"><i class="fas fa-history me-1"></i> {{ form.end_time.label }}</label>
-                                {{ form.end_time }}
-                                {% if form.end_time.errors %}<div class="text-danger small mt-1">{{ form.end_time.errors }}</div>{% endif %}
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="small fw-bold">{{ form.irrigation_type.label }}</label>
-                                {{ form.irrigation_type }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="small fw-bold">{{ form.water_volume_liters.label }}</label>
-                                <div class="input-group">
-                                    {{ form.water_volume_liters }}
-                                    <span class="input-group-text">Litr</span>
+                        <div class="section-bg mb-3">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="lbl"><i class="fas fa-calendar-alt"></i>{{ form.irrigation_date.label }}</div>
+                                    {{ form.irrigation_date }}
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="lbl"><i class="fas fa-play-circle"></i>{{ form.start_time.label }}</div>
+                                    {{ form.start_time }}
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="lbl"><i class="fas fa-stop-circle"></i>{{ form.end_time.label }}</div>
+                                    {{ form.end_time }}
+                                    {% if form.end_time.errors %}<div class="text-danger small mt-1">{{ form.end_time.errors|first }}</div>{% endif %}
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row g-3 mb-4 align-items-end">
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="small fw-bold">{{ form.status.label }}</label>
+                                <div class="lbl"><i class="fas fa-water"></i>{{ form.irrigation_type.label }}</div>
+                                {{ form.irrigation_type }}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="lbl"><i class="fas fa-tint"></i>{{ form.water_volume_liters.label }}</div>
+                                <div class="input-group">
+                                    {{ form.water_volume_liters }}
+                                    <span class="input-group-text">L</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="lbl"><i class="fas fa-info-circle"></i>{{ form.status.label }}</div>
                                 {{ form.status }}
                             </div>
-                            <div class="col-md-6 pb-2">
-                                <div class="form-check form-switch card p-2 px-5 border-0 bg-light">
+                            <div class="col-md-6 d-flex align-items-center pt-2">
+                                <div class="form-check form-switch">
                                     {{ form.is_automated }}
-                                    <label class="form-check-label fw-bold ms-2" for="{{ form.is_automated.id_for_label }}">
+                                    <label class="form-check-label fw-bold small ms-2"
+                                           for="{{ form.is_automated.id_for_label }}">
                                         {{ form.is_automated.label }}
                                     </label>
                                 </div>
                             </div>
                         </div>
 
+                        <div class="section-bg mb-3">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-6">
+                                    <div class="lbl"><i class="fas fa-flask"></i>{{ form.applied_fertilizer.label }}</div>
+                                    {{ form.applied_fertilizer }}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="lbl">
+                                        <i class="fas fa-tachometer-alt"></i>{% trans "Torpaq Rütubəti" %}
+                                        <span class="badge text-success ms-1" style="font-size:.6rem;background:rgba(61,153,112,.15)">{% trans "Avtomatik" %}</span>
+                                    </div>
+                                    <div class="auto-field">
+                                        <i class="fas fa-magic"></i>
+                                        {% trans "Hava datasından avtomatik doldurulur" %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
-                            <label class="small fw-bold">{{ form.notes.label }}</label>
+                            <div class="lbl"><i class="fas fa-sticky-note"></i>{{ form.notes.label }}</div>
                             {{ form.notes }}
                         </div>
 
-                        <hr class="my-4">
-
-                        <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
-                            <a href="{% url 'irrigation:irrigation_list' %}" class="btn btn-light btn-lg-custom px-4 rounded-pill border">
-                                <i class="fas fa-times me-2"></i>Ləğv et
-                            </a>
-                            <button type="submit" class="btn btn-success btn-lg-custom px-5 rounded-pill shadow-sm fw-bold">
-                                <i class="fas fa-check-circle me-2"></i>Məlumatı Yadda Saxla
+                        <div class="d-flex gap-3 justify-content-end pt-3" style="border-top:1px solid var(--border)">
+                            <a href="{% url 'irrigation:irrigation_list' %}" class="btn btn-cancel rounded-pill px-4 fw-bold">{% trans "Ləğv Et" %}</a>
+                            <button type="submit" class="btn-submit shadow-sm">
+                                <i class="fas fa-check-circle me-2"></i>{% trans "Yadda Saxla" %}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -152,33 +225,38 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const fieldSelect = document.getElementById("id_field");
-        const plantSelect = document.getElementById("id_plant");
+document.addEventListener("DOMContentLoaded", function () {
+    const fieldSelect = document.getElementById("id_field");
+    const plantSelect = document.getElementById("id_plant");
+    const loadingSpan = document.getElementById("plantLoading");
 
-        if (fieldSelect) {
-            fieldSelect.addEventListener("change", function() {
-                const fieldId = this.value;
-                
-                if (!fieldId) {
-                    plantSelect.innerHTML = '<option value="">---------</option>';
-                    return;
-                }
+    if (!fieldSelect) return;
 
-                fetch(`{% url 'irrigation:ajax_load_plants' %}?field_id=${fieldId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        plantSelect.innerHTML = '<option value="">---------</option>';
-                        data.forEach(plant => {
-                            const option = document.createElement("option");
-                            option.value = plant.id;
-                            option.text = plant.name;
-                            plantSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Xəta:', error));
-            });
-        }
-    });
+    function loadPlants(fieldId, selectedId) {
+        if (!fieldId) { plantSelect.innerHTML = '<option value="">---------</option>'; return; }
+        loadingSpan.style.display = 'inline';
+        plantSelect.disabled = true;
+
+        fetch(`{% url 'irrigation:ajax_load_plants' %}?field_id=${fieldId}`)
+            .then(r => r.json())
+            .then(data => {
+                plantSelect.innerHTML = '<option value="">{% trans "— Bitki seçin —" %}</option>';
+                data.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id; opt.text = p.name;
+                    if (selectedId && p.id == selectedId) opt.selected = true;
+                    plantSelect.appendChild(opt);
+                });
+            })
+            .catch(e => console.error('Xəta:', e))
+            .finally(() => { loadingSpan.style.display = 'none'; plantSelect.disabled = false; });
+    }
+
+    {% if form.instance.pk and form.instance.field_id %}
+    loadPlants({{ form.instance.field_id }}, {{ form.instance.plant_id|default:"null" }});
+    {% endif %}
+
+    fieldSelect.addEventListener("change", function () { loadPlants(this.value, null); });
+});
 </script>
 {% endblock %}

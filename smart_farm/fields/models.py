@@ -19,6 +19,7 @@ class FieldManager(models.Manager):
             min_area = filters.get('min_area')
             max_area = filters.get('max_area')
             irrigated = filters.get('irrigated')
+            location = filters.get('location')
 
             if soil_type:
                 qs = qs.filter(soil_type=filters['soil_type'])
@@ -26,6 +27,8 @@ class FieldManager(models.Manager):
                 qs = qs.filter(area_hectares__gte =filters['min_area'])
             if max_area:    
                 qs = qs.filter(area_hectares__lte = filters['max_area']) 
+            if location:
+                qs = qs.filter(location__icontains=location)
 
             today = timezone.now().date()
             if irrigated == 'true':
@@ -154,7 +157,8 @@ class Field(models.Model):
     soil_type = models.CharField(max_length=20, choices=SOIL_TYPES, default='loamy')
     ph_level = models.DecimalField(max_digits=3, decimal_places=1, default=7.0)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    location = models.CharField(max_length=100, blank=True, null=True, verbose_name='Yer (şəhər)')
+
     objects = FieldManager()
     def __str__(self):
         return self.name

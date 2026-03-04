@@ -1,160 +1,163 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --farm-green: #2ecc71;
-        --farm-blue: #3498db;
-        --farm-yellow: #f1c40f;
-    }
-    .detail-header {
-        background: linear-gradient(135deg, #1a472a 0%, #2ecc71 100%);
-        border-radius: 0 0 40px 40px;
-        padding: 60px 0 100px 0;
-        color: white;
-        margin-top: -24px;
-    }
-    .main-card-container {
-        margin-top: -60px;
-    }
-    .glass-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 24px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-    .health-indicator {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        background: conic-gradient(var(--farm-green) {{ metrics.field_health_score }}%, #eee 0);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-    }
-    .health-inner {
-        width: 100px;
-        height: 100px;
-        background: white;
-        border-radius: 50%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-    .metric-pill {
-        border-radius: 20px;
-        padding: 15px;
-        border: none;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .plant-grid-item {
-        border: 1px solid #f0f0f0;
-        border-radius: 20px;
-        padding: 20px;
-        transition: 0.3s;
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-    .plant-grid-item:hover {
-        background: #f8fff9;
-        border-color: var(--farm-green);
-        transform: translateY(-5px);
-    }
+/*
+====================================================
+  VARİANT 2 — "Duman" (Slate Blue-Grey)
+  Gündüz: Soyuq boz-mavi — professional, sakit
+  Gecə:   Tünd slate — göz dostu
+====================================================
+*/
+:root {
+    --v-header-from:   #182f4c;
+    --v-header-to:     #2e8e63;
+    --v-accent:        #3d9970;
+    --v-pill-bg:       #f0f4f8;
+    --v-pill-border:   #dce6f0;
+}
+[data-theme="dark"] {
+    --v-header-from:   #09203c;
+    --v-header-to:     #09482d;
+    --v-accent:        #3d9970;
+    --v-pill-bg:       #162030;
+    --v-pill-border:   #1e3a5f;
+}
+
+@keyframes fadeInDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeInUp   { from{opacity:0;transform:translateY(20px)}  to{opacity:1;transform:translateY(0)} }
+@keyframes scaleIn    { from{opacity:0;transform:scale(0.9)}        to{opacity:1;transform:scale(1)}      }
+
+.detail-header {
+    background: linear-gradient(135deg, var(--v-header-from) 0%, var(--v-header-to) 100%);
+    border-radius: 0 0 40px 40px;
+    padding: 60px 0 100px;
+    color: white;
+    margin-top: -24px;
+    animation: fadeInDown 0.6s ease backwards;
+}
+.main-card-container { margin-top: -60px; }
+.glass-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+    color: var(--text);
+}
+.health-inner {
+    width:100px; height:100px;
+    background: var(--bg-card);
+    border-radius:50%;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+}
+.health-indicator {
+    width:120px; height:120px; border-radius:50%;
+    background: conic-gradient(var(--v-accent) {{ metrics.field_health_score }}%, var(--border) 0);
+    display:flex; align-items:center; justify-content:center;
+    margin: 0 auto;
+    animation: scaleIn 0.8s ease 0.4s backwards;
+}
+.metric-pill {
+    background: var(--v-pill-bg) !important;
+    border: 1px solid var(--v-pill-border) !important;
+    border-radius:16px; padding:16px;
+    display:flex; align-items:center; gap:12px;
+    transition: transform 0.2s;
+}
+.metric-pill:hover { transform: translateY(-3px); }
+.metric-pill small { color: var(--text-muted) !important; }
+.plant-grid-item {
+    border: 1px solid var(--border);
+    padding:20px; transition:0.3s;
+    text-decoration:none; color:var(--text) !important; display:block;
+}
+.plant-grid-item:hover {
+    background: var(--bg-secondary) !important;
+    border-color: var(--v-accent) !important;
+    transform: translateY(-5px);
+}
+.anim-1{animation:fadeInUp .5s ease .1s backwards}
+.anim-2{animation:fadeInUp .5s ease .2s backwards}
+.anim-3{animation:fadeInUp .5s ease .3s backwards}
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- ===== VARİANT 2 — DUMAN (SLATE BLUE-GREY) ===== -->
 <div class="detail-header shadow-lg">
     <div class="container text-center">
-        <span class="badge bg-white text-success rounded-pill px-3 mb-2">{{ field.get_soil_type_display }}</span>
-        <h1 class="display-5 fw-bold">{{ field.name }}</h1>
-        <p class="opacity-75"><i class="fas fa-map-marker-alt me-2"></i>{{ field.area_hectares }} Hektar Ərazi</p>
+        <span class="badge bg-white rounded-pill px-3 mb-2" style="color:var(--v-accent)">{{ field.get_soil_type_display }}</span>
+        <h1 class="display-5 fw-bold text-white">{{ field.name }}</h1>
+        <p class="text-white-50">
+            {% if field.location %}<i class="fas fa-map-marker-alt me-1"></i>{{ field.location }} · {% endif %}
+            {{ field.area_hectares }} {% trans "Hektar Ərazi" %}
+        </p>
     </div>
 </div>
 
 <div class="container main-card-container pb-5">
     <div class="row g-4">
-         <div class="col-lg-4">
-    <div class="glass-card p-4 h-100 text-center d-flex flex-column">
-        <h6 class="text-uppercase fw-bold text-muted small mb-4">Ümumi Vəziyyət</h6>
-        
-        <div class="health-indicator mb-3">
-            <div class="health-inner">
-                <span class="h2 fw-black mb-0 text-success">{{ metrics.field_health_score }}%</span>
-                <small class="text-muted" style="font-size: 0.6rem;">SAĞLAMLIQ</small>
-            </div>
-        </div>
-
-        <p class="small text-muted mb-4 px-3">
-            Sahənizdəki aktiv bitki və sensorların vəziyyətinə görə analiz nəticəsi.
-        </p>
-
-        <div class="d-grid gap-2 mt-auto">
-            <a href="{% url 'fields:field_metrics' field.id %}" class="btn btn-success rounded-pill shadow mb-2">
-                <i class="fas fa-chart-pie me-2"></i>Detallı Analiz
-            </a>
-            
-            <div class="row g-2">
-                <div class="col-6">
-                    <a href="{% url 'fields:edit_field' field.id %}" class="btn btn-outline-dark rounded-pill w-100 btn-sm py-2">
-                        <i class="fas fa-edit me-1"></i> Redaktə
-                    </a>
+        <div class="col-lg-4 anim-1">
+            <div class="glass-card p-4 h-100 text-center d-flex flex-column shadow">
+                <h6 class="text-uppercase fw-bold small mb-4" style="color:var(--text-muted)">{% trans "Ümumi Vəziyyət" %}</h6>
+                <div class="health-indicator mb-3">
+                    <div class="health-inner">
+                        <span class="h2 fw-bold mb-0" style="color:var(--v-accent)">{{ metrics.field_health_score }}%</span>
+                        <small style="font-size:.6rem;color:var(--text-muted)">{% trans "SAĞLAMLIQ" %}</small>
+                    </div>
                 </div>
-                <div class="col-6">
-                    <a href="{% url 'fields:delete_field' field.id %}" class="btn btn-outline-danger rounded-pill w-100 btn-sm py-2">
-                        <i class="fas fa-trash-alt me-1"></i> Sil
-                    </a>
+                <p class="small mb-4 px-3" style="color:var(--text-muted)">{% trans "Sahənizdəki analiz nəticəsi." %}</p>
+                <div class="d-grid gap-2 mt-auto">
+                    <a href="{% url 'fields:field_metrics' field.id %}" class="btn rounded-pill mb-2 text-white" style="background:var(--v-accent)">{% trans "Detallı Analiz" %}</a>
+                    <div class="row g-2">
+                        <div class="col-6"><a href="{% url 'fields:edit_field' field.id %}" class="btn btn-outline-secondary rounded-pill w-100 btn-sm">{% trans "Redaktə" %}</a></div>
+                        <div class="col-6"><a href="{% url 'fields:delete_field' field.id %}" class="btn btn-outline-danger rounded-pill w-100 btn-sm">{% trans "Sil" %}</a></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-        <div class="col-lg-8">
-            <div class="glass-card p-4">
-                <h6 class="text-uppercase fw-bold text-muted small mb-4">Canlı Göstəricilər</h6>
+        <div class="col-lg-8 anim-2">
+            <div class="glass-card p-4 shadow">
+                <h6 class="text-uppercase fw-bold small mb-4" style="color:var(--text-muted)">{% trans "Canlı Göstəricilər" %}</h6>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <div class="metric-pill bg-warning-subtle text-warning">
-                            <i class="fas fa-thermometer-half fa-2x"></i>
+                        <div class="metric-pill">
+                            <i class="fas fa-thermometer-half fa-2x text-warning"></i>
                             <div>
-                                <div class="h4 mb-0 fw-bold">{{ metrics.avg_temperature_last_week }}°C</div>
-                                <small class="text-dark opacity-50">Həftəlik Temperatur</small>
+                                <div class="h4 mb-0 fw-bold" style="color:var(--text)">{{ metrics.avg_temperature_last_week }}°C</div>
+                                <small>{% trans "Həftəlik Temp." %}</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="metric-pill bg-info-subtle text-info">
-                            <i class="fas fa-cloud-rain fa-2x"></i>
+                        <div class="metric-pill">
+                            <i class="fas fa-cloud-rain fa-2x text-info"></i>
                             <div>
-                                <div class="h4 mb-0 fw-bold">{{ metrics.total_precipitation_last_week }} mm</div>
-                                <small class="text-dark opacity-50">Cəmi Yağıntı</small>
+                                <div class="h4 mb-0 fw-bold" style="color:var(--text)">{{ metrics.total_precipitation_last_week }} mm</div>
+                                <small>{% trans "Yağıntı" %}</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="metric-pill bg-success-subtle text-success">
-                            <i class="fas fa-star fa-2x"></i>
+                        <div class="metric-pill">
+                            <i class="fas fa-star fa-2x" style="color:var(--v-accent)"></i>
                             <div>
-                                <div class="h4 mb-0 fw-bold">{{ metrics.plant_success_rate }}%</div>
-                                <small class="text-dark opacity-50">Məhsul Uğuru</small>
+                                <div class="h4 mb-0 fw-bold" style="color:var(--text)">{{ metrics.plant_success_rate }}%</div>
+                                <small>{% trans "Məhsul Uğuru" %}</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="metric-pill bg-danger-subtle text-danger">
-                            <i class="fas fa-signal fa-2x"></i>
+                        <div class="metric-pill">
+                            <i class="fas fa-signal fa-2x text-danger"></i>
                             <div>
-                                <div class="h4 mb-0 fw-bold">{{ metrics.sensor_health_rate }}%</div>
-                                <small class="text-dark opacity-50">Sensor Aktivliyi</small>
+                                <div class="h4 mb-0 fw-bold" style="color:var(--text)">{{ metrics.sensor_health_rate }}%</div>
+                                <small>{% trans "Sensor Aktivliyi" %}</small>
                             </div>
                         </div>
                     </div>
@@ -162,43 +165,32 @@
             </div>
         </div>
 
-        <div class="col-12 mt-4">
+        <div class="col-12 mt-4 anim-3">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0">🌱 Əkilmiş Bitkilər</h4>
-                <a href="{% url 'plants:add_plant' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
-                    + Bitki Əlavə Et
-                </a>
+                <h4 class="fw-bold mb-0">🌱 {% trans "Əkilmiş Bitkilər" %}</h4>
+                <a href="{% url 'plants:add_plant' %}" class="btn btn-sm rounded-pill px-3 text-white" style="background:var(--v-accent)">+ {% trans "Əlavə Et" %}</a>
             </div>
-            
             <div class="row g-3">
                 {% for plant in plants %}
                 <div class="col-md-4">
                     <a href="{% url 'plants:plant_detail' plant.id %}" class="glass-card plant-grid-item">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div class="p-2 bg-success text-white rounded-3">
-                                <i class="fas fa-leaf"></i>
-                            </div>
-                            <span class="badge {% if plant.status == 'active' %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
-                                {{ plant.get_status_display }}
-                            </span>
+                            <div class="p-2 rounded-3 text-white" style="background:var(--v-accent)"><i class="fas fa-leaf"></i></div>
+                            <span class="badge {% if plant.status == 'active' %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">{{ plant.get_status_display }}</span>
                         </div>
                         <h6 class="fw-bold mb-1">{{ plant.get_plant_type_display }}</h6>
-                        <p class="text-muted small mb-3">{{ plant.variety|default:"Növ yoxdur" }}</p>
-                        <div class="progress" style="height: 4px;">
-                            <div class="progress-bar bg-success" style="width: 65%;"></div>
+                        <p class="small mb-3" style="color:var(--text-muted)">{{ plant.variety|default:"Növ yoxdur" }}</p>
+                        <div class="progress" style="height:4px;background:var(--border)">
+                            <div class="progress-bar" style="width:65%;background:var(--v-accent)"></div>
                         </div>
                         <div class="d-flex justify-content-between mt-2">
-                            <small class="text-muted x-small">Mərhələ:</small>
-                            <small class="fw-bold x-small">{{ plant.get_growth_stage_display }}</small>
+                            <small style="color:var(--text-muted)">{% trans "Mərhələ" %}:</small>
+                            <small class="fw-bold">{{ plant.get_growth_stage_display }}</small>
                         </div>
                     </a>
                 </div>
                 {% empty %}
-                <div class="col-12">
-                    <div class="glass-card p-5 text-center">
-                        <p class="text-muted">Bu sahədə hələ heç bir bitki yoxdur.</p>
-                    </div>
-                </div>
+                <div class="col-12"><div class="glass-card p-5 text-center"><p style="color:var(--text-muted)">{% trans "Bitki yoxdur." %}</p></div></div>
                 {% endfor %}
             </div>
         </div>

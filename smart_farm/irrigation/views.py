@@ -42,7 +42,8 @@ class IrrigationListView(LoginRequiredMixin, ListView):
         # 1. Bugünkü istehlak və növbəti suvarma (Bunlar okeydir)
         context['today_consumption'] = IrrigationSchedule.total_consumption_today(user)
         context['next_irrigation'] = IrrigationSchedule.next_upcoming_irrigation(user)
-        
+        context['weekly_stats'] = IrrigationSchedule.get_weekly_stats(user)
+
         # 2. Ümumi zonalar
         user_fields = user.fields.all()
         context['total_zones'] = user_fields.count()
@@ -68,14 +69,8 @@ class IrrigationListView(LoginRequiredMixin, ListView):
 
 def load_plants(request):
     field_id = request.GET.get('field_id')
-    plants = Plant.objects.filter(field_id=field_id).values('id', 'plant_type', 'variety')
-    
-    # Bitki adlarını oxunaqlı formata salırıq
-    plant_list = []
-    for p in plants:
-        name = f"{p['plant_type']} - {p['variety']}" if p['variety'] else p['plant_type']
-        plant_list.append({'id': p['id'], 'name': name})
-        
+    plants = Plant.objects.filter(field_id=field_id)
+    plant_list = [{'id': p.id, 'name': str(p)} for p in plants]
     return JsonResponse(plant_list, safe=False)
 
 class IrrigationCreateView(LoginRequiredMixin, CreateView):
@@ -120,12 +115,11 @@ def complete_irrigation(request, pk):
 def duplicate_irrigation(request, pk):
     """Mövcud suvarma qeydini kopyalayır və yeni tarixə atır"""
     old_obj = get_object_or_404(IrrigationSchedule, pk=pk)
-    new_obj = old_obj
-    new_obj.pk = None # Yeni ID yaransın deyə PK-nı sıfırlayırıq
-    new_obj.irrigation_date = timezone.now().date() # Bu günə kopyalayır
-    new_obj.status = 'planned' # Statusu sıfırlayır
-    new_obj.save()
-    return redirect('irrigation:irrigation_update', pk=new_obj.pk)
+    old_obj.pk = None
+    old_obj.irrigation_date = timezone.now().date()
+    old_obj.status = 'planned'
+    old_obj.save()
+    return redirect('irrigation:irrigation_update', pk=old_obj.pk)
 
 # views.py
 from django.views.generic import DetailView
@@ -134,3 +128,15 @@ class IrrigationDetailView(LoginRequiredMixin, DetailView):
     model = IrrigationSchedule
     template_name = 'irrigation/irrigation_detail.html'
     context_object_name = 'object'
+
+    def get_queryset(self):
+        return IrrigationSchedule.objects.filter(field__user=self.request.user)
+
+
+def duplicate_irrigation(request, pk):
+    old_obj = get_object_or_404(IrrigationSchedule, pk=pk, field__user=request.user)
+    old_obj.pk = None
+    old_obj.irrigation_date = timezone.now().date()
+    old_obj.status = 'planned'
+    old_obj.save()
+    return redirect('irrigation:irrigation_update', pk=old_obj.pk)

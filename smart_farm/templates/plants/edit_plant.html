@@ -1,111 +1,207 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
+{% block title %}{% if form.instance.pk %}{% trans "Bitkini Redaktə" %}{% else %}{% trans "Yeni Əkin" %}{% endif %} - AgroVision{% endblock %}
+
+{% block extra_css %}
+<style>
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.form-container {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 28px; overflow: hidden;
+    animation: fadeInUp 0.5s ease backwards;
+}
+.form-header {
+    background: linear-gradient(135deg, #182f4c, #2e8e63);
+    padding: 36px 40px; color: #fff;
+}
+.form-control, .form-select {
+    background: var(--bg-secondary) !important;
+    color: var(--text) !important;
+    border: 1.5px solid var(--border) !important;
+    border-radius: 12px; padding: 11px 14px;
+    transition: border-color .25s, box-shadow .25s;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #3d9970 !important;
+    box-shadow: 0 0 0 3px rgba(61,153,112,0.15);
+}
+.form-control::placeholder { color: var(--text-muted) !important; opacity:.7; }
+.form-select option { background: var(--bg-card); color: var(--text); }
+
+.label-custom {
+    font-size:.75rem; font-weight:700; color:var(--text-muted) !important;
+    text-transform:uppercase; letter-spacing:.5px;
+    display:flex; align-items:center; gap:6px; margin-bottom:7px;
+}
+.label-custom i { color:#3d9970; }
+
+.image-preview-wrapper {
+    width:100%; height:220px;
+    border:2px dashed var(--border) !important; border-radius:18px;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column; cursor:pointer; transition:all .3s;
+    background:var(--bg-secondary) !important; overflow:hidden;
+}
+.image-preview-wrapper:hover { border-color:#3d9970 !important; background:rgba(61,153,112,0.05) !important; }
+#previewImg { width:100%; height:100%; object-fit:cover; display:none; }
+
+.btn-save {
+    background:#3d9970 !important; color:#fff !important; border:none;
+    padding:13px 40px; border-radius:14px; font-weight:700; transition:all .3s;
+}
+.btn-save:hover { background:#2e8e63 !important; transform:translateY(-2px); box-shadow:0 8px 20px rgba(61,153,112,0.3); }
+
+.tip-card {
+    background: linear-gradient(135deg, #182f4c, #2e8e63);
+    border-radius:18px; color:#fff; padding:24px;
+    border:1px solid rgba(255,255,255,0.1);
+}
+.text-danger { color:#ff7675 !important; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <div class="d-flex align-items-center">
-            <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-outline-success border-2 rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-            <div>
-                <h3 class="fw-bold mb-0 text-dark">{{ plant.get_plant_type_display }} <span class="text-muted fw-light">| Redaktə</span></h3>
-                <p class="text-muted small mb-0">{{ plant.field.name }} sahəsindəki bitki məlumatları</p>
-            </div>
-        </div>
-        <div class="badge bg-light text-success border border-success px-3 py-2 rounded-pill">
-            ID: #{{ plant.id }}
-        </div>
-    </div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-11 col-xl-10">
+            <div class="form-container shadow-lg">
 
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-body p-4">
+                <div class="form-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="fw-bold mb-1 text-white">
+                            {% if form.instance.pk %}📝 {% trans "Redaktə Et" %}{% else %}🌱 {% trans "Yeni Əkin" %}{% endif %}
+                        </h2>
+                        <p class="mb-0 opacity-75 small text-white">
+                            {% if form.instance.pk %}{{ form.instance.field.name }} {% trans "sahəsindəki bitki məlumatları" %}
+                            {% else %}{% trans "Sistemə yeni bitki məlumatı əlavə edin" %}{% endif %}
+                        </p>
+                    </div>
+                    <a href="{% url 'plants:plant_list' %}" class="btn btn-link text-white text-decoration-none">
+                        <i class="fas fa-times fa-lg"></i>
+                    </a>
+                </div>
+
+                <div class="p-4 p-md-5">
+                    {% if form.errors %}
+                    <div class="alert border-0 rounded-4 shadow-sm mb-4 bg-danger bg-opacity-10">
+                        <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
+                        <span class="text-danger fw-bold">{% trans "Zəhmət olmasa xətaları düzəldin." %}</span>
+                    </div>
+                    {% endif %}
+
                     <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger rounded-3 border-0 shadow-sm">
-                                {{ form.non_field_errors }}
-                            </div>
-                        {% endif %}
-
                         <div class="row g-4">
-                            {% for field in form %}
-                            <div class="{% if field.name == 'notes' %}col-12{% else %}col-md-6{% endif %}">
-                                <label for="{{ field.id_for_label }}" class="form-label fw-bold text-secondary small uppercase">
-                                    {% if field.name == 'field' %}<i class="fas fa-map-marked-alt text-success me-1"></i>
-                                    {% elif field.name == 'area_hectares' %}<i class="fas fa-ruler-combined text-success me-1"></i>
-                                    {% elif field.name == 'planting_date' %}<i class="fas fa-calendar-alt text-success me-1"></i>
-                                    {% endif %}
-                                    {{ field.label }}
-                                </label>
-                                
-                                {{ field }}
 
-                                {% if field.help_text %}
-                                    <div class="form-text mt-1 italic">{{ field.help_text }}</div>
-                                {% endif %}
-
-                                {% for error in field.errors %}
-                                    <div class="text-danger small mt-1">
-                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                            <!-- Sol -->
+                            <div class="col-md-7">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="label-custom"><i class="fas fa-tractor"></i>{{ form.field.label }}</label>
+                                        {{ form.field }}
+                                        {% if form.field.errors %}<div class="text-danger small mt-1">{{ form.field.errors|first }}</div>{% endif %}
                                     </div>
-                                {% endfor %}
+                                    <div class="col-md-6">
+                                        <label class="label-custom"><i class="fas fa-leaf"></i>{{ form.plant_type.label }}</label>
+                                        {{ form.plant_type }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="label-custom"><i class="fas fa-seedling"></i>{{ form.variety.label }}</label>
+                                        {{ form.variety }}
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="label-custom"><i class="fas fa-ruler-combined"></i>{{ form.area_hectares.label }}</label>
+                                        {{ form.area_hectares }}
+                                        {% if form.area_hectares.errors %}<div class="text-danger small mt-1">{{ form.area_hectares.errors|first }}</div>{% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="label-custom"><i class="fas fa-calendar-alt"></i>{{ form.planting_date.label }}</label>
+                                        {{ form.planting_date }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="label-custom"><i class="fas fa-calendar-check"></i>{{ form.expected_harvest_date.label }}</label>
+                                        {{ form.expected_harvest_date }}
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="label-custom"><i class="fas fa-sticky-note"></i>{{ form.notes.label }}</label>
+                                        {{ form.notes }}
+                                    </div>
+                                </div>
                             </div>
-                            {% endfor %}
+
+                            <!-- Sağ -->
+                            <div class="col-md-5">
+                                <div class="mb-4">
+                                    <label class="label-custom"><i class="fas fa-chart-line"></i>{{ form.growth_stage.label }}</label>
+                                    {{ form.growth_stage }}
+                                </div>
+                                <div>
+                                    <label class="label-custom"><i class="fas fa-camera"></i>{{ form.image.label }}</label>
+                                    <div class="image-preview-wrapper shadow-sm" onclick="document.getElementById('id_image').click();">
+                                        <img id="previewImg" src="#" alt="{% trans "Önizləmə" %}">
+                                        <div id="placeholderWrap" class="text-center p-3">
+                                            <i class="fas fa-cloud-upload-alt fa-3x opacity-50 mb-2" style="color:var(--text-muted)"></i>
+                                            <p class="small mb-0" style="color:var(--text-muted)">{% trans "Şəkil yükləmək üçün toxunun" %}</p>
+                                        </div>
+                                    </div>
+                                    <div class="d-none">{{ form.image }}</div>
+                                    {% if form.instance.image %}
+                                    <div class="mt-2 p-2 rounded-3 small text-center"
+                                         style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">
+                                        {% trans "Cari" %}: {{ form.instance.image.name|truncatechars:30 }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="tip-card mt-4 shadow-sm">
+                                    <div class="d-flex gap-3 align-items-start">
+                                        <i class="fas fa-robot mt-1 text-white"></i>
+                                        <p class="mb-0 small text-white" style="opacity:.9">
+                                            {% trans "Bitkinin inkişaf mərhələsini mütəmadi yeniləmək" %} <strong>{% trans "Süni İntellekt" %}</strong> {% trans "proqnozunun dəqiqliyini 40% artırır." %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mt-5 pt-3 border-top d-flex gap-2">
-                            <button class="btn btn-success px-5 py-2 rounded-pill shadow-sm fw-bold" type="submit">
-                                <i class="fas fa-check-circle me-2"></i>Dəyişiklikləri Yadda Saxla
+                        <div class="mt-5 d-flex gap-3 justify-content-end pt-4" style="border-top:1px solid var(--border)">
+                            <a href="{% url 'plants:plant_list' %}" class="btn btn-outline-secondary rounded-pill px-5 fw-bold">{% trans "Ləğv Et" %}</a>
+                            <button type="submit" class="btn-save shadow-lg">
+                                <i class="fas fa-check-circle me-2"></i>{% trans "Məlumatı Saxla" %}
                             </button>
-                            <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-light px-4 py-2 rounded-pill text-muted">
-                                İmtina
-                            </a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-
-        <div class="col-lg-4">
-            <div class="card border-0 bg-success text-white rounded-4 shadow-sm mb-4">
-                <div class="card-body p-4 text-center">
-                    <i class="fas fa-info-circle fa-2x mb-3 opacity-50"></i>
-                    <h5>Nəyə diqqət etməli?</h5>
-                    <p class="small mb-0 opacity-75">
-                        Bitkinin böyümə mərhələsini yeniləmək, süni intellekt proqnozlarının daha dəqiq işləməsinə kömək edir.
-                    </p>
-                </div>
-            </div>
-            
-            {% if plant.image %}
-            <div class="card border-0 rounded-4 shadow-sm overflow-hidden">
-                <div class="card-header bg-white fw-bold small text-muted text-center border-0 py-3">CARİ ŞƏKİL</div>
-                <img src="{{ plant.image.url }}" class="img-fluid" alt="Plant current state">
-            </div>
-            {% endif %}
-        </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-    /* Inputlara xüsusi stil */
-    .form-control, .form-select {
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-        border: 1px solid #e0e6ed;
-        transition: all 0.3s ease;
+{% block extra_js %}
+<script>
+const fileInput  = document.querySelector('input[type="file"]');
+const previewImg = document.getElementById('previewImg');
+const placeholder= document.getElementById('placeholderWrap');
+
+fileInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            previewImg.src = e.target.result;
+            previewImg.style.display = 'block';
+            placeholder.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
     }
-    .form-control:focus, .form-select:focus {
-        border-color: #27ae60;
-        box-shadow: 0 0 0 0.25rem rgba(39, 174, 96, 0.1);
-    }
-    .form-label {
-        letter-spacing: 0.5px;
-        font-size: 0.75rem;
-    }
-</style>
+});
+{% if form.instance.image %}
+previewImg.src = "{{ form.instance.image.url }}";
+previewImg.style.display = 'block';
+placeholder.style.display = 'none';
+{% endif %}
+</script>
 {% endblock %}

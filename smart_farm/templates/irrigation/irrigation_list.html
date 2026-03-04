@@ -1,145 +1,309 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}Suvarma İdarəetməsi - Smart Farm{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Suvarma Paneli" %} - AgroVision{% endblock %}
 
 {% block extra_css %}
 <style>
-    .fade-in-up { animation: fadeInUp 0.4s ease-out; }
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(15px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .stat-card { border-radius: 20px; transition: transform 0.2s; border: none; }
-    .stat-card:hover { transform: translateY(-5px); }
-    .status-badge { padding: 6px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; }
-    .status-completed { background: #d4edda; color: #155724; }
-    .status-planned { background: #fff3cd; color: #856404; }
-    .status-active { background: #cce5ff; color: #004085; }
-    .status-failed { background: #f8d7da; color: #721c24; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.fade-up { animation:fadeInUp .5s ease backwards; }
+.delay-1{animation-delay:.05s} .delay-2{animation-delay:.1s} .delay-3{animation-delay:.15s} .delay-4{animation-delay:.2s}
+
+.stat-card {
+    border-radius:16px;
+    background:var(--bg-card) !important;
+    border:1px solid var(--border) !important;
+    transition:transform .2s ease, box-shadow .2s ease;
+}
+.stat-card:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,.1); }
+.stat-card h4,.stat-card small { color:var(--text) !important; }
+
+.filter-bar {
+    background:var(--bg-card) !important;
+    border-radius:16px; border:1px solid var(--border) !important; padding:20px;
+}
+.form-control,.form-select {
+    background:var(--bg-secondary) !important; color:var(--text) !important;
+    border-color:var(--border) !important; border-radius:50px; padding:9px 16px;
+}
+.form-control:focus,.form-select:focus { border-color:#3d9970 !important; box-shadow:none; }
+.form-control::placeholder { color:var(--text-muted) !important; opacity:.7; }
+.form-select option { background:var(--bg-card); color:var(--text); }
+
+.irr-table-wrap {
+    background:var(--bg-card) !important;
+    border:1px solid var(--border) !important;
+    border-radius:20px; overflow:hidden;
+}
+.irr-table thead th {
+    background:var(--bg-secondary) !important;
+    font-size:.72rem; text-transform:uppercase;
+    color:var(--text-muted) !important; font-weight:700;
+    border:none; padding:14px 16px;
+}
+.irr-table tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+.irr-table tbody tr:hover { background:var(--bg-secondary) !important; }
+.irr-table tbody td { padding:14px 16px; vertical-align:middle; border:none; color:var(--text); }
+
+.status-badge { padding:5px 12px; border-radius:50px; font-size:.75rem; font-weight:600; }
+.s-completed { background:rgba(6,95,70,.12);  color:#059669; }
+.s-planned   { background:rgba(146,64,14,.1); color:#d97706; }
+.s-active    { background:rgba(30,64,175,.1); color:#3b82f6; }
+.s-failed    { background:rgba(153,27,27,.1); color:#ef4444; }
+[data-theme="dark"] .s-completed { background:rgba(6,95,70,.25);  color:#34d399; }
+[data-theme="dark"] .s-planned   { background:rgba(146,64,14,.25); color:#fbbf24; }
+[data-theme="dark"] .s-active    { background:rgba(30,64,175,.25); color:#60a5fa; }
+[data-theme="dark"] .s-failed    { background:rgba(153,27,27,.25); color:#f87171; }
+
+.overdue-tag {
+    background:rgba(185,28,28,.15); color:#ef4444;
+    font-size:.68rem; padding:2px 8px; border-radius:50px; font-weight:600;
+}
+
+.irr-mobile-card {
+    background:var(--bg-card) !important;
+    border:1px solid var(--border) !important;
+    border-radius:18px; transition:border-color .2s, transform .2s;
+    display:block;
+}
+.irr-mobile-card:hover { border-color:#3d9970; transform:translateY(-2px); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4 fade-in-up">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark mb-0"><i class="fas fa-tint text-success me-2"></i>Suvarma Paneli</h2>
-        <a href="{% url 'irrigation:irrigation_add' %}" class="btn btn-success rounded-pill px-4 shadow-sm">
-            <i class="fas fa-plus-circle me-2"></i>Yeni Plan
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 fade-up">
+        <div>
+            <h2 class="fw-bold mb-1">💧 {% trans "Suvarma Paneli" %}</h2>
+            <p class="small mb-0" style="color:var(--text-muted)">{% trans "Sahələrinizin suvarma tarixçəsi və planları" %}</p>
+        </div>
+        <a href="{% url 'irrigation:irrigation_add' %}" class="btn btn-success rounded-pill px-4 shadow-sm fw-bold">
+            <i class="fas fa-plus me-2"></i>{% trans "Yeni Plan" %}
         </a>
     </div>
 
-    <div class="row g-3 mb-5">
-        <div class="col-md-3">
-            <div class="card stat-card shadow-sm p-3 bg-white border-start border-4 border-primary">
-                <small class="text-muted fw-bold text-uppercase">Bugünkü İstehlak</small>
-                <h3 class="fw-bold text-dark mt-1">{{ today_consumption|default:"0" }} L</h3>
-                <span class="text-success small"><i class="fas fa-arrow-down me-1"></i>Normal səviyyə</span>
+    <!-- Statistika -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3 fade-up delay-1">
+            <div class="card stat-card shadow-sm p-3 border-start border-4 border-primary">
+                <small class="fw-bold text-uppercase" style="font-size:.7rem;color:var(--text-muted)">{% trans "Bugünkü İstehlak" %}</small>
+                <h4 class="fw-bold mt-1 mb-0">{{ today_consumption|default:"0" }} L</h4>
+                <span class="small" style="color:var(--text-muted)">{% trans "Bu gün" %}</span>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card stat-card shadow-sm p-3 bg-white border-start border-4 border-success">
-                <small class="text-muted fw-bold text-uppercase">Aktiv Zonalar</small>
-                <h3 class="fw-bold text-dark mt-1">{{ active_zones_count|default:"0" }}/{{ total_zones }}</h3>
-                <span class="text-muted small">Sistem aktivdir</span>
+        <div class="col-6 col-md-3 fade-up delay-2">
+            <div class="card stat-card shadow-sm p-3 border-start border-4 border-success">
+                <small class="fw-bold text-uppercase" style="font-size:.7rem;color:var(--text-muted)">{% trans "Aktiv Zonalar" %}</small>
+                <h4 class="fw-bold mt-1 mb-0">{{ active_zones_count|default:"0" }}/{{ total_zones }}</h4>
+                <span class="small" style="color:var(--text-muted)">{% trans "Sistem aktivdir" %}</span>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card stat-card shadow-sm p-3 bg-white border-start border-4 border-danger">
-                <small class="text-muted fw-bold text-uppercase">Problem Zonalar</small>
-                <h3 class="fw-bold {% if problem_zones > 0 %}text-danger{% else %}text-dark{% endif %} mt-1">{{ problem_zones }}</h3>
-                <span class="text-muted small">{% if problem_zones > 0 %}Diqqət tələb olunur{% else %}Hər şey qaydasındadır{% endif %}</span>
+        <div class="col-6 col-md-3 fade-up delay-3">
+            <div class="card stat-card shadow-sm p-3 border-start border-4 border-danger">
+                <small class="fw-bold text-uppercase" style="font-size:.7rem;color:var(--text-muted)">{% trans "Problem Zonalar" %}</small>
+                <h4 class="fw-bold mt-1 mb-0 {% if problem_zones > 0 %}text-danger{% endif %}">{{ problem_zones }}</h4>
+                <span class="small" style="color:var(--text-muted)">{% if problem_zones > 0 %}{% trans "Diqqət lazımdır" %}{% else %}{% trans "Normal" %}{% endif %}</span>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card stat-card shadow-sm p-3 bg-dark text-white shadow">
-                <small class="text-warning fw-bold text-uppercase">Növbəti Suvarma</small>
+        <div class="col-6 col-md-3 fade-up delay-4">
+            <div class="card stat-card shadow-sm p-3 border-start border-4 border-warning">
+                <small class="fw-bold text-uppercase" style="font-size:.7rem;color:var(--text-muted)">{% trans "Növbəti Suvarma" %}</small>
                 {% if next_irrigation %}
-                    <h3 class="fw-bold text-warning mt-1">{{ next_irrigation.time_until }}</h3>
-                    <small class="opacity-75">{{ next_irrigation.field.name }} ({{ next_irrigation.start_time|date:"H:i" }})</small>
+                    <h4 class="fw-bold text-warning mt-1 mb-0">{{ next_irrigation.time_until }}</h4>
+                    <small style="color:var(--text-muted)">{{ next_irrigation.field.name }}</small>
                 {% else %}
-                    <h3 class="fw-bold mt-1">Plan yoxdur</h3>
-                    <small class="opacity-50">Cədvəl boşdur</small>
+                    <h4 class="fw-bold mt-1 mb-0">—</h4>
+                    <small style="color:var(--text-muted)">{% trans "Plan yoxdur" %}</small>
                 {% endif %}
             </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm p-4 mb-4 rounded-4 bg-light">
-        <form method="get" class="row g-3">
+    <!-- Filtr -->
+    <div class="filter-bar mb-4 fade-up shadow-sm">
+        <form method="get" class="row g-2">
             <div class="col-md-4">
-                <input type="text" name="q" class="form-control rounded-pill border-0 shadow-sm" placeholder="Sahə və ya bitki axtar..." value="{{ request.GET.q }}">
+                <input type="text" name="q" class="form-control"
+                       placeholder="{% trans "Sahə axtar..." %}" value="{{ request.GET.q }}">
             </div>
             <div class="col-md-3">
-                <select name="type" class="form-select rounded-pill border-0 shadow-sm">
-                    <option value="">Bütün Metodlar</option>
+                <select name="type" class="form-select">
+                    <option value="">{% trans "Bütün metodlar" %}</option>
                     {% for key, val in irrigation_types %}
-                        <option value="{{ key }}" {% if request.GET.type == key %}selected{% endif %}>{{ val }}</option>
+                    <option value="{{ key }}" {% if request.GET.type == key %}selected{% endif %}>{{ val }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <select name="status" class="form-select rounded-pill border-0 shadow-sm">
-                    <option value="">Bütün Statuslar</option>
+                <select name="status" class="form-select">
+                    <option value="">{% trans "Bütün statuslar" %}</option>
                     {% for key, val in status_choices %}
-                        <option value="{{ key }}" {% if request.GET.status == key %}selected{% endif %}>{{ val }}</option>
+                    <option value="{{ key }}" {% if request.GET.status == key %}selected{% endif %}>{{ val }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-dark w-100 rounded-pill shadow-sm">Filtrlə</button>
+                <button type="submit" class="btn w-100 rounded-pill fw-bold text-white"
+                        style="background:linear-gradient(135deg,#182f4c,#2e8e63)">
+                    {% trans "Axtar" %}
+                </button>
             </div>
         </form>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <!-- MASAÜSTÜ: Cədvəl (md və yuxarı) -->
+    <div class="irr-table-wrap shadow-sm fade-up d-none d-md-block">
         <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="bg-light text-muted small text-uppercase">
+            <table class="table irr-table mb-0">
+                <thead>
                     <tr>
-                        <th class="ps-4">Tarix / Vaxt</th>
-                        <th>Sahə & Bitki</th>
-                        <th>Həcm</th>
-                        <th>Status</th>
-                        <th class="text-end pe-4">İdarəetmə</th>
+                        <th>{% trans "Tarix" %}</th>
+                        <th>{% trans "Sahə / Bitki" %}</th>
+                        <th>{% trans "Metod" %}</th>
+                        <th>{% trans "Həcm" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th class="text-end pe-4">{% trans "Əməliyyat" %}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in schedules %}
-                    <tr>
-                        <td class="ps-4">
-                            <div class="fw-bold text-dark">{{ item.irrigation_date|date:"d M Y" }}</div>
-                            <small class="text-muted"><i class="far fa-clock me-1"></i>{{ item.start_time|date:"H:i" }}</small>
+                    <tr class="irr-row" data-href="{% url 'irrigation:irrigation_detail' item.pk %}" style="cursor:pointer">
+                        <td>
+                            <div class="fw-bold">{{ item.irrigation_date|date:"d/m/Y" }}</div>
+                            {% if item.start_time %}
+                            <small style="color:var(--text-muted)"><i class="far fa-clock me-1"></i>{{ item.start_time|time:"H:i" }}</small>
+                            {% endif %}
+                            {% if item.is_overdue %}
+                            <span class="overdue-tag ms-1">{% trans "Gecikib" %}</span>
+                            {% endif %}
                         </td>
                         <td>
-                            <a href="{% url 'irrigation:irrigation_detail' item.pk %}" class="text-decoration-none">
-                                <div class="fw-bold text-dark">{{ item.field.name }}</div>
-                                <small class="text-success"><i class="fas fa-seedling me-1"></i>{{ item.plant.name|default:"Ümumi" }}</small>
-                            </a>
+                            <div class="fw-bold" style="color:var(--text)">{{ item.field.name }}</div>
+                            <small class="text-success"><i class="fas fa-seedling me-1"></i>{{ item.plant|default:"Ümumi sahə" }}</small>
                         </td>
+                        <td><small style="color:var(--text-muted)">{{ item.get_irrigation_type_display }}</small></td>
                         <td><span class="fw-bold">{{ item.water_volume_liters }} L</span></td>
-                        <td>
-                            <span class="status-badge status-{{ item.status }}">
-                                {{ item.get_status_display }}
-                            </span>
-                        </td>
-                        <td class="text-end pe-4">
-                            <a href="{% url 'irrigation:irrigation_update' item.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="{% url 'irrigation:irrigation_delete' item.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                <i class="fas fa-trash"></i>
-                            </a>
+                        <td><span class="status-badge s-{{ item.status }}">{{ item.get_status_display }}</span></td>
+                        <td class="text-end pe-4" onclick="event.stopPropagation()">
+                            <div class="d-flex gap-1 justify-content-end">
+                                {% if item.status == 'planned' or item.status == 'active' %}
+                                <a href="{% url 'irrigation:complete_irrigation' item.pk %}"
+                                   class="btn btn-sm btn-outline-success rounded-pill px-2" title="{% trans "Tamamla" %}">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'irrigation:irrigation_update' item.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-2">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'irrigation:irrigation_delete' item.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-2">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">Məlumat tapılmadı.</td>
+                        <td colspan="6" class="text-center py-5" style="color:var(--text-muted)">
+                            <i class="fas fa-tint fa-3x mb-3 opacity-25"></i>
+                            <p class="mb-1">{% trans "Suvarma qeydi tapılmadı" %}</p>
+                            <a href="{% url 'irrigation:irrigation_add' %}" class="btn btn-success btn-sm rounded-pill px-3 mt-1">
+                                {% trans "İlk Planı Yarat" %}
+                            </a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        {% if is_paginated %}
+        <div class="p-3" style="border-top:1px solid var(--border)">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link rounded-pill" href="?page={{ page_obj.previous_page_number }}">‹</a></li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link rounded-pill" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link rounded-pill" href="?page={{ page_obj.next_page_number }}">›</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
     </div>
+
+    <!-- MOBİL: Kartlar (sm və aşağı) -->
+    <div class="d-md-none fade-up">
+        {% for item in schedules %}
+        <a href="{% url 'irrigation:irrigation_detail' item.pk %}" class="text-decoration-none">
+            <div class="irr-mobile-card mb-3 p-3 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <div class="fw-bold" style="color:var(--text);font-size:1rem">{{ item.field.name }}</div>
+                        <small class="text-success"><i class="fas fa-seedling me-1"></i>{{ item.plant|default:"Ümumi sahə" }}</small>
+                    </div>
+                    <span class="status-badge s-{{ item.status }} flex-shrink-0 ms-2">{{ item.get_status_display }}</span>
+                </div>
+                <div class="d-flex gap-3 flex-wrap mt-2">
+                    <div>
+                        <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase">{% trans "Tarix" %}</div>
+                        <div class="fw-bold small">{{ item.irrigation_date|date:"d/m/Y" }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase">{% trans "Həcm" %}</div>
+                        <div class="fw-bold small">{{ item.water_volume_liters }} L</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase">{% trans "Metod" %}</div>
+                        <div class="fw-bold small">{{ item.get_irrigation_type_display }}</div>
+                    </div>
+                    {% if item.is_overdue %}
+                    <div class="align-self-end">
+                        <span class="overdue-tag">{% trans "Gecikib" %}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="d-flex gap-2 mt-3 pt-2" style="border-top:1px solid var(--border)" onclick="event.stopPropagation()">
+                    {% if item.status == 'planned' or item.status == 'active' %}
+                    <a href="{% url 'irrigation:complete_irrigation' item.pk %}" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                        <i class="fas fa-check me-1"></i>{% trans "Tamamla" %}
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'irrigation:irrigation_update' item.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'irrigation:irrigation_delete' item.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3 ms-auto">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="text-center py-5" style="color:var(--text-muted)">
+            <i class="fas fa-tint fa-3x mb-3 opacity-25"></i>
+            <p class="mb-1">{% trans "Suvarma qeydi tapılmadı" %}</p>
+            <a href="{% url 'irrigation:irrigation_add' %}" class="btn btn-success btn-sm rounded-pill px-3 mt-1">
+                {% trans "İlk Planı Yarat" %}
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.irr-row').forEach(row => {
+    row.addEventListener('click', function() {
+        window.location.href = this.dataset.href;
+    });
+});
+</script>
 {% endblock %}

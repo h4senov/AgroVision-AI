@@ -1,180 +1,200 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block title %}Sensor Siyahısı - AgroVision{% endblock %}
 
-{% block title %}Sensorlar - Smart Farm{% endblock %}
+{% block extra_css %}
+<style>
+    /* Ümumi animasiyalar */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+    body { background-color: #f4f7f6; /* Göz yormayan, xəfif təbii arxa fon */ }
+
+    .fade-up { animation: fadeInUp 0.5s ease backwards; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+
+    /* Kart və Filtr dizaynı */
+    .glass-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+    
+    /* Forma elementlərinin avtomatik stilləndirilməsi (forms.py-da class olmasa belə işləyir) */
+    .filter-bar input, .filter-bar select {
+        width: 100%;
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        background-color: #f9fafb;
+        color: #4b5563;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    .filter-bar input:focus, .filter-bar select:focus {
+        border-color: #52b788;
+        background-color: #fff;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.15);
+    }
+
+    /* Cədvəl dizaynı */
+    .modern-table th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 16px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    .modern-table td {
+        padding: 16px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        transition: background 0.2s;
+    }
+    .modern-table tbody tr { transition: transform 0.2s, box-shadow 0.2s; }
+    .modern-table tbody tr:hover {
+        background: #f0fdf4; /* Üzərinə gələndə xəfif yaşıl */
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+
+    /* Status və Batareya */
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .dot-active { background: #22c55e; animation: pulse 2s infinite; }
+    .dot-inactive { background: #cbd5e1; }
+
+    .battery-wrapper { width: 60px; height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden; display: inline-block; }
+    .battery-fill { height: 100%; border-radius: 10px; }
+
+    .action-btn { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; }
+    .action-btn:hover { background: #e2e8f0; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 fade-up">
         <div>
-            <h1 class="h3 mb-0 text-gray-800">📡 Sensor İdarəetmə Paneli</h1>
-            <p class="text-muted small">Bütün sensorların monitorinqi və idarə edilməsi</p>
+            <h2 class="fw-bold mb-1" style="color: #1e293b;">📋 Bütün Sensorlar</h2>
+            <p class="text-muted small mb-0">Sistemdəki bütün sensorların idarəetmə paneli</p>
         </div>
-        <a href="{% url 'sensors:add_sensor' %}" class="btn btn-success shadow-sm">
-            <i class="fas fa-plus-circle fa-sm text-white-50"></i> Yeni Sensor
+        <a href="{% url 'sensors:add_sensor' %}" class="btn btn-success rounded-pill px-4 shadow-sm fw-bold">
+            <i class="fas fa-plus me-2"></i>Yeni Sensor
         </a>
     </div>
 
-    {% if messages %}
-        <div class="row">
-            <div class="col-12">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
+    <div class="glass-card p-4 mb-4 fade-up delay-1 filter-bar">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small text-muted fw-bold mb-1">Axtarış</label>
+                {{ search_form.search }}
             </div>
-        </div>
-    {% endif %}
-
-    <div class="card shadow mb-4 border-0">
-        <div class="card-header py-3 bg-white">
-            <h6 class="m-0 font-weight-bold text-primary">🔍 Axtarış və Filtrlər</h6>
-        </div>
-        <div class="card-body">
-            <form method="get" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="{{ search_form.search.id_for_label }}" class="form-label fw-bold">Axtarış</label>
-                    {{ search_form.search }}
-                </div>
-                
-                <div class="col-md-2">
-                    <label for="{{ filter_form.sensor_type.id_for_label }}" class="form-label fw-bold">Sensor Növü</label>
-                    {{ filter_form.sensor_type }}
-                </div>
-                
-                <div class="col-md-2">
-                    <label for="{{ filter_form.status.id_for_label }}" class="form-label fw-bold">Status</label>
-                    {{ filter_form.status }}
-                </div>
-                
-                <div class="col-md-2">
-                    <label for="{{ filter_form.battery_level.id_for_label }}" class="form-label fw-bold">Batareya</label>
-                    {{ filter_form.battery_level }}
-                </div>
-                
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100 shadow-sm">
-                        <i class="fas fa-search"></i> Axtar
-                    </button>
-                    <a href="{% url 'sensors:sensor_list' %}" class="btn btn-outline-secondary" title="Filtrləri təmizlə">
-                        <i class="fas fa-redo"></i>
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {% if sensors %}
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {% for sensor in sensors %}
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 hover-shadow transition-card">
-                <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom-0 pb-0">
-                    <span class="badge bg-light text-dark border">
-                        <i class="fas fa-barcode"></i> {{ sensor.sensor_code }}
-                    </span>
-                    {% if sensor.is_active %}
-                        <span class="badge bg-success rounded-pill">Aktiv</span>
-                    {% else %}
-                        <span class="badge bg-danger rounded-pill">Deaktiv</span>
-                    {% endif %}
-                </div>
-
-                <div class="card-body">
-                    <h5 class="card-title text-primary fw-bold mb-1">
-                        <a href="{% url 'sensors:sensor_detail' sensor.id %}" class="text-decoration-none">
-                            {{ sensor.name }}
-                        </a>
-                    </h5>
-                    <p class="text-muted small mb-3">
-                        <i class="fas fa-map-marker-alt text-danger"></i> {{ sensor.field.name }}
-                    </p>
-
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <div class="p-2 bg-light rounded border text-center">
-                                <small class="d-block text-muted">Növ</small>
-                                <strong>{{ sensor.get_sensor_type_display }}</strong>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="p-2 bg-light rounded border text-center">
-                                <small class="d-block text-muted">Interval</small>
-                                <strong>{{ sensor.data_interval }} dəq</strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between small mb-1">
-                            <span>Batareya</span>
-                            <span class="fw-bold text-{{ sensor.battery_status }}">{{ sensor.battery_level }}%</span>
-                        </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-{{ sensor.battery_status }}" 
-                                 role="progressbar" 
-                                 style="width: {{ sensor.battery_level }}%" 
-                                 aria-valuenow="{{ sensor.battery_level }}" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="100">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-footer bg-white border-top-0 pt-0 pb-3 d-flex justify-content-between align-items-center">
-                    <small class="text-muted" title="Son məlumat">
-                        <i class="far fa-clock"></i> {{ sensor.updated_at|timesince }} əvvəl
-                    </small>
-                    
-                    <div class="btn-group">
-                        <a href="{% url 'sensors:sensor_detail' sensor.id %}" class="btn btn-sm btn-outline-primary" title="Bax">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="{% url 'sensors:edit_sensor' sensor.id %}" class="btn btn-sm btn-outline-warning" title="Düzəliş et">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="{% url 'sensors:delete_sensor' sensor.id %}" class="btn btn-sm btn-outline-danger" title="Sil">
-                            <i class="fas fa-trash"></i>
-                        </a>
-                    </div>
-                </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted fw-bold mb-1">Sensor Növü</label>
+                {{ filter_form.sensor_type }}
             </div>
-        </div>
-        {% endfor %}
+            <div class="col-md-2">
+                <label class="form-label small text-muted fw-bold mb-1">Status</label>
+                {{ filter_form.is_active }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted fw-bold mb-1">Batareya</label>
+                {{ filter_form.battery_level }}
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark w-100 rounded-3 py-2 fw-bold">
+                    <i class="fas fa-filter me-2"></i>Filtrlə
+                </button>
+            </div>
+        </form>
     </div>
 
-    {% if is_paginated %}
-    <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-            </ul>
-    </nav>
-    {% endif %}
-
-    {% else %}
-    <div class="text-center py-5">
-        <div class="mb-3">
-            <i class="fas fa-search fa-3x text-muted opacity-50"></i>
+    <div class="glass-card overflow-hidden fade-up delay-2">
+        <div class="table-responsive">
+            <table class="table modern-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Sensor Adı & Kod</th>
+                        <th>Sahə</th>
+                        <th>Növü</th>
+                        <th>Batareya</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Əməliyyat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sensor in sensors %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-success-subtle text-success rounded px-2 py-1 fs-5">
+                                    {% if sensor.sensor_type == 'soil_moisture' %}🌱
+                                    {% elif sensor.sensor_type == 'temperature' %}🌡️
+                                    {% elif sensor.sensor_type == 'humidity' %}💧
+                                    {% else %}🔬{% endif %}
+                                </div>
+                                <div>
+                                    <div class="fw-bold" style="color:#0f172a;">{{ sensor.name }}</div>
+                                    <small class="text-muted">{{ sensor.sensor_code }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border"><i class="fas fa-map-marker-alt text-danger me-1"></i>{{ sensor.field.name }}</span>
+                        </td>
+                        <td>
+                            <small class="fw-bold text-secondary">{{ sensor.get_sensor_type_display }}</small>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="battery-wrapper">
+                                    <div class="battery-fill bg-{{ sensor.battery_status|default:'success' }}" style="width: {{ sensor.battery_level }}%;"></div>
+                                </div>
+                                <small class="fw-bold text-{{ sensor.battery_status|default:'success' }}">{{ sensor.battery_level }}%</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-dot {% if sensor.is_active %}dot-active{% else %}dot-inactive{% endif %}"></span>
+                            <small class="fw-bold {% if sensor.is_active %}text-success{% else %}text-muted{% endif %}">
+                                {% if sensor.is_active %}Aktiv{% else %}Deaktiv{% endif %}
+                            </small>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex gap-1 justify-content-end">
+                                <a href="{% url 'sensors:sensor_detail' sensor.id %}" class="action-btn text-primary" title="Bax">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'sensors:edit_sensor' sensor.id %}" class="action-btn text-warning" title="Redaktə et">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'sensors:delete_sensor' sensor.id %}" class="action-btn text-danger" title="Sil">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted mb-3" style="font-size: 3rem;">🔍</div>
+                            <h5 class="fw-bold text-secondary">Axtarışa uyğun sensor tapılmadı</h5>
+                            <p class="text-muted small">Filtrləri təmizləyin və ya yeni sensor əlavə edin.</p>
+                            <a href="{% url 'sensors:sensor_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill mt-2">Filtrləri Sıfırla</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <h4 class="text-muted">Heç bir sensor tapılmadı</h4>
-        <p class="text-muted">Axtarış parametrlərini dəyişin və ya yeni sensor əlavə edin.</p>
-        <a href="{% url 'sensors:add_sensor' %}" class="btn btn-primary mt-2">
-            Yeni Sensor Əlavə Et
-        </a>
     </div>
-    {% endif %}
+
 </div>
-
-<style>
-    .hover-shadow:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-    }
-    .transition-card {
-        transition: all 0.3s ease;
-    }
-</style>
 {% endblock %}

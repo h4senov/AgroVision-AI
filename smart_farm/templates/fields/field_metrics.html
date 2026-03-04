@@ -1,73 +1,66 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}{{ field.name }} - Analitika{% endblock %}
+{% load i18n %}
+{% block title %}{{ field.name }} — {% trans "Analitika" %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    .metrics-container { animation: fadeIn 0.8s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeIn   { from{opacity:0}               to{opacity:1} }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
-    .metric-card {
-        border: none;
-        border-radius: 20px;
-        background: #ffffff;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-        transition: transform 0.3s ease;
-    }
-    .metric-card:hover { transform: translateY(-5px); }
+.metrics-container { animation:fadeIn .6s ease backwards; }
+.metric-card {
+    border:none; border-radius:20px;
+    background:var(--bg-card) !important; color:var(--text);
+    box-shadow:0 8px 24px rgba(0,0,0,0.06);
+    transition:transform .3s ease;
+    animation:fadeInUp .5s ease backwards;
+}
+.metric-card:hover { transform:translateY(-5px); }
+.metric-card:nth-child(1){animation-delay:.1s}
+.metric-card:nth-child(2){animation-delay:.2s}
+.metric-card:nth-child(3){animation-delay:.3s}
 
-    .icon-circle {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 15px;
-    }
-    
-    .chart-container {
-        position: relative;
-        height: 300px;
-        width: 100%;
-    }
-
-    .health-bar-container {
-        height: 8px;
-        background: #eee;
-        border-radius: 10px;
-        overflow: hidden;
-    }
+.icon-circle {
+    width:45px; height:45px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center; margin-bottom:15px;
+}
+.chart-container { position:relative; height:300px; width:100%; }
+.health-bar-bg { height:8px; background:var(--border); border-radius:10px; overflow:hidden; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-4 metrics-container">
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold text-dark mb-0">{{ field.name }} — Analitik Hesabat</h2>
-            <p class="text-muted small">Son yenilənmə: {% now "H:i" %}</p>
+            <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-outline-secondary btn-sm rounded-pill mb-2">
+                <i class="fas fa-arrow-left me-1"></i>{% trans "Geri" %}
+            </a>
+            <h2 class="fw-bold mb-0">📊 {{ field.name }} — {% trans "Analitika" %}</h2>
+            <p class="small" style="color:var(--text-muted)">{% trans "Son yenilənmə" %}: {% now "H:i" %}</p>
         </div>
-        <button onclick="window.print()" class="btn btn-outline-dark rounded-pill btn-sm px-3">
-            <i class="fas fa-file-download me-2"></i>PDF Export
+        <button onclick="window.print()" class="btn btn-outline-success rounded-pill btn-sm px-3">
+            <i class="fas fa-file-download me-2"></i>{% trans "PDF Export" %}
         </button>
     </div>
 
     <div class="row g-4">
+
         <div class="col-lg-4">
-            <div class="card metric-card p-4 h-100">
-                <h6 class="fw-bold text-muted small text-uppercase mb-4">Məhsul Effektivliyi</h6>
+            <div class="card metric-card p-4 h-100 shadow-sm">
+                <h6 class="fw-bold small text-uppercase mb-4" style="color:var(--text-muted)">{% trans "Məhsul Effektivliyi" %}</h6>
                 <div class="chart-container d-flex justify-content-center align-items-center">
                     <canvas id="successChart"></canvas>
                 </div>
                 <div class="mt-4">
                     <div class="d-flex justify-content-between mb-1 small">
-                        <span>Uğur Faizi</span>
+                        <span>{% trans "Uğur Faizi" %}</span>
                         <span class="fw-bold text-success">{{ metrics.plant_success_rate }}%</span>
                     </div>
-                    <div class="health-bar-container">
-                        <div class="progress-bar bg-success" style="width: {{ metrics.plant_success_rate }}%; height: 100%;"></div>
+                    <div class="health-bar-bg">
+                        <div class="progress-bar bg-success" style="width:{{ metrics.plant_success_rate }}%;height:100%"></div>
                     </div>
                 </div>
             </div>
@@ -76,36 +69,36 @@
         <div class="col-lg-8">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <div class="card metric-card p-4">
-                        <div class="icon-circle bg-success-subtle text-success">
-                            <i class="fas fa-seedling"></i>
+                    <div class="card metric-card p-4 shadow-sm">
+                        <div class="icon-circle bg-success bg-opacity-10">
+                            <i class="fas fa-seedling text-success"></i>
                         </div>
                         <h3 class="fw-bold mb-1">{{ metrics.total_plants }}</h3>
-                        <p class="text-muted small mb-0">Ümumi əkilmiş bitki</p>
-                        <hr class="my-3 opacity-50">
+                        <p class="small mb-0" style="color:var(--text-muted)">{% trans "Ümumi əkilmiş bitki" %}</p>
+                        <hr style="border-color:var(--border)">
                         <div class="d-flex justify-content-between small">
-                            <span class="text-muted">Aktiv: <strong class="text-dark">{{ metrics.active_plants }}</strong></span>
-                            <span class="text-muted">Yığılıb: <strong class="text-dark">{{ metrics.harvested_plants }}</strong></span>
+                            <span style="color:var(--text-muted)">{% trans "Aktiv" %}: <strong>{{ metrics.active_plants }}</strong></span>
+                            <span style="color:var(--text-muted)">{% trans "Yığılıb" %}: <strong>{{ metrics.harvested_plants }}</strong></span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card metric-card p-4">
-                        <div class="icon-circle bg-primary-subtle text-primary">
-                            <i class="fas fa-microchip"></i>
+                    <div class="card metric-card p-4 shadow-sm">
+                        <div class="icon-circle bg-primary bg-opacity-10">
+                            <i class="fas fa-microchip text-primary"></i>
                         </div>
                         <h3 class="fw-bold mb-1">{{ metrics.sensor_health_rate }}%</h3>
-                        <p class="text-muted small mb-0">Sensor şəbəkəsi vəziyyəti</p>
-                        <hr class="my-3 opacity-50">
+                        <p class="small mb-0" style="color:var(--text-muted)">{% trans "Sensor şəbəkəsi vəziyyəti" %}</p>
+                        <hr style="border-color:var(--border)">
                         <div class="d-flex justify-content-between small">
-                            <span class="text-muted">Cəmi: <strong class="text-dark">{{ metrics.total_sensors }}</strong></span>
-                            <span class="text-muted">Aktiv: <strong class="text-dark">{{ metrics.active_sensors }}</strong></span>
+                            <span style="color:var(--text-muted)">{% trans "Cəmi" %}: <strong>{{ metrics.total_sensors }}</strong></span>
+                            <span style="color:var(--text-muted)">{% trans "Aktiv" %}: <strong>{{ metrics.active_sensors }}</strong></span>
                         </div>
                     </div>
                 </div>
                 <div class="col-12">
-                    <div class="card metric-card p-4">
-                        <h6 class="fw-bold text-muted small text-uppercase mb-3">Həftəlik Temperatur və Yağıntı Trendi</h6>
+                    <div class="card metric-card p-4 shadow-sm">
+                        <h6 class="fw-bold small text-uppercase mb-3" style="color:var(--text-muted)">{% trans "Həftəlik Temperatur Trendi" %}</h6>
                         <div class="chart-container">
                             <canvas id="weatherTrendChart"></canvas>
                         </div>
@@ -113,59 +106,53 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    // 1. Uğur Faizi (Doughnut Chart)
-    const ctx1 = document.getElementById('successChart').getContext('2d');
-    new Chart(ctx1, {
-        type: 'doughnut',
-        data: {
-            labels: ['Uğurlu', 'Digər'],
-            datasets: [{
-                data: [{{ metrics.plant_success_rate }}, 100 - {{ metrics.plant_success_rate }}],
-                backgroundColor: ['#2ecc71', '#f8f9fa'],
-                borderWidth: 0,
-                cutout: '80%'
-            }]
-        },
-        options: { plugins: { legend: { display: false } } }
-    });
+const isDark    = document.documentElement.getAttribute('data-theme') === 'dark';
+const textColor = isDark ? '#94a3b8' : '#6b7280';
+const gridColor = isDark ? 'rgba(255,255,255,0.05)' : '#f0f0f0';
+const cardBg    = isDark ? '#1e293b' : '#f8f9fa';
 
-        
-    const ctx2 = document.getElementById('weatherTrendChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'line',
-        data: {
-            labels: {{ metrics.weather_labels|safe }}, // Reallaşdı! (Məs: ['01 Feb', '02 Feb'...])
-            datasets: [{
-                label: 'Temperatur (°C)',
-                data: {{ metrics.weather_temps|safe }}, // Reallaşdı! (Məs: [12.5, 14.0...])
-                borderColor: '#f1c40f',
-                backgroundColor: 'rgba(241, 196, 15, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
+new Chart(document.getElementById('successChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['{% trans "Uğurlu" %}', '{% trans "Digər" %}'],
+        datasets: [{
+            data: [{{ metrics.plant_success_rate }}, 100 - {{ metrics.plant_success_rate }}],
+            backgroundColor: ['#3d9970', cardBg],
+            borderWidth: 0, cutout: '80%'
+        }]
+    },
+    options: { plugins: { legend: { display:false } } }
+});
+
+new Chart(document.getElementById('weatherTrendChart'), {
+    type: 'line',
+    data: {
+        labels: {{ metrics.weather_labels|safe }},
+        datasets: [{
+            label: '{% trans "Temperatur (°C)" %}',
+            data: {{ metrics.weather_temps|safe }},
+            borderColor: '#3d9970',
+            backgroundColor: 'rgba(61,153,112,0.08)',
+            tension: 0.4, fill: true,
+            pointBackgroundColor: '#3d9970', pointRadius: 4,
+        }]
+    },
     options: {
-        maintainAspectRatio: false,
-        responsive: true,
-        plugins: {
-            legend: { position: 'top', align: 'end' }
-        },
+        maintainAspectRatio: false, responsive: true,
+        plugins: { legend: { position:'top', align:'end', labels:{ color:textColor } } },
         scales: {
-            y: {
-                beginAtZero: false,
-                grid: { display: false }
-            },
-            x: {
-                grid: { display: false }
-            }
+            y: { beginAtZero:false, grid:{ color:gridColor }, ticks:{ color:textColor } },
+            x: { grid:{ display:false }, ticks:{ color:textColor } }
         }
     }
 });
+
+
 </script>
 {% endblock %}

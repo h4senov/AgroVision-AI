@@ -10,4 +10,6 @@ urlpatterns = [
     path('<int:pk>/update/', views.IrrigationUpdateView.as_view(), name='irrigation_update'),
     path('<int:pk>/delete/', views.IrrigationDeleteView.as_view(), name='irrigation_delete'),
     path('ajax/load-plants/', views.load_plants, name='ajax_load_plants'),
+    path('<int:pk>/complete/', views.complete_irrigation, name='complete_irrigation'),
+    path('<int:pk>/duplicate/', views.duplicate_irrigation, name='duplicate_irrigation'),
 ]

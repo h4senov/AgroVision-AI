@@ -715,3 +715,79 @@ nav.navbar .btn, nav.navbar #langSelector, nav.navbar #userMenu {
     padding: 6px 0 !important;
   }
 }
+
+
+/* Əsas Rəng Dəyişənləri */
+[data-theme="dark"] {
+    --bg-main: #14161a;         /* Ən alt fon */
+    --bg-card: #1e2128;         /* Kartlar və filter bölmələri */
+    --bg-input: #2a2e35;        /* Input və seçimlər */
+    --text-main: #e2e8f0;       /* Əsas mətn */
+    --text-muted: #94a3b8;      /* İkinci dərəcəli mətn */
+    --border-color: #334155;    /* Sərhəd xətləri */
+    --accent: #10b981;          /* Yaşıl vurğu rəngi */
+}
+
+[data-theme="dark"] body {
+    background-color: var(--bg-main) !important;
+    color: var(--text-main) !important;
+}
+
+/* 1. O ağ qalan filter və başlıq bölmələrini düzəldirik */
+[data-theme="dark"] .bg-white, 
+[data-theme="dark"] .card, 
+[data-theme="dark"] .container-fluid.bg-white {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* 2. Navbar (Yuxarı menyu) düzəlişi */
+[data-theme="dark"] .navbar, 
+[data-theme="dark"] header {
+    background-color: var(--bg-main) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .nav-link {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .nav-link.active, 
+[data-theme="dark"] .nav-link:hover {
+    color: var(--accent) !important;
+}
+
+/* 3. Inputlar və Select box-lar (Şəkildəki o tünd xanalar) */
+[data-theme="dark"] .form-control, 
+[data-theme="dark"] .form-select {
+    background-color: var(--bg-input) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: var(--text-muted) !important;
+}
+
+/* 4. Cədvəllər və Siyahılar */
+[data-theme="dark"] .table {
+    color: var(--text-main) !important;
+    background-color: transparent !important;
+}
+
+[data-theme="dark"] .table thead {
+    background-color: var(--bg-input) !important;
+}
+
+/* 5. Düymələr */
+[data-theme="dark"] .btn-success {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
+/* Kartın daxilindəki məlumatların oxunaqlılığı */
+[data-theme="dark"] .text-muted, 
+[data-theme="dark"] .small {
+    color: var(--text-muted) !important;
+}

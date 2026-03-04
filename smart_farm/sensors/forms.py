@@ -35,6 +35,11 @@ class SensorForm(forms.ModelForm):
             'data_interval': 'Məlumat intervalı (dəq)',
             'is_active': 'Aktiv',
         }
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['field'].queryset = forms.Field.objects.filter(user=user)
 
 class SensorSearchForm(forms.Form):
     search = forms.CharField(

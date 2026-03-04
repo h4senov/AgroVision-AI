@@ -1,29 +1,91 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% block title %}{% trans "Suvarmanı Sil" %} - AgroVision{% endblock %}
 
-{% block title %}Silməni Təsdiqlə - Smart Farm{% endblock %}
+{% block extra_css %}
+<style>
+@keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.delete-card {
+    border-radius:24px;
+    border:1px solid var(--border) !important;
+    background:var(--bg-card) !important;
+    animation:fadeInUp .4s ease backwards;
+}
+.preview-row {
+    background:var(--bg-secondary) !important;
+    border:1px solid var(--border) !important;
+    border-radius:14px;
+}
+.preview-icon {
+    background:var(--bg-card) !important;
+    border:1px solid var(--border);
+    border-radius:10px; padding:10px;
+}
+.btn-cancel {
+    background:transparent !important;
+    color:var(--text-muted) !important;
+    border:1px solid var(--border) !important;
+    transition:all .2s;
+}
+.btn-cancel:hover { background:var(--bg-secondary) !important; color:var(--text) !important; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <div class="card shadow border-0">
-                <div class="card-body p-5">
-                    <i class="fas fa-exclamation-triangle text-danger mb-4" style="font-size: 4rem;"></i>
-                    <h2 class="fw-bold">Əminsiniz?</h2>
-                    <p class="text-muted">
-                        <strong>{{ object.field.name }}</strong> sahəsi üçün olan 
-                        <strong>{{ object.irrigation_date }}</strong> tarixli suvarma qeydi silinəcək. 
-                        Bu əməliyyat geri qaytarıla bilməz.
+        <div class="col-md-6 col-lg-5">
+            <div class="card delete-card shadow-sm">
+                <div class="card-body p-5 text-center">
+
+                    <div class="mb-4" style="font-size:3.5rem">🗑️</div>
+                    <h4 class="fw-bold mb-2" style="color:var(--text)">{% trans "Silinsin?" %}</h4>
+                    <p class="small mb-4" style="color:var(--text-muted)">
+                        <strong>{{ object.field.name }}</strong> {% trans "sahəsinin" %}
+                        <strong>{{ object.irrigation_date|date:"d/m/Y" }}</strong>
+                        {% trans "tarixli suvarma qeydi daimi silinəcək. Bu əməliyyat geri qaytarıla bilməz." %}
                     </p>
+
+                    <div class="preview-row d-flex align-items-center p-3 mb-4 text-start">
+                        <div class="preview-icon me-3 shadow-sm">
+                            <i class="fas fa-tint text-primary fa-lg"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <div class="fw-bold text-truncate" style="color:var(--text)">{{ object.field.name }}</div>
+                            <div class="small text-truncate" style="color:var(--text-muted)">
+                                {{ object.get_irrigation_type_display }} ·
+                                {{ object.water_volume_liters }} L ·
+                                {{ object.irrigation_date|date:"d/m/Y" }}
+                            </div>
+                        </div>
+                        <span class="ms-auto badge rounded-pill flex-shrink-0
+                            {% if object.status == 'completed' %}bg-success
+                            {% elif object.status == 'planned' %}bg-warning text-dark
+                            {% elif object.status == 'active' %}bg-primary
+                            {% else %}bg-danger{% endif %}">
+                            {{ object.get_status_display }}
+                        </span>
+                    </div>
+
                     <form method="post">
                         {% csrf_token %}
-                        <div class="d-grid gap-2 d-md-block">
-                            <a href="{% url 'irrigation_list' %}" class="btn btn-light px-4 me-md-2">Xeyr, Geri qayıt</a>
-                            <button type="submit" class="btn btn-danger px-4">Bəli, Sil</button>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger py-3 rounded-pill fw-bold">
+                                <i class="fas fa-trash-alt me-2"></i>{% trans "Bəli, Sil" %}
+                            </button>
+                            <a href="{% url 'irrigation:irrigation_list' %}" class="btn btn-cancel py-3 rounded-pill fw-bold">
+                                {% trans "Xeyr, Geri Qayıt" %}
+                            </a>
                         </div>
                     </form>
+
                 </div>
             </div>
+            <p class="text-center mt-3 small" style="color:var(--text-muted)">
+                <i class="fas fa-info-circle me-1"></i>{% trans "Bu əməliyyatın geri dönüşü yoxdur." %}
+            </p>
         </div>
     </div>
 </div>

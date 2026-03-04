@@ -1,9 +1,334 @@
-<!-- sensors/dashboard.html -->
-{% for sensor_id, data in real_time_data.items %}
-<div class="sensor-card {{ data.battery_status }}">
-    <h5>{{ data.sensor_name }}</h5>
-    <p>Son Dəyər: {{ data.latest_value }} {{ data.unit }}</p>
-    <p>Trend: {{ data.trend }}</p>
-    <p>Batareya: {{ data.battery_level }}%</p>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sensor Paneli - AgroVision{% endblock %}
+
+{% block extra_css %}
+<style>
+@keyframes fadeInUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.fade-up { animation:fadeInUp 0.5s ease backwards; }
+.d1{animation-delay:0.05s} .d2{animation-delay:0.10s} .d3{animation-delay:0.15s} .d4{animation-delay:0.20s}
+
+.sensor-tabs .nav-link {
+    border-radius:12px; color:#6b7280; font-weight:600; font-size:0.9rem;
+    padding:8px 20px; border:none; transition:all 0.2s;
+}
+.sensor-tabs .nav-link.active { background:#1a6b3c; color:#fff; }
+.sensor-tabs .nav-link:hover:not(.active) { background:#f0fdf4; color:#1a6b3c; }
+
+.stat-card { border-radius:16px; border:none; transition:transform 0.2s; }
+.stat-card:hover { transform:translateY(-3px); }
+
+.sensor-card {
+    border-radius:20px; border:1px solid #f0f0f0; background:#fff;
+    transition:all 0.3s ease; animation:fadeInUp 0.5s ease backwards;
+}
+.sensor-card:hover { transform:translateY(-5px); box-shadow:0 12px 30px rgba(0,0,0,0.08); border-color:#52b788; }
+
+.sensor-icon { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+
+.battery-bar { height:6px; border-radius:10px; background:#eee; overflow:hidden; }
+.battery-fill { height:100%; border-radius:10px; transition:width 1s ease; }
+
+.trend-up     { color:#16a34a; background:#f0fdf4; border:1px solid #bbf7d0; }
+.trend-down   { color:#dc2626; background:#fef2f2; border:1px solid #fecaca; }
+.trend-stable { color:#6b7280; background:#f9fafb; border:1px solid #e5e7eb; }
+.trend-badge  { padding:3px 10px; border-radius:50px; font-size:0.72rem; font-weight:700; }
+
+.alert-item { border-radius:12px; padding:12px 16px; display:flex; align-items:flex-start; gap:12px; margin-bottom:8px; }
+.alert-high   { background:#fef2f2; border:1px solid #fecaca; }
+.alert-medium { background:#fefce8; border:1px solid #fde68a; }
+
+.status-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; }
+.dot-active   { background:#22c55e; animation:pulse 2s infinite; }
+.dot-inactive { background:#d1d5db; }
+
+.s-table thead th { background:#f9fafb; font-size:0.72rem; text-transform:uppercase; color:#9ca3af; font-weight:700; border:none; padding:12px 16px; }
+.s-table tbody td { padding:12px 16px; border:none; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
+.s-table tbody tr:hover { background:#f9fffe; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Başlıq -->
+    <div class="d-flex justify-content-between align-items-center mb-4 fade-up">
+        <div>
+            <h2 class="fw-bold mb-1">🔬 Sensor Paneli</h2>
+            <p class="text-muted small mb-0">Real-vaxt sensor məlumatları və analitika</p>
+        </div>
+        <a href="{% url 'sensors:add_sensor' %}" class="btn btn-success rounded-pill px-4 shadow-sm fw-bold">
+            <i class="fas fa-plus me-2"></i>Sensor Əlavə Et
+        </a>
+    </div>
+
+    <!-- Statistika -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3 fade-up d1">
+            <div class="card stat-card shadow-sm p-3 border-start border-4 border-success">
+                <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Ümumi Sensor</small>
+                <h4 class="fw-bold mb-0 mt-1">{{ combined|length }}</h4>
+                <small class="text-muted">Qeydiyyatda</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 fade-up d2">
+            <div class="card stat-card shadow-sm p-3 border-start border-4 border-primary">
+                <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Aktiv</small>
+                <h4 class="fw-bold mb-0 mt-1" id="activeCount">—</h4>
+                <small class="text-success">Online</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 fade-up d3">
+            <div class="card stat-card shadow-sm p-3 border-start border-4 border-warning">
+                <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Xəbərdarlıq</small>
+                <h4 class="fw-bold mb-0 mt-1" id="alertCount">—</h4>
+                <small class="text-muted">Alert</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 fade-up d4">
+            <div class="card stat-card shadow-sm p-3 border-start border-4 border-danger">
+                <small class="text-muted fw-bold text-uppercase" style="font-size:0.7rem;">Aşağı Batareya</small>
+                <h4 class="fw-bold mb-0 mt-1" id="lowBatCount">—</h4>
+                <small class="text-muted">&lt;30%</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global alert banner (JS ilə doldurulur) -->
+    <div id="globalAlerts" class="mb-4"></div>
+
+    <!-- Tabs -->
+    <ul class="nav sensor-tabs mb-4 fade-up">
+        <li class="nav-item">
+            <button class="nav-link active" data-tab="dashboard">
+                <i class="fas fa-th-large me-2"></i>Dashboard
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-tab="list">
+                <i class="fas fa-list me-2"></i>Siyahı
+            </button>
+        </li>
+    </ul>
+
+    <!-- DASHBOARD TAB -->
+    <div id="tab-dashboard">
+        <div class="row g-4">
+            {% for item in combined %}
+            {% with sensor=item.sensor rt=item.rt %}
+            <div class="col-md-6 col-lg-4">
+                <div class="sensor-card p-4 shadow-sm">
+
+                    <!-- Başlıq -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="sensor-icon bg-success-subtle">
+                                {% if sensor.sensor_type == 'soil_moisture' %}🌱
+                                {% elif sensor.sensor_type == 'temperature' %}🌡️
+                                {% elif sensor.sensor_type == 'humidity' %}💧
+                                {% elif sensor.sensor_type == 'ph' %}⚗️
+                                {% elif sensor.sensor_type == 'light' %}☀️
+                                {% elif sensor.sensor_type == 'rainfall' %}🌧️
+                                {% else %}🧪{% endif %}
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark" style="font-size:0.95rem;">{{ sensor.name }}</div>
+                                <div class="text-muted" style="font-size:0.75rem;">{{ sensor.sensor_code }}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="status-dot {% if sensor.is_active %}dot-active{% else %}dot-inactive{% endif %}"></span>
+                            <small class="text-muted">{% if sensor.is_active %}Aktiv{% else %}Qeyri-aktiv{% endif %}</small>
+                        </div>
+                    </div>
+
+                    <!-- Real-time dəyər -->
+                    {% if rt.latest_value is not None %}
+                    <div class="d-flex align-items-end justify-content-between mb-3">
+                        <div>
+                            <div style="font-size:2rem; font-weight:800; color:#1f2937; line-height:1;">
+                                {{ rt.latest_value }}
+                            </div>
+                            <div class="text-muted small">{{ rt.unit }}</div>
+                        </div>
+                        <span class="trend-badge
+                            {% if rt.trend == 'increasing' %}trend-up
+                            {% elif rt.trend == 'decreasing' %}trend-down
+                            {% else %}trend-stable{% endif %}">
+                            {% if rt.trend == 'increasing' %}↑ Artır
+                            {% elif rt.trend == 'decreasing' %}↓ Azalır
+                            {% else %}→ Sabit{% endif %}
+                        </span>
+                    </div>
+                    {% else %}
+                    <div class="text-muted small py-2 mb-3">
+                        <i class="fas fa-clock me-1"></i>Son 1 saatda məlumat yoxdur
+                    </div>
+                    {% endif %}
+
+                    <!-- Batareya -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted fw-bold" style="font-size:0.7rem;">BATAREYA</small>
+                            <small class="fw-bold text-{{ sensor.battery_status }}">{{ sensor.battery_level }}%</small>
+                        </div>
+                        <div class="battery-bar">
+                            <div class="battery-fill bg-{{ sensor.battery_status }}" style="width:{{ sensor.battery_level }}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Sahə -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt text-danger me-1"></i>{{ sensor.field.name }}
+                        </small>
+                        {% if rt.alerts %}
+                        <span class="badge bg-danger-subtle text-danger rounded-pill">
+                            {{ rt.alerts|length }} xəbərdarlıq
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Alerts -->
+                    {% if rt.alerts %}
+                    <div class="mt-2 pt-2 border-top">
+                        {% for alert in rt.alerts %}
+                        <div class="alert-item {% if alert.priority == 'high' %}alert-high{% else %}alert-medium{% endif %} py-2 mb-1">
+                            <span>{% if alert.priority == 'high' %}🔴{% else %}🟡{% endif %}</span>
+                            <small class="fw-bold">{{ alert.message }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <a href="{% url 'sensors:sensor_detail' sensor.id %}" class="btn btn-outline-dark btn-sm rounded-pill w-100 mt-3">
+                        Detallara bax
+                    </a>
+                </div>
+            </div>
+            {% endwith %}
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div style="font-size:4rem;" class="mb-3">🔬</div>
+                <h5 class="text-muted">Hələ sensor əlavə edilməyib</h5>
+                <a href="{% url 'sensors:add_sensor' %}" class="btn btn-success rounded-pill px-4 mt-2">Sensor Əlavə Et</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- LIST TAB -->
+    <div id="tab-list" style="display:none;">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table s-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Sensor</th>
+                            <th>Sahə</th>
+                            <th>Növ</th>
+                            <th>Batareya</th>
+                            <th>Son Dəyər</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Əməliyyat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in combined %}
+                        {% with sensor=item.sensor rt=item.rt %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">{{ sensor.name }}</div>
+                                <small class="text-muted">{{ sensor.sensor_code }}</small>
+                            </td>
+                            <td><small>{{ sensor.field.name }}</small></td>
+                            <td><small>{{ sensor.get_sensor_type_display }}</small></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="battery-bar" style="width:60px;">
+                                        <div class="battery-fill bg-{{ sensor.battery_status }}" style="width:{{ sensor.battery_level }}%"></div>
+                                    </div>
+                                    <small class="fw-bold text-{{ sensor.battery_status }}">{{ sensor.battery_level }}%</small>
+                                </div>
+                            </td>
+                            <td>
+                                {% if rt.latest_value is not None %}
+                                <span class="fw-bold">{{ rt.latest_value }} {{ rt.unit }}</span>
+                                {% else %}<span class="text-muted small">—</span>{% endif %}
+                            </td>
+                            <td>
+                                <span class="status-dot {% if sensor.is_active %}dot-active{% else %}dot-inactive{% endif %}"></span>
+                                <small>{% if sensor.is_active %}Aktiv{% else %}Qeyri-aktiv{% endif %}</small>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex gap-1 justify-content-end">
+                                    <a href="{% url 'sensors:sensor_detail' sensor.id %}" class="btn btn-sm btn-outline-secondary rounded-pill px-2"><i class="fas fa-eye"></i></a>
+                                    <a href="{% url 'sensors:edit_sensor' sensor.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-2"><i class="fas fa-edit"></i></a>
+                                    <a href="{% url 'sensors:delete_sensor' sensor.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-2"><i class="fas fa-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center py-5 text-muted">Sensor tapılmadı</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
 </div>
-{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Tab switching
+document.querySelectorAll('[data-tab]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const tab = this.dataset.tab;
+        document.getElementById('tab-dashboard').style.display = tab === 'dashboard' ? '' : 'none';
+        document.getElementById('tab-list').style.display      = tab === 'list'      ? '' : 'none';
+    });
+});
+
+// Statistika + global alerts
+const combined = [
+    {% for item in combined %}
+    {
+        name:     "{{ item.sensor.name }}",
+        active:   {{ item.sensor.is_active|yesno:"true,false" }},
+        battery:  {{ item.sensor.battery_level }},
+        alerts:   {{ item.rt.alerts|default:"[]"|safe }},
+    },
+    {% endfor %}
+];
+
+let alertCount = 0, lowBatCount = 0, activeCount = 0;
+const globalAlerts = document.getElementById('globalAlerts');
+
+combined.forEach(s => {
+    if (s.active) activeCount++;
+    if (s.battery < 30) lowBatCount++;
+    if (s.alerts && s.alerts.length) {
+        s.alerts.forEach(a => {
+            alertCount++;
+            if (a.priority === 'high') {
+                const div = document.createElement('div');
+                div.className = 'alert-item alert-high fade-up';
+                div.innerHTML = `<span>🔴</span><div><strong>${s.name}</strong> — ${a.message}</div>`;
+                globalAlerts.appendChild(div);
+            }
+        });
+    }
+});
+
+document.getElementById('activeCount').textContent  = activeCount;
+document.getElementById('alertCount').textContent   = alertCount;
+document.getElementById('lowBatCount').textContent  = lowBatCount;
+</script>
+{% endblock %}

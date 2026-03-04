@@ -1,144 +1,122 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
+{% block title %}{% trans "Sahələr" %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Animasiya və Kart Dizaynı */
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-    .field-card {
-        border: none;
-        border-radius: 20px;
-        background: #fff;
-        transition: all 0.3s ease;
-        animation: fadeInUp 0.5s ease backwards;
-        border: 1px solid #f0f0f0;
-    }
+.field-card {
+    border:1px solid var(--border) !important;
+    border-radius:18px; background:var(--bg-card) !important;
+    color:var(--text); transition:all .3s ease;
+    animation:fadeInUp .5s ease backwards;
+}
+.field-card:hover {
+    transform:translateY(-6px);
+    box-shadow:0 12px 28px rgba(0,0,0,0.1);
+    border-color:#3d9970 !important;
+}
+.field-card:nth-child(1){animation-delay:.05s} .field-card:nth-child(2){animation-delay:.10s}
+.field-card:nth-child(3){animation-delay:.15s} .field-card:nth-child(4){animation-delay:.20s}
+.field-card:nth-child(5){animation-delay:.25s} .field-card:nth-child(6){animation-delay:.30s}
 
-    .field-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.05);
-        border-color: #2ecc71;
-    }
+.soil-badge {
+    display:inline-block; padding:5px 12px; border-radius:50px; font-size:.75rem; font-weight:700;
+    background:var(--bg-secondary) !important; color:var(--text-muted);
+    border:1px solid var(--border);
+}
 
-    /* Filtr Paneli Stili */
-    .filter-section {
-        background: #fdfdfd;
-        border-radius: 20px;
-        border: 1px solid #eee;
-        padding: 25px;
-        margin-bottom: 40px;
-    }
-
-    .form-control, .form-select {
-        border-radius: 10px;
-        border: 1px solid #e0e0e0;
-        padding: 10px 15px;
-        font-size: 0.9rem;
-    }
-
-    .form-control:focus {
-        border-color: #2ecc71;
-        box-shadow: none;
-    }
-
-    .btn-filter {
-        background: #2ecc71;
-        color: white;
-        border-radius: 10px;
-        font-weight: 600;
-        transition: 0.3s;
-    }
-
-    .btn-filter:hover {
-        background: #27ae60;
-        color: white;
-    }
+.filter-bar {
+    background:var(--bg-card) !important; border:1px solid var(--border) !important;
+    border-radius:18px; padding:20px;
+}
+.form-control,.form-select {
+    background:var(--bg-secondary) !important; color:var(--text) !important;
+    border-color:var(--border) !important; border-radius:10px; padding:10px 14px;
+}
+.form-control:focus,.form-select:focus { border-color:#3d9970 !important; box-shadow:none; }
+.form-control::placeholder { color:var(--text-muted) !important; opacity:.7; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-0">🗺️ Sahələrin İdarə Edilməsi</h2>
-        <a href="{% url 'fields:add_field' %}" class="btn btn-dark rounded-pill px-4 shadow-sm">
-            <i class="fas fa-plus me-2"></i>Yeni Sahə
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4" style="animation:fadeInUp .4s ease backwards">
+        <h2 class="fw-bold mb-0">🗺️ {% trans "Sahələr" %}</h2>
+        <a href="{% url 'fields:add_field' %}" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+            <i class="fas fa-plus me-1"></i> {% trans "Yeni Sahə" %}
         </a>
     </div>
 
-    <div class="filter-section shadow-sm">
+    <!-- Filtr -->
+    <div class="filter-bar mb-4 shadow-sm" style="animation:fadeInUp .4s ease .05s backwards">
         <form method="get" class="row g-3">
             <div class="col-md-4">
-                <label class="form-label small fw-bold text-muted">Ad ilə axtar</label>
+                <label class="form-label small fw-bold text-uppercase" style="color:var(--text-muted)">{% trans "Ad ilə axtar" %}</label>
                 {{ search_form.search }}
             </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-bold text-muted">Torpaq Tipi</label>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-uppercase" style="color:var(--text-muted)">{% trans "Torpaq tipi" %}</label>
                 {{ filter_form.soil_type }}
             </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-bold text-muted">Min. Sahə</label>
-                {{ filter_form.min_area }}
-            </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-bold text-muted">Suvarma</label>
-                {{ filter_form.irrigated }}
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-filter w-100">
-                    <i class="fas fa-search me-2"></i>Axtar
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn w-100 py-2 fw-bold rounded-pill text-white"
+                        style="background:linear-gradient(135deg,#182f4c,#2e8e63)">
+                    <i class="fas fa-search me-1"></i>{% trans "Axtar" %}
                 </button>
             </div>
+            {% if request.GET.q or request.GET.soil_type %}
+            <div class="col-md-2 d-flex align-items-end">
+                <a href="{% url 'fields:field_list' %}" class="btn btn-outline-secondary w-100 py-2 rounded-pill btn-sm">
+                    {% trans "Sıfırla" %}
+                </a>
+            </div>
+            {% endif %}
         </form>
     </div>
 
-    <div class="row g-4">
+    <!-- Kartlar -->
+    <div class="row g-3">
         {% for field in fields %}
         <div class="col-md-6 col-lg-4">
-            <div class="card field-card h-100 p-4">
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
-                        {{ field.get_soil_type_display }}
-                    </span>
-                    <small class="text-muted">{{ field.created_at|date:"d.m.Y" }}</small>
+            <div class="card field-card p-4 h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="soil-badge">{{ field.get_soil_type_display }}</span>
+                    <small style="color:var(--text-muted)">{{ field.created_at|date:"d.m.Y" }}</small>
                 </div>
-
-                <h5 class="fw-bold mb-2">{{ field.name }}</h5>
-                
-                <div class="mb-4">
-                    <div class="d-flex align-items-center text-muted mb-2">
-                        <i class="fas fa-vector-square me-2"></i>
-                        <span>Sahə: <strong>{{ field.area_hectares }} ha</strong></span>
-                    </div>
-                    <div class="d-flex align-items-center text-muted">
-                        <i class="fas fa-tint me-2"></i>
-                        <span>Vəziyyət: 
-                            {% if field.is_irrigated %}
-                                <strong class="text-primary">Suvarılıb</strong>
-                            {% else %}
-                                <strong class="text-warning">Suvarma gözləyir</strong>
-                            {% endif %}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="d-grid gap-2 mt-auto">
-                    <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-outline-dark rounded-pill btn-sm">
-                        Detallara bax
+                <h5 class="fw-bold mb-1">{{ field.name }}</h5>
+                {% if field.location %}
+                <p class="small mb-2" style="color:var(--text-muted)">
+                    <i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ field.location }}
+                </p>
+                {% endif %}
+                <p class="small mb-3" style="color:var(--text-muted)">
+                    <i class="fas fa-vector-square me-1"></i>{% trans "Sahə" %}: <strong>{{ field.area_hectares }} ha</strong>
+                </p>
+                <div class="d-grid mt-auto">
+                    <a href="{% url 'fields:field_detail' field.id %}"
+                       class="btn btn-sm rounded-pill fw-bold"
+                       style="border:1.5px solid #3d9970;color:#3d9970;transition:all .2s"
+                       onmouseover="this.style.background='#3d9970';this.style.color='#fff'"
+                       onmouseout="this.style.background='';this.style.color='#3d9970'">
+                        {% trans "Detallara bax" %}
                     </a>
                 </div>
             </div>
         </div>
         {% empty %}
-        <div class="col-12 text-center py-5">
-            <div class="alert alert-info rounded-4 border-0 shadow-sm">
-                Axtarışa uyğun sahə tapılmadı. <a href="{% url 'fields:field_list' %}" class="fw-bold text-decoration-none">Sıfırla</a>
-            </div>
+        <div class="col-12 text-center py-5" style="animation:fadeInUp .5s ease backwards">
+            <div style="font-size:4rem" class="mb-3">🗺️</div>
+            <h5 style="color:var(--text-muted)">{% trans "Heç bir sahə tapılmadı" %}</h5>
+            <a href="{% url 'fields:add_field' %}" class="btn btn-success rounded-pill px-4 mt-2">
+                {% trans "İlk Sahəni Əlavə Et" %}
+            </a>
         </div>
         {% endfor %}
     </div>
+
 </div>
 {% endblock %}

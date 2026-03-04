@@ -5,17 +5,19 @@ class FieldForm(forms.ModelForm):
     class Meta:
         model = Field
         # 'ph_level' bura mütləq əlavə edilməlidir ki, formda görünsün
-        fields = ['name', 'area_hectares', 'soil_type', 'ph_level']
+        fields = ['location', 'name', 'area_hectares', 'soil_type', 'ph_level']
         widgets = {
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Sahənin yerləşdiyi ərazi'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Sahənin adı'}),
             'area_hectares': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'soil_type': forms.Select(attrs={'class': 'form-select'}), # form-control yox, form-select daha yaxşıdır
             'ph_level': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'min': '0', 'max': '14'}),
         }
         labels = {
-            'name': 'Sahə Adı',
-            'area_hectares': 'Sahə (hektar)',
-            'soil_type': 'Torpaq Tipi',
+            'location': 'Sahənin Yeri',
+            'name': 'Sahənin Adı',
+            'area_hectares': 'Sahənin Sahəsi (hektar)',
+            'soil_type': 'Torpaq Növü',
             'ph_level': 'pH Səviyyəsi',
         }
         

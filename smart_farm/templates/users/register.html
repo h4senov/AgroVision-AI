@@ -2,114 +2,225 @@
 {% load static %}
 {% block title %}Qeydiyyat - AgroVision AI{% endblock %}
 
-{% block content %}
-<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
-    <div class="row g-0 auth-wrapper shadow-lg rounded-5 overflow-hidden bg-white" style="max-width: 1000px; width: 100%;">
-        
-        <div class="col-lg-5 d-none d-lg-block position-relative" style="background: url('https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80') center/cover;">
-            <div class="overlay position-absolute w-100 h-100" style="background: rgba(46, 125, 50, 0.85); backdrop-filter: blur(2px);"></div>
-            <div class="position-relative z-3 p-5 text-white h-100 d-flex flex-column justify-content-center">
-                <h2 class="fw-bold mb-4">Gələcəyə addım atın!</h2>
-                <ul class="list-unstyled">
-                    <li class="mb-3"><i class="fas fa-check-circle me-2 text-warning"></i> Saniyəlik sensor datası</li>
-                    <li class="mb-3"><i class="fas fa-check-circle me-2 text-warning"></i> Süni İntellekt tövsiyələri</li>
-                    <li class="mb-3"><i class="fas fa-check-circle me-2 text-warning"></i> Su və gübrə qənaəti</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="col-lg-7 p-4 p-md-5">
-            <div class="auth-header mb-4">
-                <h3 class="fw-bold text-dark">Yeni Hesab</h3>
-                <p class="text-muted">Məlumatları daxil edərək sistemə qoşulun.</p>
-            </div>
-
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {% if form.errors %}
-    <div class="alert alert-danger border-0 rounded-4 mb-3">
-        <ul class="mb-0 ps-3">
-            {% for field, errors in form.errors.items %}
-                {% for error in errors %}
-                    <li><strong>{{ field|title }}:</strong> {{ error }}</li>
-                {% endfor %}
-            {% endfor %}
-        </ul>
-    </div>
-{% endif %}
-                {% if form.non_field_errors %}
-                <div class="alert alert-danger border-0 rounded-4">
-                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-                </div>
-                {% endif %}
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold">İstifadəçi adı</label>
-                        {{ form.username }}
-                        <small class="text-danger">{{ form.username.errors.0 }}</small>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold">Email</label>
-                        {{ form.email }}
-                        <small class="text-danger">{{ form.email.errors.0 }}</small>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Təsərrüfatın Adı</label>
-                    {{ form.farm_name }}
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold">Şifrə</label>
-                        {{ form.password1 }}
-                        <small class="text-danger">{{ form.password1.errors.0 }}</small>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold">Şifrə (Təkrar)</label>
-                        {{ form.password2 }}
-                    </div>
-                </div>
-
-                <div class="form-check mb-4">
-                    {{ form.terms_confirmed }}
-                    <label class="form-check-label small text-muted ms-2" for="{{ form.terms_confirmed.id_for_label }}">
-                        <a href="{% url 'users:terms' %}" target="_blank" class="text-success text-decoration-none fw-bold">İstifadə qaydaları</a> ilə razıyam.
-                    </label>
-                    {% if form.terms_confirmed.errors %}
-                        <div class="text-danger small mt-1">{{ form.terms_confirmed.errors.0 }}</div>
-                    {% endif %}
-                </div>
-                    </label>
-                </div>
-
-                <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill shadow-sm">
-                    Qeydiyyatı Tamamla <i class="fas fa-paper-plane ms-2"></i>
-                </button>
-
-                <div class="text-center mt-4">
-                    <span class="text-muted small">Hesabınız var?</span>
-                    <a href="{% url 'users:user_login' %}" class="text-success fw-bold text-decoration-none ms-1">Daxil Ol</a>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
+{% block extra_css %}
 <style>
-    .auth-wrapper { min-height: 600px; }
-    .form-control { 
-        border-radius: 12px; 
-        padding: 12px 15px; 
-        border: 1px solid #e0e0e0;
-        background-color: #f8f9fa;
-    }
-    .form-control:focus {
-        border-color: #2e7d32;
-        box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.1);
-        background-color: #fff;
-    }
+.auth-page {
+    min-height: 100vh;
+    background: #f4f7f4;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 16px;
+}
+.auth-card {
+    width: 100%; max-width: 1000px;
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    display: flex;
+}
+.auth-left {
+    width: 38%;
+    background: url('https://i.pinimg.com/1200x/66/0a/07/660a07cfef3474671d03d41bc6742027.jpg') center/cover;
+    position: relative;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 40px;
+}
+.auth-left::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(10,50,15,0.2) 0%, rgba(10,50,15,0.88) 100%);
+}
+.auth-left-content { position: relative; z-index: 1; color: #fff; }
+.check-item { display:flex;align-items:center;gap:10px;margin-bottom:14px; }
+.check-icon { width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:#4ade80;flex-shrink:0; }
+
+.auth-right {
+    flex: 1;
+    padding: 44px 44px;
+    overflow-y: auto;
+}
+
+.auth-logo { display:flex;align-items:center;gap:10px;margin-bottom:28px; }
+.auth-logo-icon { width:40px;height:40px;border-radius:12px;background:#198754;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem; }
+.auth-logo span { font-weight:700;font-size:1.1rem;color:#1a1a1a; }
+
+.auth-title { font-size:1.55rem;font-weight:700;color:#1a1a1a;margin-bottom:4px; }
+.auth-sub { font-size:0.88rem;color:#888;margin-bottom:28px; }
+
+.field-group { margin-bottom:18px; }
+.field-label { font-size:0.82rem;font-weight:600;color:#444;margin-bottom:7px;display:block; }
+.field-wrap {
+    display:flex;align-items:center;
+    border:1.5px solid #e5e7e5;
+    border-radius:12px;
+    overflow:hidden;
+    transition:border-color 0.2s,box-shadow 0.2s;
+    background:#fafafa;
+}
+.field-wrap:focus-within {
+    border-color:#198754;
+    box-shadow:0 0 0 3px rgba(25,135,84,0.1);
+    background:#fff;
+}
+.field-icon { padding:0 13px;color:#aaa;font-size:0.88rem; }
+.field-wrap input {
+    flex:1; border:none; background:transparent;
+    padding:12px 12px 12px 0;
+    font-size:0.93rem; color:#1a1a1a;
+    outline:none;
+}
+.field-wrap input::placeholder { color:#bbb; }
+.field-error { font-size:0.78rem;color:#dc3545;margin-top:5px;display:block; }
+
+.terms-row { display:flex;align-items:flex-start;gap:10px;margin-bottom:24px; }
+.terms-row input[type=checkbox] { margin-top:3px;accent-color:#198754;width:16px;height:16px;flex-shrink:0; }
+.terms-row label { font-size:0.83rem;color:#666;line-height:1.5; }
+.terms-row a { color:#198754;font-weight:600;text-decoration:none; }
+.terms-row a:hover { text-decoration:underline; }
+
+.btn-auth {
+    width:100%; padding:14px;
+    background:#198754; color:#fff;
+    border:none; border-radius:12px;
+    font-size:1rem; font-weight:600;
+    cursor:pointer;
+    transition:background 0.2s, transform 0.2s, box-shadow 0.2s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-auth:hover { background:#157347; transform:translateY(-1px); box-shadow:0 6px 20px rgba(25,135,84,0.3); }
+
+.auth-footer { text-align:center;margin-top:24px;font-size:0.87rem;color:#888; }
+.auth-footer a { color:#198754;font-weight:600;text-decoration:none; }
+.auth-footer a:hover { text-decoration:underline; }
+
+.two-col { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+
+@media(max-width:767px){
+    .auth-left { display:none; }
+    .auth-right { padding:32px 20px; }
+    .two-col { grid-template-columns:1fr; gap:0; }
+}
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+
+    <!-- Sol panel -->
+    <div class="auth-left">
+      <div class="auth-left-content">
+        <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;">Gələcəyə addım atın!</h2>
+        <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;line-height:1.6;margin-bottom:24px;">
+          AgroVision AI ilə ferməni rəqəmsal idarəetməyə qoşun.
+        </p>
+        <div class="check-item">
+          <div class="check-icon"><i class="fas fa-check"></i></div>
+          <span style="font-size:0.88rem;color:rgba(255,255,255,0.85);">Saniyəlik sensor datası</span>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><i class="fas fa-check"></i></div>
+          <span style="font-size:0.88rem;color:rgba(255,255,255,0.85);">Süni İntellekt tövsiyələri</span>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><i class="fas fa-check"></i></div>
+          <span style="font-size:0.88rem;color:rgba(255,255,255,0.85);">Su və gübrə qənaəti</span>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><i class="fas fa-check"></i></div>
+          <span style="font-size:0.88rem;color:rgba(255,255,255,0.85);">Xəstəlik erkən diaqnozu</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sağ panel -->
+    <div class="auth-right">
+      <div class="auth-logo">
+        <div class="auth-logo-icon"><i class="fas fa-tractor"></i></div>
+        <span>AgroVision <span style="color:#198754;">AI</span></span>
+      </div>
+
+      <div class="auth-title">Yeni hesab yarat</div>
+      <div class="auth-sub">Məlumatları daxil edərək sistemə qoşulun</div>
+
+      {% if form.errors %}
+        <div class="alert alert-danger border-0 rounded-3 small mb-4 py-2">
+          <ul class="mb-0 ps-3">
+            {% for field, errors in form.errors.items %}
+              {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="two-col">
+          <div class="field-group">
+            <label class="field-label">İstifadəçi adı</label>
+            <div class="field-wrap">
+              <span class="field-icon"><i class="fas fa-user"></i></span>
+              {{ form.username }}
+            </div>
+            {% if form.username.errors %}<span class="field-error">{{ form.username.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field-group">
+            <label class="field-label">Email</label>
+            <div class="field-wrap">
+              <span class="field-icon"><i class="fas fa-envelope"></i></span>
+              {{ form.email }}
+            </div>
+            {% if form.email.errors %}<span class="field-error">{{ form.email.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Təsərrüfatın Adı</label>
+          <div class="field-wrap">
+            <span class="field-icon"><i class="fas fa-tractor"></i></span>
+            {{ form.farm_name }}
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field-group">
+            <label class="field-label">Şifrə</label>
+            <div class="field-wrap">
+              <span class="field-icon"><i class="fas fa-lock"></i></span>
+              {{ form.password1 }}
+            </div>
+            {% if form.password1.errors %}<span class="field-error">{{ form.password1.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field-group">
+            <label class="field-label">Şifrə (Təkrar)</label>
+            <div class="field-wrap">
+              <span class="field-icon"><i class="fas fa-lock"></i></span>
+              {{ form.password2 }}
+            </div>
+          </div>
+        </div>
+
+        <div class="terms-row">
+          {{ form.terms_confirmed }}
+          <label for="{{ form.terms_confirmed.id_for_label }}">
+            <a href="{% url 'users:terms' %}" target="_blank">İstifadə qaydaları</a> ilə razıyam
+          </label>
+        </div>
+        {% if form.terms_confirmed.errors %}
+          <span class="field-error" style="margin-top:-16px;margin-bottom:16px;display:block;">{{ form.terms_confirmed.errors.0 }}</span>
+        {% endif %}
+
+        <button type="submit" class="btn-auth">
+          <i class="fas fa-paper-plane"></i> Qeydiyyatı Tamamla
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Hesabınız var? <a href="{% url 'users:user_login' %}">Daxil ol</a>
+      </div>
+    </div>
+
+  </div>
+</div>
 {% endblock %}

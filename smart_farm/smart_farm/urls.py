@@ -11,7 +11,7 @@ urlpatterns = [
 
 # 2. Bütün digər səhifələr dil prefixi (məs: /az/dashboard/) alır
 urlpatterns += i18n_patterns(
-    path('admin/', admin.site.urls),
+    path('agro-panel-2026/', admin.site.urls),
     path('', include('core.urls', namespace='core')),
     path('users/', include('users.urls', namespace='users')),
     path('fields/', include('fields.urls', namespace='fields')),

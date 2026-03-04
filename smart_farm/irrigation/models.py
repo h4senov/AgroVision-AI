@@ -6,6 +6,8 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 
 class IrrigationManager(models.Manager):
+
+
     def search_irrigation(self, query, user=None, filters=None):
         qs = self.get_queryset()
         
@@ -111,6 +113,27 @@ class IrrigationSchedule(models.Model):
             return diff
         return 0
 
+    def is_overdue(self):
+        """Planlaşdırılıb amma vaxtı keçib"""
+        if self.status == 'planned' and self.irrigation_date < timezone.now().date():
+            return True
+        return False
+
+    @classmethod
+    def get_weekly_stats(cls, user):
+        """Həftəlik su sərfiyyatı — gün-gün"""
+        from datetime import timedelta
+        today = timezone.now().date()
+        week_ago = today - timedelta(days=6)
+        records = cls.objects.filter(
+            field__user=user,
+            irrigation_date__gte=week_ago,
+            status='completed'
+        ).values('irrigation_date').annotate(
+            total=models.Sum('water_volume_liters')
+        ).order_by('irrigation_date')
+        return list(records)
+
     def calculate_cost(self, water_price=0, energy_price=0):
         total = Decimal('0.00')
         if self.water_volume_liters and water_price:
@@ -154,3 +177,16 @@ class IrrigationSchedule(models.Model):
         hours = int(diff.total_seconds() // 3600)
         minutes = int((diff.total_seconds() % 3600) // 60)
         return f"{hours}s {minutes}d"
+
+
+    def save(self, *args, **kwargs):
+   
+        if not self.soil_moisture_level:
+            from weather.models import WeatherData
+            weather = WeatherData.objects.filter(
+                field=self.field,
+                weather_date=self.irrigation_date
+            ).first()
+            if weather:
+                self.soil_moisture_level = weather.humidity_avg
+        super().save(*args, **kwargs)    

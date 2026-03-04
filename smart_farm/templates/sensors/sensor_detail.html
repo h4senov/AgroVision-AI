@@ -1,228 +1,251 @@
- <!-- sensors/templates/sensors/sensor_detail.html -->
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ sensor.name }} - AgroVision{% endblock %}
 
-{% block title %}{{ sensor.name }} - Smart Farm{% endblock %}
+{% block extra_css %}
+<style>
+@keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.fade-up { animation:fadeInUp 0.5s ease backwards; }
+.d1{animation-delay:0.05s} .d2{animation-delay:0.1s} .d3{animation-delay:0.15s}
+
+.detail-card { border-radius:22px; border:none; }
+.info-box {
+    background:#f9fafb; border:1px solid #f0f0f0; border-radius:14px; padding:18px;
+    text-align:center; transition:border-color 0.2s, transform 0.2s;
+}
+.info-box:hover { border-color:#52b788; transform:translateY(-3px); }
+.info-box .lbl { font-size:0.68rem; text-transform:uppercase; color:#9ca3af; margin-bottom:6px; }
+.info-box .val { font-size:1.2rem; font-weight:800; color:#1f2937; }
+
+.battery-bar { height:10px; border-radius:10px; background:#eee; overflow:hidden; }
+.battery-fill { height:100%; border-radius:10px; }
+
+.reading-row { padding:10px 0; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; }
+.reading-row:last-child { border:none; }
+
+.alert-item { border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.alert-high   { background:#fef2f2; border:1px solid #fecaca; }
+.alert-medium { background:#fefce8; border:1px solid #fde68a; }
+
+.status-dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+.dot-active   { background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,0.2); }
+.dot-inactive { background:#d1d5db; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Əsas Məlumatlar -->
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0">
-                    <i class="fas fa-thermometer-half me-2"></i>{{ sensor.name }}
-                </h4>
-                <div>
-                    <span class="badge bg-{{ sensor.is_active|yesno:'success,danger' }} me-2">
-                        {{ sensor.is_active|yesno:"Aktiv,Qeyri-aktiv" }}
-                    </span>
-                    <span class="badge bg-info">{{ sensor.get_sensor_type_display }}</span>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
-                            <tr>
-                                <th><i class="fas fa-barcode me-2"></i>Sensor Kodu:</th>
-                                <td>{{ sensor.sensor_code }}</td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-map-marker-alt me-2"></i>Sahə:</th>
-                                <td>
-                                    <a href="{% url 'fields:field_detail' sensor.field.id %}" class="text-decoration-none">
-                                        {{ sensor.field.name }}
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-calendar-alt me-2"></i>Qurulma Tarixi:</th>
-                                <td>{{ sensor.installation_date }}</td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-battery-half me-2"></i>Batareya:</th>
-                                <td>
-                                    <div class="progress" style="height: 20px; width: 150px;">
-                                        <div class="progress-bar bg-{{ sensor.battery_status }}" 
-                                             role="progressbar" 
-                                             style="width: {{ sensor.battery_level }}%">
-                                            {{ sensor.battery_level }}%
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
-                            <tr>
-                                <th><i class="fas fa-clock me-2"></i>Məlumat Intervalı:</th>
-                                <td>{{ sensor.data_interval }} dəqiqə</td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-tools me-2"></i>Son Texniki Qulluq:</th>
-                                <td>{{ sensor.last_maintenance|default:"Qeyd edilməyib" }}</td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-map-pin me-2"></i>Koordinatlar:</th>
-                                <td>
-                                    {% if sensor.latitude and sensor.longitude %}
-                                    {{ sensor.latitude }}, {{ sensor.longitude }}
-                                    {% else %}
-                                    <span class="text-muted">Qeyd edilməyib</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-user me-2"></i>Əlavə edən:</th>
-                                <td>{{ sensor.user.username }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
+<div class="container py-4">
 
-                {% if sensor.description %}
-                <div class="mt-3 p-3 bg-light rounded">
-                    <h6><i class="fas fa-file-alt me-2"></i>Təsvir:</h6>
-                    <p class="mb-0">{{ sensor.description }}</p>
-                </div>
-                {% endif %}
+    <!-- Breadcrumb -->
+    <nav class="mb-4 fade-up">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'sensors:sensor_dashboard' %}" class="text-decoration-none text-success">Sensorlar</a></li>
+            <li class="breadcrumb-item active">{{ sensor.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Başlıq -->
+    <div class="d-flex justify-content-between align-items-start mb-4 fade-up">
+        <div class="d-flex align-items-center gap-3">
+            <div style="font-size:2.5rem;">
+                {% if sensor.sensor_type == 'soil_moisture' %}🌱
+                {% elif sensor.sensor_type == 'temperature' %}🌡️
+                {% elif sensor.sensor_type == 'humidity' %}💧
+                {% elif sensor.sensor_type == 'ph' %}⚗️
+                {% elif sensor.sensor_type == 'light' %}☀️
+                {% elif sensor.sensor_type == 'rainfall' %}🌧️
+                {% else %}🧪{% endif %}
+            </div>
+            <div>
+                <h2 class="fw-bold mb-1">{{ sensor.name }}</h2>
+                <span class="text-muted small">{{ sensor.sensor_code }} · {{ sensor.get_sensor_type_display }}</span>
             </div>
         </div>
-
-        <!-- Son Oxunuşlar -->
-        <div class="card mt-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-chart-line me-2"></i>Son Oxunuşlar
-                </h5>
-                <span class="badge bg-primary">{{ readings|length }} oxunuş</span>
-            </div>
-            <div class="card-body">
-                {% if readings %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Dəyər</th>
-                                <th>Vahid</th>
-                                <th>Oxunma Tarixi</th>
-                                <th>Keyfiyyət</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for reading in readings %}
-                            <tr>
-                                <td>
-                                    <span class="fw-bold {% if reading.value > 50 %}text-success{% else %}text-warning{% endif %}">
-                                        {{ reading.value }}
-                                    </span>
-                                </td>
-                                <td>{{ reading.unit }}</td>
-                                <td>{{ reading.recorded_at|date:"d.m.Y H:i" }}</td>
-                                <td>
-                                    <span class="badge bg-{% if reading.data_quality == 'excellent' %}success{% elif reading.data_quality == 'good' %}info{% elif reading.data_quality == 'fair' %}warning{% else %}danger{% endif %}">
-                                        {{ reading.get_data_quality_display }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">Hələ heç bir oxunuş yoxdur</p>
-                </div>
-                {% endif %}
-            </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'sensors:edit_sensor' sensor.id %}" class="btn btn-outline-primary rounded-pill btn-sm px-3">
+                <i class="fas fa-edit me-1"></i>Redaktə
+            </a>
+            <a href="{% url 'sensors:delete_sensor' sensor.id %}" class="btn btn-outline-danger rounded-pill btn-sm px-3">
+                <i class="fas fa-trash me-1"></i>Sil
+            </a>
         </div>
     </div>
 
-    <!-- Yan Panel - Əməliyyatlar və Statistikalar -->
-    <div class="col-md-4">
-        <!-- Əməliyyatlar -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-cogs me-2"></i>Əməliyyatlar
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{% url 'sensors:edit_sensor' sensor.id %}" class="btn btn-warning">
-                        <i class="fas fa-edit me-2"></i>Redaktə Et
-                    </a>
-                    <a href="{% url 'sensors:delete_sensor' sensor.id %}" class="btn btn-danger">
-                        <i class="fas fa-trash me-2"></i>Sil
-                    </a>
-                    <a href="{% url 'sensors:sensor_list' %}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Sensor Siyahısı
-                    </a>
-                    <a href="#" class="btn btn-info">
-                        <i class="fas fa-sync-alt me-2"></i>Kalibrasiya Et
-                    </a>
+    <div class="row g-4">
+        <!-- Sol -->
+        <div class="col-lg-8">
+
+            <!-- Qrafik -->
+            <div class="card detail-card shadow-sm p-4 mb-4 fade-up d1">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0">📈 Son Oxumalar Qrafiki</h6>
+                    <small class="text-muted">Son {{ readings|length }} qeyd</small>
+                </div>
+                <div style="height:220px;">
+                    <canvas id="readingsChart"></canvas>
                 </div>
             </div>
-        </div>
 
-        <!-- Sensor Statistikası -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-chart-pie me-2"></i>Statistika
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        Ümumi Oxunuş
-                        <span class="badge bg-primary rounded-pill">{{ readings|length }}</span>
+            <!-- Məlumat kartları -->
+            <div class="card detail-card shadow-sm p-4 fade-up d2">
+                <h6 class="fw-bold mb-4 text-muted small text-uppercase">Sensor Məlumatları</h6>
+                <div class="row g-3">
+                    <div class="col-6 col-md-3">
+                        <div class="info-box">
+                            <div class="lbl">Status</div>
+                            <div>
+                                <span class="status-dot {% if sensor.is_active %}dot-active{% else %}dot-inactive{% endif %} me-1"></span>
+                                <span class="val" style="font-size:0.9rem;">{% if sensor.is_active %}Aktiv{% else %}Qeyri-aktiv{% endif %}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        Son Oxunuş
-                        <small class="text-muted">
-                            {% if readings.0 %}
-                                {{ readings.0.recorded_at|timesince }} əvvəl
-                            {% else %}
-                                Yoxdur
+                    <div class="col-6 col-md-3">
+                        <div class="info-box">
+                            <div class="lbl">Batareya</div>
+                            <div class="val text-{{ sensor.battery_status }}">{{ sensor.battery_level }}%</div>
+                            <div class="battery-bar mt-2">
+                                <div class="battery-fill bg-{{ sensor.battery_status }}" style="width:{{ sensor.battery_level }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="info-box">
+                            <div class="lbl">İnterval</div>
+                            <div class="val">{{ sensor.data_interval }} dəq</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="info-box">
+                            <div class="lbl">Oxuma sayı</div>
+                            <div class="val">{{ readings|length }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold small text-muted text-uppercase mb-3">Texniki Məlumat</h6>
+                        <table class="table table-sm table-borderless mb-0">
+                            <tr><td class="text-muted small ps-0">Sahə</td><td class="fw-bold">{{ sensor.field.name }}</td></tr>
+                            <tr><td class="text-muted small ps-0">Qurulma tarixi</td><td class="fw-bold">{{ sensor.installation_date|date:"d/m/Y" }}</td></tr>
+                            {% if sensor.last_maintenance %}
+                            <tr><td class="text-muted small ps-0">Son qulluq</td><td class="fw-bold">{{ sensor.last_maintenance|date:"d/m/Y" }}</td></tr>
                             {% endif %}
-                        </small>
+                            {% if sensor.latitude and sensor.longitude %}
+                            <tr><td class="text-muted small ps-0">Koordinat</td><td class="fw-bold">{{ sensor.latitude }}, {{ sensor.longitude }}</td></tr>
+                            {% endif %}
+                        </table>
                     </div>
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        Batareya Səviyyəsi
-                        <span class="badge bg-{{ sensor.battery_status }} rounded-pill">
-                            {{ sensor.battery_level }}%
-                        </span>
-                    </div>
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        Aktivlik Müddəti
-                        <small class="text-muted">
-                            {{ sensor.created_at|timesince }}
-                        </small>
+                    <div class="col-md-6">
+                        {% if sensor.description %}
+                        <h6 class="fw-bold small text-muted text-uppercase mb-3">Təsvir</h6>
+                        <div class="p-3 bg-light rounded-3 small text-muted" style="border-left:4px solid #52b788;">
+                            {{ sensor.description }}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sensor Məlumatları -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-info-circle me-2"></i>Sensor Məlumatları
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="sensor-specs">
-                    <p><strong>İstehsalçı:</strong> {{ sensor.manufacturer|default:"Qeyd edilməyib" }}</p>
-                    <p><strong>Model:</strong> {{ sensor.model|default:"Qeyd edilməyib" }}</p>
-                    <p><strong>Kalibrasiya Tarixi:</strong> {{ sensor.calibration_date|default:"Qeyd edilməyib" }}</p>
-                    <p><strong>Yaradılma:</strong> {{ sensor.created_at|date:"d.m.Y H:i" }}</p>
-                    <p><strong>Son Yenilənmə:</strong> {{ sensor.updated_at|date:"d.m.Y H:i" }}</p>
+        <!-- Sağ -->
+        <div class="col-lg-4 fade-up d3">
+
+            <!-- Son oxumalar -->
+            <div class="card detail-card shadow-sm p-4 mb-4">
+                <h6 class="fw-bold mb-3 text-muted small text-uppercase">Son Oxumalar</h6>
+                {% for reading in readings %}
+                <div class="reading-row">
+                    <div>
+                        <span class="fw-bold">{{ reading.value }} {{ reading.unit }}</span>
+                    </div>
+                    <small class="text-muted">{{ reading.recorded_at|date:"d/m H:i" }}</small>
                 </div>
+                {% empty %}
+                <p class="text-muted small text-center py-3">Oxuma məlumatı yoxdur</p>
+                {% endfor %}
             </div>
+
+            <!-- Xəbərdarlıqlar -->
+            <div class="card detail-card shadow-sm p-4">
+                <h6 class="fw-bold mb-3 text-muted small text-uppercase">⚠️ Xəbərdarlıqlar</h6>
+                {% if sensor.battery_level < 20 %}
+                <div class="alert-item alert-high">
+                    <span>🔴</span>
+                    <div>
+                        <div class="fw-bold small">Batareya kritik səviyyədə</div>
+                        <div class="text-muted" style="font-size:0.75rem;">Dəyişdirilməsi tövsiyə olunur</div>
+                    </div>
+                </div>
+                {% elif sensor.battery_level < 30 %}
+                <div class="alert-item alert-medium">
+                    <span>🟡</span>
+                    <div class="fw-bold small">Batareya aşağıdır ({{ sensor.battery_level }}%)</div>
+                </div>
+                {% endif %}
+                {% if not sensor.is_active %}
+                <div class="alert-item alert-high">
+                    <span>🔴</span>
+                    <div class="fw-bold small">Sensor aktiv deyil</div>
+                </div>
+                {% endif %}
+                {% if sensor.battery_level >= 30 and sensor.is_active %}
+                <div class="text-center py-3">
+                    <span style="font-size:2rem;">✅</span>
+                    <p class="text-muted small mb-0 mt-2">Hər şey qaydasındadır</p>
+                </div>
+                {% endif %}
+            </div>
+
         </div>
     </div>
+
+    <div class="mt-4 fade-up">
+        <a href="{% url 'sensors:sensor_dashboard' %}" class="btn btn-light rounded-pill px-4 border">
+            <i class="fas fa-arrow-left me-2"></i>Dashboarda qayıt
+        </a>
+    </div>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const readings = [
+    {% for r in readings %}
+    { value: {{ r.value }}, time: "{{ r.recorded_at|date:'H:i' }}", date: "{{ r.recorded_at|date:'d/m' }}" },
+    {% endfor %}
+].reverse();
+
+if (readings.length > 0) {
+    new Chart(document.getElementById('readingsChart'), {
+        type: 'line',
+        data: {
+            labels: readings.map(r => r.time),
+            datasets: [{
+                label: '{{ sensor.get_sensor_type_display }}',
+                data: readings.map(r => r.value),
+                borderColor: '#52b788',
+                backgroundColor: 'rgba(82,183,136,0.08)',
+                tension: 0.4, fill: true,
+                pointBackgroundColor: '#52b788', pointRadius: 4,
+            }]
+        },
+        options: {
+            maintainAspectRatio: false, responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: false, grid: { color: '#f5f5f5' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+} else {
+    document.getElementById('readingsChart').parentElement.innerHTML =
+        '<div class="text-center py-5 text-muted"><i class="fas fa-chart-line fa-3x opacity-25 mb-3"></i><p>Qrafik üçün məlumat yoxdur</p></div>';
+}
+</script>
 {% endblock %}

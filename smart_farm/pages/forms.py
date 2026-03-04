@@ -6,8 +6,8 @@ class ContactForm(forms.ModelForm):
         model = ContactMessage
         fields = ['name','email','subject','message']
         widgets = {
-            'message': forms.Textarea(attrs={'rows':5}),
-            'name': forms.TextInput(attrs={'placeholder':'Ad, Soyad'}),
-            'email': forms.EmailInput(attrs={'placeholder':'example@mail.com'}),
-            'subject': forms.TextInput(attrs={'placeholder':'Mövzu (istəyə bağlı)'}),
-        }
+    'name':    forms.TextInput(attrs={'placeholder':'Ad, Soyad'}),
+    'email':   forms.EmailInput(attrs={'placeholder':'example@mail.com'}),
+    'subject': forms.TextInput(attrs={'placeholder':'Mövzu'}),
+    'message': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Mesajınızı yazın...'}),
+}

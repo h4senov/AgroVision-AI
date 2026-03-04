@@ -1,286 +1,316 @@
 {% extends 'base.html' %}
-{% block content %}
-<!-- Hero Bölməsi -->
-<div class="hero-wrapper position-relative text-white d-flex align-items-center" style="min-height: 100vh; background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;">
-    <div class="overlay" style="position:absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6);"></div>
-    <div class="container position-relative z-3">
-        <div class="row align-items-center">
-            <div class="col-lg-7 animate__animated animate__fadeInLeft">
-                <h1 class="display-1 fw-bolder mb-3">Agro<span class="text-success">Vision</span> AI</h1>
-                <p class="fs-3 fw-light mb-5">Datalarla böyüyən, zəka ilə idarə olunan gələcəyin ferması.</p>
-                <div class="d-flex gap-3">
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'core:dashboard' %}" class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg animate__animated animate__pulse animate__infinite">PANELƏ KEÇ</a>
-                    {% else %}
-                        <a href="{% url 'users:user_register' %}" class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg animate__animated animate__pulse animate__infinite">İNDİ QOŞUL</a>
-                    {% endif %}
-                </div>
-            </div>
+{% load static %}
+{% load i18n %}
 
-             
-
-        </div>
-    </div>
-</div>
-
-<!-- Stat Kartları -->
-<div class="row g-3 mb-4 mt-4">
-    {% comment %} Demo data və ya real data {% endcomment %}
-    {% for card in stats_cards %}
-    <div class="col-md-6 col-xl-3">
-        <div class="card border-0 shadow-sm h-100 stat-card rounded-4 animate__animated animate__fadeInUp" style="animation-delay: {{ forloop.counter0|add:"0.1" }}s;">
-            <div class="card-body d-flex align-items-center p-4">
-                <div class="icon-square bg-{{ card.color }} bg-opacity-10 text-{{ card.color }} rounded-4 p-3 me-3">
-                    <i class="{{ card.icon }} fa-2x"></i>
-                </div>
-                <div>
-                    <h6 class="text-muted mb-1 small fw-bold text-uppercase">{{ card.title }}</h6>
-                    <h3 class="fw-bold mb-0">
-                        {% if user.is_authenticated %}
-                            {{ card.value }}
-                        {% else %}
-                            {{ card.demo_value }}
-                        {% endif %}
-                    </h3>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<!-- Animate.css CDN -->
+{% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
 <style>
-.hero-wrapper { position: relative; background-size: cover; background-position: center; }
-.overlay { z-index: 1; }
-.glass-card { transition: all 0.3s ease; }
-.glass-card:hover { transform: translateY(-5px); }
-.stat-card { transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: default; }
-.stat-card:hover { transform: translateY(-5px); box-shadow: 0 1rem 3rem rgba(0,0,0,.175); }
-.italic { font-style: italic; }
+.reveal { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease, transform 0.7s ease; }
+.reveal.active { opacity:1; transform:translateY(0); }
+.reveal-left  { opacity:0; transform:translateX(-40px); transition:opacity 0.7s ease, transform 0.7s ease; }
+.reveal-right { opacity:0; transform:translateX( 40px); transition:opacity 0.7s ease, transform 0.7s ease; }
+.reveal-left.active, .reveal-right.active { opacity:1; transform:translateX(0); }
+.delay-1{transition-delay:0.1s;} .delay-2{transition-delay:0.2s;} .delay-3{transition-delay:0.3s;}
+
+.feature-card { transition:transform 0.3s ease,box-shadow 0.3s ease; border-radius:16px; border:1px solid #eee; }
+.feature-card:hover { transform:translateY(-6px); box-shadow:0 12px 30px rgba(0,0,0,0.1); }
+.icon-box { width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px; }
+
+.step-number { width:48px;height:48px;border-radius:50%;background:#198754;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;margin:0 auto 16px;box-shadow:0 4px 14px rgba(25,135,84,0.35); }
+.step-line { position:absolute;top:24px;left:calc(50% + 24px);width:calc(100% - 48px);height:2px;background:linear-gradient(90deg,#198754,#d1e7dd); }
+
+.counter-bar .counter-num { font-size:2rem;font-weight:700;color:#fff;line-height:1; }
+.counter-bar small { color:rgba(255,255,255,0.75);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px; }
+
+.testimonial-card { background:#f8f9fa;border-radius:16px;padding:28px;border:1px solid #eee;transition:transform 0.3s,box-shadow 0.3s; }
+.testimonial-card:hover { transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.08); }
+.avatar-circle { width:40px;height:40px;border-radius:50%;background:#198754;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem; }
+
+.stat-card { transition:transform 0.3s ease,box-shadow 0.3s ease; }
+.stat-card:hover { transform:translateY(-5px);box-shadow:0 1rem 3rem rgba(0,0,0,.1); }
 </style>
+{% endblock %}
 
-<section class="py-4 bg-success text-white shadow-sm">
+{% block content %}
+
+<!-- HERO -->
+<div class="position-relative  d-flex align-items-center"
+     style="min-height:100vh;background:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;">
+    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);"></div>
+    <div class="container position-relative" style="z-index:2;">
+        <div class="col-lg-7 animate__animated animate__fadeInLeft">
+            <span class="badge bg-success bg-opacity-75 mb-3 px-3 py-2 rounded-pill" style="font-size:0.8rem;letter-spacing:1px;">
+                🌱 AI ilə İdarə Olunan Ferma Sistemi
+            </span>
+            <h1 class="display-1 fw-bolder mb-3">Agro<span class="text-success">Vision</span> AI</h1>
+            <p class="fs-4 fw-light mb-5" style="color:rgba(255,255,255,0.85);">
+                Datalarla böyüyən, zəka ilə idarə olunan gələcəyin ferması.
+            </p>
+            <div class="d-flex gap-3 flex-wrap">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'core:dashboard' %}" class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg animate__animated animate__pulse animate__infinite">
+                        <i class="fas fa-tachometer-alt me-2"></i>PANELƏ KEÇ
+                    </a>
+                {% else %}
+                    <a href="{% url 'users:user_register' %}" class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg animate__animated animate__pulse animate__infinite">
+                        <i class="fas fa-rocket me-2"></i>İNDİ QOŞUL
+                    </a>
+                    <a href="{% url 'users:user_login' %}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold">Giriş et</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- COUNTER BAR -->
+<div class="counter-bar bg-success py-4">
     <div class="container">
-        <div class="row text-center align-items-center">
-            <div class="col-md-3 border-end border-white border-opacity-25">
-                <h3 class="fw-bold mb-0">+ <span class="counter" data-target="15000">0</span> t</h3>
-                <small class="text-white-50">Qənaət Edilən Su</small>
+        <div class="row text-center g-3">
+            <div class="col-6 col-md-3">
+                <div class="counter-num">+<span class="counter" data-target="15000">0</span>t</div>
+                <small>Qənaət Edilən Su</small>
             </div>
-            <div class="col-md-3 border-end border-white border-opacity-25">
-                <h3 class="fw-bold mb-0">+ <span class="counter" data-target="4500">0</span> kq</h3>
-                <small class="text-white-50">Gübrə Effektivliyi</small>
+            <div class="col-6 col-md-3">
+                <div class="counter-num">+<span class="counter" data-target="4500">0</span>kq</div>
+                <small>Gübrə Effektivliyi</small>
             </div>
-            <div class="col-md-3 border-end border-white border-opacity-25">
-                <h3 class="fw-bold mb-0">+ <span class="counter" data-target="820">0</span></h3>
-                <small class="text-white-50">Aktiv IoT Sensor</small>
+            <div class="col-6 col-md-3">
+                <div class="counter-num"><span class="counter" data-target="820">0</span></div>
+                <small>Aktiv IoT Sensor</small>
             </div>
-            <div class="col-md-3">
-                <h3 class="fw-bold mb-0">% <span class="counter" data-target="85">0</span></h3>
-                <small class="text-white-50">AI Dəqiqliyi</small>
+            <div class="col-6 col-md-3">
+                <div class="counter-num"><span class="counter" data-target="85">0</span>%</div>
+                <small>AI Dəqiqliyi</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<section class="py-5  ">
+    <div class="container py-4">
+        <div class="text-center mb-5 reveal">
+            <h2 class="display-5 fw-bold">Nə Təklif Edirik?</h2>
+            <p class="text-muted">9 fərqli modul ilə fermerə tam nəzarət imkanı veririk.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4 reveal delay-1">
+                <div class="feature-card p-4 h-100  shadow-sm">
+                    <div class="icon-box" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-microchip"></i></div>
+                    <h5 class="fw-bold">IoT Sensor Şəbəkəsi</h5>
+                    <p class="text-muted small">PH, NPK, torpaq rütubəti və duzluluğunu saniyəlik izləyin. Real vaxt data axını.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal delay-2">
+                <div class="feature-card p-4 h-100  shadow-sm">
+                    <div class="icon-box" style="background:#e3f2fd;color:#1565c0;"><i class="fas fa-brain"></i></div>
+                    <h5 class="fw-bold">AI Analitikası</h5>
+                    <p class="text-muted small">Peyk görüntüləri ilə dataları birləşdirərək bitki stresini əvvəlcədən müəyyən edir.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal delay-3">
+                <div class="feature-card p-4 h-100  shadow-sm">
+                    <div class="icon-box" style="background:#fff3e0;color:#e65100;"><i class="fas fa-faucet"></i></div>
+                    <h5 class="fw-bold">Smart Suvarma</h5>
+                    <p class="text-muted small">Hava proqnozuna görə suvarma klapanlarını avtomatik idarə edir.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal delay-1">
+                <div class="feature-card p-4 h-100  shadow-sm">
+                    <div class="icon-box" style="background:#fce4ec;color:#c62828;"><i class="fas fa-shield-virus"></i></div>
+                    <h5 class="fw-bold">Xəstəlik Diaqnozu</h5>
+                    <p class="text-muted small">Yarpaq rəngindəki dəyişiklikləri analiz edib xəstəlik riskini öncədən bildirir.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal delay-2">
+                <div class="feature-card p-4 h-100  shadow-sm">
+                    <div class="icon-box" style="background:#f3e5f5;color:#6a1b9a;"><i class="fas fa-warehouse"></i></div>
+                    <h5 class="fw-bold">Anbar Menecmenti</h5>
+                    <p class="text-muted small">Gübrə və toxum azaldıqda avtomatik bildiriş göndərir.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4 reveal delay-3">
+                <div class="feature-card p-4 h-100  shadow-sm">
+                    <div class="icon-box" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-chart-pie"></i></div>
+                    <h5 class="fw-bold">Xərc Analizi</h5>
+                    <p class="text-muted small">Hər sahə üçün xərc və gözlənilən gəliri hesablayır.</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-5 bg-light">
-    <div class="container py-5">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold">Təsərrüfatınızı Necə Dəyişirik?</h2>
-            <p class="text-muted">9 Fərqli modul ilə fermerə tam nəzarət imkanı veririk.</p>
+<!-- HOW IT WORKS -->
+<section class="py-5 ">
+    <div class="container py-4">
+        <div class="text-center mb-5 reveal">
+            <h2 class="display-5 fw-bold">Necə İşləyir?</h2>
+            <p class="text-muted">3 sadə addımda ferməni rəqəmsal idarəetməyə qoşun.</p>
         </div>
-
-        <div id="featureCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="row g-4 px-lg-5">
-                        <div class="col-md-4">
-                            <div class="feature-card p-4 bg-white shadow-sm rounded-4 h-100 border-bottom border-success border-3">
-                                <div class="icon-circle bg-success-soft mb-3"><i class="fas fa-microchip"></i></div>
-                                <h5 class="fw-bold">IoT Sensor Şəbəkəsi</h5>
-                                <p class="small text-muted">PH, NPK (Azot, Fosfor, Kalium) və torpaq duzluluğunu saniyəlik izləyin.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="feature-card p-4 bg-white shadow-sm rounded-4 h-100 border-bottom border-primary border-3">
-                                <div class="icon-circle bg-primary-soft mb-3"><i class="fas fa-brain"></i></div>
-                                <h5 class="fw-bold">AI Analitikası</h5>
-                                <p class="small text-muted">Dataları peyk görüntüləri ilə birləşdirərək bitki stresini əvvəlcədən təyin edir.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="feature-card p-4 bg-white shadow-sm rounded-4 h-100 border-bottom border-warning border-3">
-                                <div class="icon-circle bg-warning-soft mb-3"><i class="fas fa-faucet"></i></div>
-                                <h5 class="fw-bold">Smart Suvarma</h5>
-                                <p class="small text-muted">Hava proqnozuna görə suvarma klapanlarını avtomatik açır və bağlayır.</p>
-                            </div>
-                        </div>
-                    </div>
+        <div class="row text-center g-4">
+            <div class="col-md-4 reveal delay-1">
+                <div class="position-relative">
+                    <div class="step-number">1</div>
+                    <div class="d-none d-md-block step-line"></div>
                 </div>
-                <div class="carousel-item">
-                    <div class="row g-4 px-lg-5">
-                        <div class="col-md-4">
-                            <div class="feature-card p-4 bg-white shadow-sm rounded-4 h-100">
-                                <div class="icon-circle bg-danger-soft mb-3"><i class="fas fa-shield-virus"></i></div>
-                                <h5 class="fw-bold">Xəstəlik Erkan Diaqnozu</h5>
-                                <p class="small text-muted">Yarpaq rəngindəki dəyişiklikləri analiz edib xəstəlik riskini bildirir.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="feature-card p-4 bg-white shadow-sm rounded-4 h-100">
-                                <div class="icon-circle bg-info-soft mb-3"><i class="fas fa-warehouse"></i></div>
-                                <h5 class="fw-bold">Anbar Menecmenti</h5>
-                                <p class="small text-muted">Gübrə və toxum azaldıqda avtomatik olaraq fermerə bildiriş göndərir.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="feature-card p-4 bg-white shadow-sm rounded-4 h-100">
-                                <div class="icon-circle bg-dark-soft mb-3"><i class="fas fa-chart-pie"></i></div>
-                                <h5 class="fw-bold">Xərc Analizi</h5>
-                                <p class="small text-muted">Hər bir sahə üçün çəkilən xərci və gözlənilən gəliri hesablayır.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="row g-4 px-lg-5">
-                        <div class="col-md-4">
-                            <div class="feature-card p-4 bg-white shadow-sm rounded-4 h-100">
-                                <div class="icon-circle bg-secondary-soft mb-3"><i class="fas fa-drone"></i></div>
-                                <h5 class="fw-bold">Dron İnteqrasiyası</h5>
-                                <p class="small text-muted">Sahə üzərində uçan dronların NDVI xəritələrini sistemə yükləyin.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="feature-card p-4 bg-white shadow-sm rounded-4 h-100">
-                                <div class="icon-circle bg-success-soft mb-3"><i class="fas fa-leaf"></i></div>
-                                <h5 class="fw-bold">Eko-Sertifikatlaşdırma</h5>
-                                <p class="small text-muted">Minimum dərman istifadəsi ilə məhsulun ekoloji təmizliyini sübut edin.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="feature-card p-4 bg-white shadow-sm rounded-4 h-100">
-                                <div class="icon-circle bg-primary-soft mb-3"><i class="fas fa-mobile-alt"></i></div>
-                                <h5 class="fw-bold">Mobil Offline Rejim</h5>
-                                <p class="small text-muted">İnternet olmayan yerlərdə datanı yadda saxlayır, şəbəkə gəlincə sinxron edir.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h5 class="fw-bold mt-3">Qeydiyyat & Sahə Əlavəsi</h5>
+                <p class="text-muted small px-3">Hesab yarat, sahələrini xəritəyə əlavə et. 2 dəqiqə çəkir.</p>
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#featureCarousel" data-bs-slide="prev">
-                <i class="fas fa-chevron-left text-dark fs-3"></i>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#featureCarousel" data-bs-slide="next">
-                <i class="fas fa-chevron-right text-dark fs-3"></i>
-            </button>
+            <div class="col-md-4 reveal delay-2">
+                <div class="position-relative">
+                    <div class="step-number">2</div>
+                    <div class="d-none d-md-block step-line"></div>
+                </div>
+                <h5 class="fw-bold mt-3">Sensorları Qoş</h5>
+                <p class="text-muted small px-3">IoT sensorlarını aktivləşdir. Sistem avtomatik data toplamağa başlayır.</p>
+            </div>
+            <div class="col-md-4 reveal delay-3">
+                <div class="step-number">3</div>
+                <h5 class="fw-bold mt-3">AI Tövsiyələrini Al</h5>
+                <p class="text-muted small px-3">Real vaxt analiz, suvarma planı, xəstəlik xəbərdarlıqları — hər şey dashboardda.</p>
+            </div>
         </div>
     </div>
 </section>
 
+<!-- NIYƏ AI -->
+<section class="py-5 ">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 reveal-left">
+                <h2 class="display-5 fw-bold mb-4">Niyə Məhz <span class="text-success">AI?</span></h2>
+                <p class="text-muted mb-4">Kənd təsərrüfatı artıq sadəcə rəqəmlərlə yox, <strong>qərarlarla</strong> idarə olunur.</p>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1"><span class="small fw-semibold">Su qənaəti</span><span class="small text-success fw-bold">40%</span></div>
+                    <div class="progress" style="height:8px;border-radius:50px;"><div class="progress-bar bg-success" role="progressbar" style="width:0%" data-width="40%"></div></div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1"><span class="small fw-semibold">Məhsuldarlıq artımı</span><span class="small text-success fw-bold">65%</span></div>
+                    <div class="progress" style="height:8px;border-radius:50px;"><div class="progress-bar bg-success" role="progressbar" style="width:0%" data-width="65%"></div></div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1"><span class="small fw-semibold">AI Dəqiqliyi</span><span class="small text-success fw-bold">92%</span></div>
+                    <div class="progress" style="height:8px;border-radius:50px;"><div class="progress-bar bg-success" role="progressbar" style="width:0%" data-width="92%"></div></div>
+                </div>
+            </div>
+            <div class="col-lg-6 reveal-right">
+                <div class="row g-3">
+                    <div class="col-6"><div class="p-4 border rounded-4 text-center shadow-sm stat-card"><h2 class="fw-bold text-success mb-1">24/7</h2><small class="text-muted">Fasiləsiz Nəzarət</small></div></div>
+                    <div class="col-6"><div class="p-4 border rounded-4 text-center shadow-sm stat-card"><h2 class="fw-bold text-success mb-1">0%</h2><small class="text-muted">Məlumat İtkisi</small></div></div>
+                    <div class="col-6"><div class="p-4 border rounded-4 text-center shadow-sm stat-card"><h2 class="fw-bold text-success mb-1">+1200</h2><small class="text-muted">Aktiv Fermer</small></div></div>
+                    <div class="col-6"><div class="p-4 border rounded-4 text-center shadow-sm stat-card"><h2 class="fw-bold text-success mb-1">7x</h2><small class="text-muted">Məhsuldarlıq</small></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
+<!-- TESTIMONIALS --><section class="py-5 ">
+    <div class="container py-4">
+        <div class="text-center mb-5 reveal">
+            <h2 class="display-5 fw-bold">Fermerlər Nə Deyir?</h2>
+        </div>
 
-<section class="py-5 bg-dark text-white">
-    <div class="container py-5 text-center">
-        <h2 class="mb-5 fw-bold">Uğur Hekayələri</h2>
-        <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <div class="carousel-item active">
+        <div id="farmerCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner text-center">
+                
+                <div class="carousel-item active" data-bs-interval="3000">
                     <p class="display-6 fst-italic mb-4">"AgroVision sayəsində bu il Lerikdəki kartof sahələrimdən ötən ilə nisbətən 2 dəfə az su işlətməklə daha çox məhsul aldım."</p>
                     <h5 class="text-success mb-0">Elvin Kərimli</h5>
-                    <small>Fermer, Lerik</small>
+                    <small class="text-muted">Fermer, Lerik</small>
                 </div>
-                <div class="carousel-item">
+
+                <div class="carousel-item" data-bs-interval="3000">
                     <p class="display-6 fst-italic mb-4">"Pambıq tarlalarımızda zərərvericiləri bizdən 3 gün əvvəl aşkar etdi. Məhsulumuzu xilas etdik."</p>
                     <h5 class="text-success mb-0">Qorxmaz Fətizadə</h5>
-                    <small>Aqronom, Cəlilabad</small>
+                    <small class="text-muted">Fermer, Cəlilabad</small>
                 </div>
-                <div class="carousel-item">
+
+                <div class="carousel-item" data-bs-interval="3000">
+                    <p class="display-6 fst-italic mb-4">"İstixana şəraitində kofe yetişdirmək riskli sınaq idi. Lakin rütubət və temperaturu sistemlə tam nəzarətdə saxlayaraq, ilk məhsulumuzu uğurla topladıq."</p>
+                    <h5 class="text-success mb-0">Vüsal Şərifov</h5>
+                    <small class="text-muted">İnnovativ Fermer, Masallı</small>
+                </div>
+
+                <div class="carousel-item" data-bs-interval="3000">
                     <p class="display-6 fst-italic mb-4">"Mandarinlərdə təhlükəni erkən gördük, məhsulumuz sağlam qaldı. Hər kəsə tövsiyə edirəm."</p>
                     <h5 class="text-success mb-0">Şeyxbaba Babazadə</h5>
-                    <small>Aqronom, Astara</small>
+                    <small class="text-muted">Aqronom, Astara</small>
                 </div>
+
             </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#farmerCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                <span class="visually-hidden">Əvvəlki</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#farmerCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                <span class="visually-hidden">Növbəti</span>
+            </button>
         </div>
     </div>
 </section>
 
-<section class="py-5 border-top">
-    <div class="container py-5">
-         <div class="row align-items-center py-5">
-    <!-- AI üstünlükləri -->
-    <div class="col-lg-6 mb-4 mb-lg-0">
-        <div class="p-5 bg-success bg-opacity-90 rounded-4 text-white shadow-lg animate-left">
-            <h2 class="display-5 fw-bold mb-4">Niyə Məhz <span class="text-dark">AI?</span></h2>
-            <p class="lead mb-4">
-                Kənd təsərrüfatı artıq sadəcə rəqəmlərlə yox, **qərarlarla** idarə olunur. Bizim AI sistemimiz sadəcə sensor datası deyil:
-            </p>
-            <ul class="list-unstyled mb-0">
-                <li class="mb-3"><i class="fas fa-check-circle me-2 text-dark"></i><strong>Böyük Data Analizi:</strong> Minlərlə oxşar sahəni müqayisə edir.</li>
-                <li class="mb-3"><i class="fas fa-check-circle me-2 text-dark"></i><strong>Özünü Öyrənən Sistem:</strong> Hər gün torpağınızın xüsusiyyətlərini daha yaxşı öyrənir.</li>
-                <li class="mb-3"><i class="fas fa-check-circle me-2 text-dark"></i><strong>Risklərin Minimallaşdırılması:</strong> İnsan xətasını aradan qaldırır.</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Gələcəyə baxış -->
-    <div class="col-lg-6 ps-lg-5 animate-right">
-        <h3 class="fw-bold mb-4">Gələcəyi Bu Gündən İdarə Edin</h3>
-        <p class="text-muted mb-4">
-            AgroVision AI hər bir fermer üçün xüsusi bir məsləhətçidir. O, gecə-gündüz yorulmadan sahənizi izləyir və hər damla suya, hər qram gübrəyə nəzarət edir.
-        </p>
-        <div class="row g-3">
-            <div class="col-6">
-                <div class="p-3 border rounded shadow-sm text-center">
-                    <h2 class="fw-bold text-success mb-1">24/7</h2>
-                    <small class="text-muted d-block">Fasiləsiz Nəzarət</small>
-                </div>
+<!-- CTA -->
+<section class="py-5 bg-successtext-center">
+    <div class="container py-4 reveal">
+        <h2 class="display-5 fw-bold mb-3">Sahənizi Bu Gündən İdarə Edin</h2>
+        <p class="lead mb-4" style="color:rgba(255,255,255,0.85);">Qeydiyyatdan keç, sahələrini əlavə et, real vaxt datalarını izlə.</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'core:dashboard' %}" class="btn btn-light btn-lg px-5 rounded-pill fw-bold text-success">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboarda keç
+            </a>
+        {% else %}
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{% url 'users:user_register' %}" class="btn btn-light btn-lg px-5 rounded-pill fw-bold text-success">
+                    <i class="fas fa-rocket me-2"></i>Pulsuz Qeydiyyat
+                </a>
+                <a href="{% url 'users:user_login' %}" class="btn btn-outline-light btn-lg px-5 rounded-pill fw-bold">Giriş et</a>
             </div>
-            <div class="col-6">
-                <div class="p-3 border rounded shadow-sm text-center">
-                    <h2 class="fw-bold text-success mb-1">0%</h2>
-                    <small class="text-muted d-block">Məlumat İtkisi</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+        {% endif %}
     </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
-    // Counter Animasiyası üçün JS
-    document.addEventListener("DOMContentLoaded", () => {
-        const counters = document.querySelectorAll('.counter');
-        counters.forEach(counter => {
-            const target = +counter.getAttribute('data-target');
-            const updateCount = () => {
-                const count = +counter.innerText;
-                const inc = target / 100;
-                if (count < target) {
-                    counter.innerText = Math.ceil(count + inc);
-                    setTimeout(updateCount, 20);
-                } else {
-                    counter.innerText = target;
-                }
-            };
-            updateCount();
+// Scroll Reveal
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); obs.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => obs.observe(el));
+
+// Counter
+const cObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.querySelectorAll('.counter').forEach(el => {
+            const target = +el.dataset.target;
+            let cur = 0, step = target / 80;
+            const t = setInterval(() => {
+                cur += step;
+                if (cur >= target) { el.textContent = target.toLocaleString(); clearInterval(t); }
+                else el.textContent = Math.floor(cur).toLocaleString();
+            }, 20);
         });
+        cObs.unobserve(e.target);
     });
+}, { threshold: 0.3 });
+const bar = document.querySelector('.counter-bar');
+if (bar) cObs.observe(bar);
+
+// Progress bars
+const pObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.querySelectorAll('.progress-bar[data-width]').forEach(b => {
+            setTimeout(() => { b.style.transition = 'width 1.2s ease'; b.style.width = b.dataset.width; }, 200);
+        });
+        pObs.unobserve(e.target);
+    });
+}, { threshold: 0.3 });
+document.querySelectorAll('section').forEach(s => pObs.observe(s));
 </script>
-
-<style>
-    /* Stil təkmilləşdirmələri */
-    .icon-circle { width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-    .bg-secondary-soft { background: #f3e5f5; color: #7b1fa2; }
-    .feature-card { transition: all 0.3s ease; cursor: default; }
-    .feature-card:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important; }
-    .carousel-control-prev, .carousel-control-next { width: 5%; opacity: 1; }
-    .shadow-inner { box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
-    .italic { font-style: italic; }
-</style>
-
 {% endblock %}

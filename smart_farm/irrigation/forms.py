@@ -8,8 +8,8 @@ class IrrigationScheduleForm(forms.ModelForm):
         fields = [
             'field', 'plant', 'irrigation_date', 'irrigation_type', 
             'water_volume_liters', 'status', 'is_automated', 
-            'start_time', 'end_time', 'soil_moisture_level', 
-            'applied_fertilizer', 'energy_consumption', 'notes'
+            'start_time', 'end_time',   
+            'applied_fertilizer', 'notes'
         ]
         
         # HTML5 Tarix və Saat seçicilərini aktivləşdirmək üçün widgets

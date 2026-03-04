@@ -1,77 +1,96 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
+{% block title %}{% trans "Bitkini Sil" %} - {{ plant.get_plant_type_display }}{% endblock %}
 
-{% block title %}Bitkini Sil - {{ plant.get_plant_type_display }}{% endblock %}
+{% block extra_css %}
+<style>
+@keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.delete-card {
+    animation:slideUp .4s ease backwards;
+    border:1px solid var(--border) !important;
+    border-radius:28px; overflow:hidden;
+    background:var(--bg-card) !important;
+}
+.delete-header {
+    background:#e74c3c !important;
+    padding:32px 0; text-align:center; color:#fff;
+}
+.preview-panel {
+    background:var(--bg-secondary) !important;
+    border:1px solid var(--border) !important;
+    border-radius:20px; padding:16px; margin-bottom:24px;
+    display:flex; align-items:center;
+}
+.btn-danger {
+    background:#e74c3c !important; border:none !important;
+    transition:all .3s;
+}
+.btn-danger:hover {
+    background:#c0392b !important; transform:translateY(-2px);
+    box-shadow:0 8px 15px rgba(231,76,60,.3);
+}
+.btn-cancel {
+    color:var(--text-muted) !important; background:transparent;
+    border:1px solid var(--border) !important; transition:all .3s;
+}
+.btn-cancel:hover { background:var(--bg-secondary) !important; color:var(--text) !important; }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="bg-danger py-3 text-center text-white">
-                    <i class="fas fa-exclamation-circle fa-3x mb-2"></i>
-                    <h4 class="fw-bold mb-0">Təsdiqləyin</h4>
+            <div class="card delete-card shadow-lg">
+                <div class="delete-header">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-2"></i>
+                    <h4 class="fw-bold mb-0">{% trans "Təsdiqləyin" %}</h4>
                 </div>
-
                 <div class="card-body p-4 p-md-5 text-center">
-                    <h2 class="h4 fw-bold text-dark mb-3">Bitki silinsin?</h2>
-                    <p class="text-muted mb-4">Aşağıdakı bitki və ona aid bütün proqnozlar, qeydlər sistemdən <strong>daimi olaraq</strong> silinəcək:</p>
+                    <h5 class="fw-bold mb-2" style="color:var(--text)">{% trans "Bitki silinsin?" %}</h5>
+                    <p class="small mb-4" style="color:var(--text-muted)">
+                        {% trans "Aşağıdakı bitki və ona aid bütün" %} <strong>{% trans "proqnozlar, qeydlər və analizlər" %}</strong> {% trans "daimi olaraq silinəcək." %}
+                    </p>
 
-                    <div class="d-flex align-items-center p-3 bg-light rounded-4 mb-5 border">
+                    <div class="preview-panel">
                         <div class="flex-shrink-0">
                             {% if plant.image %}
-                                <img src="{{ plant.image.url }}" class="rounded-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                <img src="{{ plant.image.url }}" class="rounded-3 shadow-sm" style="width:60px;height:60px;object-fit:cover;">
                             {% else %}
-                                <div class="bg-secondary bg-opacity-10 rounded-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-seedling text-secondary"></i>
+                                <div class="rounded-3 d-flex align-items-center justify-content-center"
+                                     style="width:60px;height:60px;background:var(--border)">
+                                    <i class="fas fa-seedling" style="color:var(--text-muted)"></i>
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="flex-grow-1 ms-3 text-start">
-                            <h6 class="fw-bold mb-0 text-dark">{{ plant.get_plant_type_display }}</h6>
-                            <small class="text-muted">{{ plant.variety|default:"Sort qeyd edilməyib" }}</small>
-                            <div class="small text-success fw-bold">{{ plant.field.name }} sahəsi</div>
+                        <div class="ms-3 overflow-hidden text-start">
+                            <div class="fw-bold text-truncate" style="color:var(--text)">{{ plant.get_plant_type_display }}</div>
+                            <div class="small text-truncate" style="color:var(--text-muted)">{{ plant.variety|default:"Sort qeyd edilməyib" }}</div>
+                            <div class="small fw-bold mt-1" style="color:#3d9970">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ plant.field.name }}
+                            </div>
                         </div>
                     </div>
 
                     <form method="post">
                         {% csrf_token %}
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-danger py-3 rounded-pill fw-bold shadow-sm">
-                                <i class="fas fa-trash-alt me-2"></i>Bəli, tamamilə sil
+                            <button type="submit" class="btn btn-danger py-3 rounded-pill fw-bold">
+                                <i class="fas fa-trash-alt me-2"></i>{% trans "Bəli, tamamilə sil" %}
                             </button>
-                            <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-light py-3 rounded-pill fw-bold text-muted mt-2">
-                                Xeyr, geri qayıt
+                            <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-cancel py-3 rounded-pill fw-bold mt-2">
+                                {% trans "Xeyr, geri qayıt" %}
                             </a>
                         </div>
                     </form>
                 </div>
             </div>
-
-            <p class="text-center text-muted mt-4 small">
-                <i class="fas fa-info-circle me-1"></i> Bu əməliyyat geri qaytarıla bilməz.
+            <p class="text-center mt-3 small" style="color:var(--text-muted)">
+                <i class="fas fa-info-circle me-1"></i>{% trans "Bu əməliyyatın geri dönüşü yoxdur." %}
             </p>
         </div>
     </div>
 </div>
-
-<style>
-    /* Silmə səhifəsinə özəl sadə effekt */
-    .card {
-        animation: slideUp 0.4s ease-out;
-    }
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .btn-danger {
-        background-color: #dc3545;
-        border: none;
-        transition: all 0.3s;
-    }
-    .btn-danger:hover {
-        background-color: #bb2d3b;
-        transform: scale(1.02);
-    }
-</style>
 {% endblock %}

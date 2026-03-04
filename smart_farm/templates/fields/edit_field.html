@@ -1,16 +1,38 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}{{ field.name }} — Redaktə{% endblock %}
+{% load i18n %}
+{% block title %}{{ field.name }} — {% trans "Redaktə" %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    .edit-card { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-    .current-info-banner { background: #f8f9fa; border-radius: 15px; border-left: 5px solid #3498db; }
-    .form-label { font-weight: 600; color: #495057; font-size: 0.9rem; }
-    .input-group-text { background: white; border-right: none; color: #adb5bd; }
-    .form-control, .form-select { border-left: none; padding: 12px; }
-    .form-control:focus { box-shadow: none; border-color: #dee2e6; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.edit-card {
+    border:none; border-radius:20px;
+    background:var(--bg-card) !important; color:var(--text);
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    animation:fadeInUp .5s ease .2s backwards;
+}
+.info-banner {
+    background:var(--bg-secondary) !important;
+    border-radius:15px; border-left:5px solid #3d9970;
+    color:var(--text); animation:fadeInUp .5s ease .1s backwards;
+}
+.form-label { font-weight:700; color:var(--text-muted); font-size:.78rem; letter-spacing:.5px; }
+.input-group-text {
+    background:var(--bg-secondary) !important;
+    border-color:var(--border) !important; border-right:none; color:var(--text-muted);
+}
+.form-control,.form-select {
+    background:var(--bg-secondary) !important; color:var(--text) !important;
+    border-color:var(--border) !important; border-left:none; padding:12px;
+}
+.form-control:focus,.form-select:focus { box-shadow:none; border-color:#3d9970 !important; }
+.btn-back {
+    background:var(--bg-card) !important; color:var(--text) !important;
+    border:1px solid var(--border); border-radius:50%;
+    width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+    text-decoration:none;
+}
 </style>
 {% endblock %}
 
@@ -18,74 +40,85 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-7">
-            <div class="d-flex align-items-center mb-4">
-                <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-white shadow-sm rounded-circle me-3">
+
+            <div class="d-flex align-items-center mb-4" style="animation:fadeInUp .4s ease backwards">
+                <a href="{% url 'fields:field_detail' field.id %}" class="btn-back shadow-sm me-3">
                     <i class="fas fa-chevron-left"></i>
                 </a>
-                <h2 class="fw-bold mb-0">Sahəni Redaktə Et</h2>
+                <h2 class="fw-bold mb-0">{% trans "Sahəni Redaktə Et" %}</h2>
             </div>
 
-            <div class="current-info-banner p-4 mb-4 shadow-sm">
-                <h6 class="text-uppercase small fw-bold text-primary mb-3">Mövcud Parametrlər</h6>
+            <div class="info-banner p-4 mb-4 shadow-sm">
+                <h6 class="text-uppercase small fw-bold mb-3" style="color:#3d9970">{% trans "Mövcud Parametrlər" %}</h6>
                 <div class="row g-3">
-                    <div class="col-4">
-                        <small class="text-muted d-block text-uppercase" style="font-size: 0.65rem;">Ad</small>
-                        <span class="fw-bold text-dark">{{ field.name }}</span>
+                    <div class="col-3">
+                        <small class="d-block text-uppercase mb-1" style="font-size:.65rem;color:var(--text-muted)">{% trans "Ad" %}</small>
+                        <span class="fw-bold">{{ field.name }}</span>
                     </div>
-                    <div class="col-4 border-start">
-                        <small class="text-muted d-block text-uppercase" style="font-size: 0.65rem;">Ölçü</small>
-                        <span class="fw-bold text-dark">{{ field.area_hectares }} ha</span>
+                    <div class="col-3 border-start" style="border-color:var(--border) !important">
+                        <small class="d-block text-uppercase mb-1" style="font-size:.65rem;color:var(--text-muted)">{% trans "Ölçü" %}</small>
+                        <span class="fw-bold">{{ field.area_hectares }} ha</span>
                     </div>
-                    <div class="col-4 border-start">
-                        <small class="text-muted d-block text-uppercase" style="font-size: 0.65rem;">Torpaq</small>
-                        <span class="fw-bold text-dark">{{ field.get_soil_type_display }}</span>
+                    <div class="col-3 border-start" style="border-color:var(--border) !important">
+                        <small class="d-block text-uppercase mb-1" style="font-size:.65rem;color:var(--text-muted)">{% trans "Torpaq" %}</small>
+                        <span class="fw-bold">{{ field.get_soil_type_display }}</span>
+                    </div>
+                    <div class="col-3 border-start" style="border-color:var(--border) !important">
+                        <small class="d-block text-uppercase mb-1" style="font-size:.65rem;color:var(--text-muted)">{% trans "Yer" %}</small>
+                        <span class="fw-bold">{{ field.location|default:"—" }}</span>
                     </div>
                 </div>
             </div>
 
-            <div class="card edit-card">
+            <div class="card edit-card shadow">
                 <div class="card-body p-4 p-md-5">
                     <form method="post" novalidate>
                         {% csrf_token %}
-                        
                         {% if form.non_field_errors %}
-                            <div class="alert alert-danger rounded-3 small">{{ form.non_field_errors }}</div>
+                        <div class="alert alert-danger rounded-3 small border-0">{{ form.non_field_errors }}</div>
                         {% endif %}
 
                         <div class="mb-4">
-                            <label class="form-label">SAHƏNİN YENİ ADI</label>
+                            <label class="form-label text-uppercase">{% trans "Sahənin Adı" %}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-pen"></i></span>
                                 {{ form.name }}
                             </div>
-                            {% if form.name.errors %}<div class="text-danger x-small mt-1">{{ form.name.errors|first }}</div>{% endif %}
+                            {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors|first }}</div>{% endif %}
                         </div>
-
                         <div class="row">
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">YENİ ÖLÇÜ (HA)</label>
+                                <label class="form-label text-uppercase">{% trans "Ölçü (ha)" %}</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-expand"></i></span>
                                     {{ form.area_hectares }}
                                 </div>
-                                {% if form.area_hectares.errors %}<div class="text-danger x-small mt-1">{{ form.area_hectares.errors|first }}</div>{% endif %}
+                                {% if form.area_hectares.errors %}<div class="text-danger small mt-1">{{ form.area_hectares.errors|first }}</div>{% endif %}
                             </div>
-
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">TORPAQ TİPİ</label>
+                                <label class="form-label text-uppercase">{% trans "Torpaq Tipi" %}</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-mountain"></i></span>
                                     {{ form.soil_type }}
                                 </div>
-                                {% if form.soil_type.errors %}<div class="text-danger x-small mt-1">{{ form.soil_type.errors|first }}</div>{% endif %}
                             </div>
                         </div>
+                        <div class="mb-4">
+                            <label class="form-label text-uppercase">{% trans "Yer (Şəhər)" %}</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                {{ form.location }}
+                            </div>
+                            <small style="color:var(--text-muted)">{% trans "Məsələn: Lerik, Lənkəran, Şəki" %}</small>
+                        </div>
 
-                        <div class="d-grid gap-2 pt-3">
-                            <button type="submit" class="btn btn-primary py-3 rounded-pill fw-bold shadow">
-                                <i class="fas fa-check-circle me-2"></i>Dəyişiklikləri Saxla
+                        <div class="d-grid gap-2 pt-3 border-top" style="border-color:var(--border) !important">
+                            <button type="submit" class="btn py-3 rounded-pill fw-bold shadow text-white"
+                                    style="background:linear-gradient(135deg,#182f4c,#2e8e63)">
+                                <i class="fas fa-check-circle me-2"></i>{% trans "Dəyişiklikləri Saxla" %}
                             </button>
-                            <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-link text-muted">Ləğv et</a>
+                            <a href="{% url 'fields:field_detail' field.id %}" class="btn btn-link text-decoration-none"
+                               style="color:var(--text-muted)">{% trans "Ləğv et" %}</a>
                         </div>
                     </form>
                 </div>

@@ -1,112 +1,182 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}{{ plant.get_plant_type_display }} - Smart Farm{% endblock %}
+{% load i18n %}
+{% block title %}{{ plant.get_plant_type_display }} - AgroVision{% endblock %}
 
 {% block extra_css %}
 <style>
-    .plant-info-label { color: #6b7280; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
-    .plant-info-value { font-weight: 600; color: #1f2937; font-size: 1.1rem; }
-    .detail-card { border-radius: 24px; border: none; overflow: hidden; }
-    .prediction-banner {
-        background: linear-gradient(90deg, #27ae60, #2ecc71);
-        color: white;
-        border-radius: 15px;
-        transition: transform 0.3s ease;
-    }
-    .prediction-banner:hover { transform: scale(1.02); color: white; }
-    .img-frame { border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+@keyframes fadeInUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeInDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse      { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+.plant-info-label {
+    color:var(--text-muted) !important; font-size:.72rem;
+    text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:4px;
+}
+.plant-info-value { font-weight:600; color:var(--text) !important; font-size:1rem; }
+
+.detail-card {
+    background:var(--bg-card) !important;
+    border-radius:24px; border:1px solid var(--border) !important;
+    overflow:hidden; animation:fadeInUp .5s ease .2s backwards;
+}
+.prediction-banner {
+    background:linear-gradient(135deg,#182f4c,#2e8e63) !important;
+    color:white !important; border-radius:18px;
+    transition:transform .3s ease, box-shadow .3s ease;
+    animation:fadeInUp .5s ease .1s backwards;
+}
+.prediction-banner:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(0,0,0,.3); color:white; }
+
+.info-box {
+    background:var(--bg-secondary) !important;
+    border:1px solid var(--border) !important;
+    border-radius:14px; padding:16px; transition:border-color .2s;
+}
+.info-box:hover { border-color:#3d9970 !important; }
+
+.notes-section {
+    background:var(--bg-secondary) !important;
+    border-radius:16px; border-left:4px solid #3d9970 !important;
+    color:var(--text) !important;
+}
+.harvest-due {
+    background:rgba(255,71,87,.1) !important;
+    border:1px solid #ff4757 !important; color:#ff4757 !important;
+    border-radius:12px; padding:12px 16px;
+    animation:pulse 1.5s infinite;
+}
+.img-frame { border-radius:20px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.15); background:var(--bg-secondary); }
+
+.btn-action {
+    background:var(--bg-card) !important; color:var(--text) !important;
+    border:1px solid var(--border) !important;
+    border-radius:50px; padding:8px 20px;
+    text-decoration:none; transition:all .2s; display:inline-flex; align-items:center;
+}
+.btn-action:hover { border-color:#3d9970 !important; color:#3d9970 !important; }
+
+.breadcrumb-item a { color:#3d9970 !important; }
+.breadcrumb-item.active { color:var(--text-muted) !important; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-4">
-    <nav aria-label="breadcrumb" class="mb-4">
+
+    <nav aria-label="breadcrumb" class="mb-4" style="animation:fadeInDown .4s ease backwards">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'plants:plant_list' %}">Bitkilər</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'plants:plant_list' %}">{% trans "Bitkilər" %}</a></li>
             <li class="breadcrumb-item active">{{ plant.get_plant_type_display }}</li>
         </ol>
     </nav>
 
-    <div class="row align-items-center mb-4">
+    <div class="row align-items-center mb-4" style="animation:fadeInDown .4s ease .05s backwards">
         <div class="col-md-7">
-            <h1 class="display-6 fw-bold mb-1">{{ plant.get_plant_type_display }}</h1>
-            <p class="text-muted"><i class="fas fa-fingerprint me-2"></i>Sort: {{ plant.variety|default:"Yerli Sort" }}</p>
+            <h1 class="display-6 fw-bold mb-1" style="color:var(--text)">{{ plant.get_plant_type_display }}</h1>
+            <p class="mb-0" style="color:var(--text-muted)">
+                <i class="fas fa-fingerprint me-2 text-success"></i>{{ plant.variety|default:"Yerli Sort" }}
+                {% if plant.field.location %}
+                · <i class="fas fa-map-marker-alt ms-2 me-1 text-danger"></i>{{ plant.field.location }}
+                {% endif %}
+            </p>
         </div>
-        <div class="col-md-5 text-md-end">
+        <div class="col-md-5 text-md-end mt-3 mt-md-0">
             <div class="d-flex gap-2 justify-content-md-end">
-                <a href="{% url 'plants:edit_plant' plant.id %}" class="btn btn-white border shadow-sm rounded-pill px-4">
-                    <i class="fas fa-edit text-primary me-2"></i>Redaktə
+                <a href="{% url 'plants:edit_plant' plant.id %}" class="btn-action shadow-sm">
+                    <i class="fas fa-edit text-primary me-2"></i>{% trans "Redaktə" %}
                 </a>
-                <a href="{% url 'plants:delete_plant' plant.id %}" class="btn btn-white border shadow-sm rounded-pill px-4">
-                    <i class="fas fa-trash text-danger me-2"></i>Sil
+                <a href="{% url 'plants:delete_plant' plant.id %}" class="btn-action shadow-sm">
+                    <i class="fas fa-trash text-danger me-2"></i>{% trans "Sil" %}
                 </a>
             </div>
         </div>
     </div>
 
+    {% if plant.is_harvest_due %}
+    <div class="harvest-due d-flex align-items-center gap-3 mb-4 shadow-sm">
+        <span style="font-size:1.5rem;">⚠️</span>
+        <div>
+            <strong class="text-danger">{% trans "Yığım vaxtı çatıb!" %}</strong>
+            <span class="small ms-2" style="color:var(--text-muted)">{% trans "Gözlənilən tarix" %}: {{ plant.expected_harvest_date|date:"d.m.Y" }}</span>
+        </div>
+        <a href="{% url 'plants:harvest_prediction' plant.id %}" class="btn btn-danger btn-sm rounded-pill ms-auto fw-bold">{% trans "Proqnoza bax" %}</a>
+    </div>
+    {% endif %}
+
     <a href="{% url 'plants:harvest_prediction' plant.id %}" class="prediction-banner d-flex align-items-center p-4 mb-4 text-decoration-none shadow-sm">
-        <div class="flex-shrink-0 bg-white rounded-circle p-3 text-success me-4">
-            <i class="fas fa-robot fa-2x"></i>
+        <div class="flex-shrink-0 bg-white rounded-circle p-3 text-success me-4 shadow-lg"
+             style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-robot fa-lg"></i>
         </div>
         <div class="flex-grow-1">
-            <h5 class="mb-1 fw-bold">Süni İntellekt Analizi</h5>
-            <p class="mb-0 opacity-75 small">Hava və sağlamlıq faktorlarına əsasən dəqiq yığım vaxtını öyrənin.</p>
+            <h5 class="mb-1 fw-bold text-white">{% trans "Süni İntellekt Analizi" %}</h5>
+            <p class="mb-0 small text-white" style="opacity:.75">{% trans "Hava və sağlamlıq faktorlarına əsasən dəqiq yığım vaxtını öyrənin." %}</p>
         </div>
-        <div class="ms-auto">
-            <i class="fas fa-chevron-right fa-2x opacity-50"></i>
-        </div>
+        <i class="fas fa-chevron-right fa-lg ms-auto text-white" style="opacity:.5"></i>
     </a>
 
     <div class="card detail-card shadow-sm">
         <div class="card-body p-4 p-md-5">
             <div class="row g-5">
                 <div class="col-lg-5">
-                    <div class="img-frame overflow-hidden">
+                    <div class="img-frame">
                         {% if plant.image %}
-                            <img src="{{ plant.image.url }}" class="img-fluid w-100" style="min-height: 350px; object-fit: cover;" alt="Plant Image">
+                            <img src="{{ plant.image.url }}" class="img-fluid w-100" style="min-height:320px;object-fit:cover;" alt="">
                         {% else %}
-                            <div class="bg-light d-flex align-items-center justify-content-center" style="min-height: 350px;">
-                                <i class="fas fa-seedling fa-5x text-muted opacity-25"></i>
+                            <div class="d-flex align-items-center justify-content-center rounded-4" style="min-height:320px;background:var(--bg-secondary)">
+                                <i class="fas fa-seedling fa-5x opacity-25" style="color:var(--text-muted)"></i>
                             </div>
                         {% endif %}
                     </div>
                 </div>
 
                 <div class="col-lg-7">
-                    <div class="row g-4 mb-5">
+                    <div class="row g-3 mb-4">
                         <div class="col-6 col-md-4">
-                            <div class="plant-info-label">Sahə</div>
-                            <div class="plant-info-value"><i class="fas fa-tractor text-success me-2 small"></i>{{ plant.field.name }}</div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <div class="plant-info-label">Status</div>
-                            <div class="badge {% if plant.status == 'active' %}bg-success{% else %}bg-warning text-dark{% endif %} rounded-pill px-3">
-                                {{ plant.get_status_display }}
+                            <div class="info-box shadow-sm">
+                                <div class="plant-info-label">{% trans "Sahə" %}</div>
+                                <div class="plant-info-value">{{ plant.field.name }}</div>
                             </div>
                         </div>
                         <div class="col-6 col-md-4">
-                            <div class="plant-info-label">Ölçü (Ha)</div>
-                            <div class="plant-info-value">{{ plant.area_hectares }}</div>
+                            <div class="info-box shadow-sm">
+                                <div class="plant-info-label">{% trans "Status" %}</div>
+                                <span class="badge {% if plant.status == 'active' %}bg-success{% elif plant.status == 'diseased' %}bg-danger{% else %}bg-warning text-dark{% endif %} rounded-pill px-3 py-2">
+                                    {{ plant.get_status_display }}
+                                </span>
+                            </div>
                         </div>
                         <div class="col-6 col-md-4">
-                            <div class="plant-info-label">Əkin Tarixi</div>
-                            <div class="plant-info-value">{{ plant.planting_date|date:"d M, Y" }}</div>
+                            <div class="info-box shadow-sm">
+                                <div class="plant-info-label">{% trans "Ölçü" %}</div>
+                                <div class="plant-info-value">{{ plant.area_hectares }} ha</div>
+                            </div>
                         </div>
                         <div class="col-6 col-md-4">
-                            <div class="plant-info-label">İnkişaf</div>
-                            <div class="plant-info-value text-primary">{{ plant.get_growth_stage_display }}</div>
+                            <div class="info-box shadow-sm">
+                                <div class="plant-info-label">{% trans "Əkin Tarixi" %}</div>
+                                <div class="plant-info-value">{{ plant.planting_date|date:"d/m/Y" }}</div>
+                            </div>
                         </div>
                         <div class="col-6 col-md-4">
-                            <div class="plant-info-label">Gözlənilən Yığım</div>
-                            <div class="plant-info-value">{{ plant.expected_harvest_date|date:"d M, Y"|default:"N/A" }}</div>
+                            <div class="info-box shadow-sm">
+                                <div class="plant-info-label">{% trans "İnkişaf" %}</div>
+                                <div class="plant-info-value fw-bold" style="color:#3d9970">{{ plant.get_growth_stage_display }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="info-box shadow-sm">
+                                <div class="plant-info-label">{% trans "Gün" %}</div>
+                                <div class="plant-info-value">{{ plant.days_since_planting }} {% trans "gün" %}</div>
+                            </div>
                         </div>
                     </div>
 
                     {% if plant.notes %}
-                    <div class="p-4 bg-light rounded-4 border-start border-4 border-success">
-                        <h6 class="fw-bold mb-2"><i class="fas fa-sticky-note me-2 text-success"></i>Fermer Qeydləri</h6>
-                        <p class="mb-0 text-muted fst-italic">{{ plant.notes }}</p>
+                    <div class="p-4 notes-section shadow-sm">
+                        <h6 class="fw-bold mb-2"><i class="fas fa-sticky-note me-2 text-success"></i>{% trans "Fermer Qeydləri" %}</h6>
+                        <p class="mb-0 fst-italic" style="color:var(--text-muted)">{{ plant.notes }}</p>
                     </div>
                     {% endif %}
                 </div>
@@ -114,13 +184,14 @@
         </div>
     </div>
 
-    <div class="mt-4 d-flex gap-3">
-        <a href="{% url 'plants:plant_list' %}" class="btn btn-light rounded-pill px-4 border">
-            <i class="fas fa-arrow-left me-2"></i>Siyahıya qayıt
+    <div class="mt-4 d-flex gap-3" style="animation:fadeInUp .5s ease .3s backwards">
+        <a href="{% url 'plants:plant_list' %}" class="btn-action shadow-sm">
+            <i class="fas fa-arrow-left me-2"></i>{% trans "Siyahıya qayıt" %}
         </a>
-        <a href="{% url 'fields:field_detail' plant.field.id %}" class="btn btn-outline-success rounded-pill px-4">
-            <i class="fas fa-map-marker-alt me-2"></i>Sahəni gör
+        <a href="{% url 'fields:field_detail' plant.field.id %}" class="btn btn-outline-success rounded-pill px-4 fw-bold">
+            <i class="fas fa-map-marker-alt me-2"></i>{% trans "Sahəni gör" %}
         </a>
     </div>
+
 </div>
 {% endblock %}

@@ -1,133 +1,134 @@
-<!-- templates/weather/weather_list.html -->
 {% extends 'base.html' %}
+{% block title %}Hava Məlumatları - AgroVision{% endblock %}
 
-{% block title %}Hava Məlumatları - Ağıllı Ferma{% endblock %}
+{% block extra_css %}
+<style>
+.weather-card {
+    border-radius: 16px; border: 1px solid #eee;
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
+.weather-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+.weather-card .card-top {
+    padding: 20px 20px 14px;
+    background: linear-gradient(135deg, #1a5c35, #2ecc71);
+    color: #fff;
+}
+.weather-card .card-body { padding: 16px 20px; }
+.metric { text-align: center; }
+.metric-val { font-size: 1.3rem; font-weight: 700; color: #1a1a1a; line-height: 1; }
+.metric-label { font-size: 0.72rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+.condition-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 50px;
+    font-size: 0.78rem; font-weight: 600;
+}
+.risk-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1 class="h3 mb-0">🌤️ Hava Məlumatları</h1>
-            <p class="text-muted">Sahələriniz üçün hava məlumatlarını idarə edin</p>
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">🌤️ Bugünkü Hava</h4>
+            <p class="text-muted small mb-0">Sahələrinizin bu günkü hava vəziyyəti</p>
         </div>
-        <div class="col-md-4 text-end">
-            <a href="{% url 'weather:weather_add' %}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Yeni Hava Məlumatı
-            </a>
-        </div>
+        <a href="{% url 'weather:sync_weather' %}" class="btn btn-success btn-sm rounded-pill px-3">
+            <i class="fas fa-sync me-1"></i> Yenilə
+        </a>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            {% if weather_data %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Sahə</th>
-                            <th>Tarix</th>
-                            <th>Temperatur (°C)</th>
-                            <th>Rütubət (%)</th>
-                            <th>Yağıntı (mm)</th>
-                            <th>Külək (m/s)</th>
-                            <th>Hava Şəraiti</th>
-                            <th>Əməliyyatlar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for weather in weather_data %}
-                        <tr>
-                            <td>{{ weather.field.name }}</td>
-                            <td>{{ weather.weather_date|date:"d.m.Y" }}</td>
-                            <td>
-                                <span class="badge bg-info">{{ weather.temperature_avg|default:"-" }}</span>
-                                <small class="text-muted d-block">
-                                    {{ weather.temperature_min|default:"-" }} / {{ weather.temperature_max|default:"-" }}
-                                </small>
-                            </td>
-                            <td>
-                                <span class="badge bg-primary">{{ weather.humidity_avg|default:"-" }}</span>
-                            </td>
-                            <td>
-                                {% if weather.precipitation_mm %}
-                                <span class="badge {% if weather.precipitation_mm > 20 %}bg-danger{% else %}bg-success{% endif %}">
-                                    {{ weather.precipitation_mm }} mm
-                                </span>
-                                {% else %}
-                                -
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if weather.wind_speed_avg %}
-                                <span class="badge {% if weather.wind_speed_max > 15 %}bg-warning{% else %}bg-secondary{% endif %}">
-                                    {{ weather.wind_speed_avg }} m/s
-                                </span>
-                                {% else %}
-                                -
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="badge {% if weather.weather_condition == 'rainy' %}bg-primary{% elif weather.weather_condition == 'stormy' %}bg-danger{% else %}bg-success{% endif %}">
-                                    {{ weather.get_weather_condition_display }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{% url 'weather:weather_detail' weather.pk %}" class="btn btn-outline-info" title="Bax">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{% url 'weather:weather_edit' weather.pk %}" class="btn btn-outline-warning" title="Redaktə">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="{% url 'weather:weather_delete' weather.pk %}" class="btn btn-outline-danger" title="Sil">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Pagination -->
-            {% if is_paginated %}
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Əvvəlki</a>
-                    </li>
-                    {% endif %}
-                    
-                    {% for num in page_obj.paginator.page_range %}
-                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                    </li>
-                    {% endfor %}
-                    
-                    {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Sonrakı</a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
-            {% endif %}
-            
-            {% else %}
-            <div class="text-center py-5">
-                <div class="mb-3">
-                    <i class="fas fa-cloud-sun fa-4x text-muted"></i>
+    {% if weather_data %}
+    <div class="row g-3">
+        {% for weather in weather_data %}
+        <div class="col-md-6 col-xl-4">
+            <div class="weather-card shadow-sm">
+                <div class="card-top">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ weather.field.name }}</h6>
+                            <small style="color:rgba(255,255,255,0.75);">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ weather.field.location|default:"—" }}
+                            </small>
+                        </div>
+                        <span class="condition-badge bg-white bg-opacity-20" style="color:#fff;">
+                            {% if weather.weather_condition == 'sunny' %}☀️
+                            {% elif weather.weather_condition == 'rainy' %}🌧️
+                            {% elif weather.weather_condition == 'cloudy' %}☁️
+                            {% elif weather.weather_condition == 'stormy' %}⛈️
+                            {% elif weather.weather_condition == 'foggy' %}🌫️
+                            {% elif weather.weather_condition == 'snowy' %}❄️
+                            {% elif weather.weather_condition == 'windy' %}💨
+                            {% endif %}
+                            {{ weather.get_weather_condition_display }}
+                        </span>
+                    </div>
+                    <div class="mt-3">
+                        <span style="font-size:2.5rem; font-weight:800; line-height:1;">
+                            {{ weather.temperature_avg|default:"—" }}°C
+                        </span>
+                        <small style="color:rgba(255,255,255,0.7); margin-left:8px;">
+                            {{ weather.temperature_min|default:"—" }}° / {{ weather.temperature_max|default:"—" }}°
+                        </small>
+                    </div>
                 </div>
-                <h5>Hava məlumatı tapılmadı</h5>
-                <p class="text-muted">İlk hava məlumatınızı əlavə edin</p>
-                <a href="{% url 'weather:weather_add' %}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Yeni Hava Məlumatı
-                </a>
+
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-3">
+                            <div class="metric">
+                                <div class="metric-val">{{ weather.humidity_avg|default:"—" }}%</div>
+                                <div class="metric-label">Rütubət</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="metric">
+                                <div class="metric-val">{{ weather.precipitation_mm|default:"0" }}</div>
+                                <div class="metric-label">Yağıntı mm</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="metric">
+                                <div class="metric-val">{{ weather.wind_speed_avg|default:"—" }}</div>
+                                <div class="metric-label">Külək m/s</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="metric">
+                                {% with risk=weather.get_weather_risk_level %}
+                                <div class="metric-val">
+                                    {% if risk == 'high' %}<span class="text-danger">↑</span>
+                                    {% elif risk == 'medium' %}<span class="text-warning">→</span>
+                                    {% else %}<span class="text-success">↓</span>{% endif %}
+                                </div>
+                                <div class="metric-label">Risk</div>
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'weather:weather_detail' weather.pk %}"
+                       class="btn btn-outline-success btn-sm w-100 rounded-pill">
+                        <i class="fas fa-chart-line me-1"></i> 7 Günlük Proqnoz
+                    </a>
+                </div>
             </div>
-            {% endif %}
         </div>
+        {% endfor %}
     </div>
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-cloud-sun fa-4x text-muted mb-3"></i>
+        <h5>Hava məlumatı tapılmadı</h5>
+        <p class="text-muted">Sahələrinizə <strong>yer (şəhər)</strong> əlavə edin, data avtomatik gələcək.</p>
+        <a href="{% url 'fields:field_list' %}" class="btn btn-success rounded-pill px-4">
+            <i class="fas fa-map me-2"></i> Sahələrə keç
+        </a>
+    </div>
+    {% endif %}
+
 </div>
 {% endblock %}

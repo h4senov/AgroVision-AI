@@ -1,65 +1,71 @@
-:root{
+:root {
   --muted: #6b7280;
-  --card-bg: #ffffff;
-  --accent: #4b5563; /* neutral accent (soft gray) */
+  --card-bg: #ffffff; /* İşıqlı rejimdə ağ */
+  --input-bg: #ffffff;
+  --bg-body: #f9fafb;
+  --text-main: #111827;
+  --border-color: rgba(15, 23, 42, 0.08);
   --soil-light: #f5f6f7;
   --soil-dark: #374151;
-  --success: #0b8457; /* subtle green for small accents */
 }
 
-/* Don't override bootstrap .container globally; use custom wrapper */
-.app-container { max-width: 1100px; margin: 0 auto; padding-left: 1rem; padding-right: 1rem; }
-
-/* Card baseline */
-.card { border-radius: 10px; background: var(--card-bg); }
-
-/* Soil badge */
-.soil-badge {
-  display:inline-block;
-  padding:0.25rem 0.5rem;
-  border-radius: 6px;
-  font-size:0.82rem;
-  background: var(--soil-light);
-  color: var(--soil-dark);
-  border: 1px solid rgba(0,0,0,0.04);
+/* DARK MODE - Əgər data-theme="dark" istifadə edirsənsə */
+/* Dark Mode-da Input-un içini və yazısını düzəltmək */
+[data-theme="dark"] input, 
+[data-theme="dark"] select, 
+[data-theme="dark"] textarea {
+    background-color: #1e293b !important; /* Fon tünd göy/boz */
+    color: #ffffff !important;           /* Yazı ağ (məcburi) */
+    border: 1px solid #475569 !important; /* Sərhəd rəngi */
 }
 
-/* Stat card */
-.stat-card { background:#fff; border-radius:8px; padding:0.75rem; text-align:center; box-shadow:0 4px 10px rgba(17,24,39,0.03); }
-.stat-number { font-weight:700; font-size:1.05rem; }
-.stat-label { display:block; color:var(--muted); margin-top:0.25rem; font-size:0.82rem; }
+/* Input-un içindəki placeholder (məsələn: "Axtar...") rəngini də bir az açıq edək */
+[data-theme="dark"] input::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1;
+}
 
-/* Form controls fallback styling:
-   If your widgets don't emit .form-control, these rules make inputs look consistent.
-*/
+/* Əgər brauzer avtomatik olaraq içini doldurursa (autofill), o rəngi də düzəldək */
+[data-theme="dark"] input:-webkit-autofill {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+}
+
+/* Sənin köhnə CSS-indəki "#fff" olan yerləri dəyişənlərlə əvəzlədik */
+
+.card { 
+    border-radius: 10px; 
+    background: var(--card-bg) !important; 
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.stat-card { 
+    background: var(--card-bg) !important; /* #fff silindi */
+    border-radius: 8px; 
+    padding: 0.75rem; 
+    text-align: center; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+    color: var(--text-main) !important;
+}
+
+/* Inputların ağ qalmaması üçün ən vacib hissə */
 .app-container form input:not(.form-control),
 .app-container form select:not(.form-control),
-.app-container form textarea:not(.form-control) {
-  width:100%;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid rgba(15,23,42,0.08);
-  border-radius:6px;
-  background: #fff;
-  box-sizing: border-box;
-  font-size: 0.95rem;
+.app-container form textarea:not(.form-control),
+.form-control, .form-select {
+    background-color: var(--input-bg) !important; /* #fff silindi */
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
 }
 
-/* If widgets already emit .form-control, these are harmless */
-.app-container form .form-control { padding: 0.5rem 0.6rem; border-radius:6px; }
+/* Siyahı elementləri */
+.list-group a.list-group-item { 
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color); 
+}
 
-/* small helpers */
-.fw-semibold { font-weight:600; }
-.text-muted.small { font-size:0.85rem; color:var(--muted); }
-
-/* list group tweaks */
-.list-group a.list-group-item { border-radius:6px; margin-bottom:8px; border: 1px solid rgba(0,0,0,0.04); }
-.list-group a.list-group-item:hover { background:#fbfdff; }
-
-/* error */
-.text-danger.small { font-size:0.82rem; }
-
-/* responsive */
-@media (max-width:576px) {
-  .app-container { padding-left:0.75rem; padding-right:0.75rem; }
-  .stat-card { padding:0.6rem; }
+.list-group a.list-group-item:hover { 
+    background: var(--soil-light) !important; 
 }

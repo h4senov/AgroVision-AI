@@ -1,7 +1,7 @@
 {% load static %}
 {% load i18n %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}">
+<html lang="{{ LANGUAGE_CODE }}" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,105 +13,143 @@
     <link rel="stylesheet" href="{% static 'css/site.css' %}">
     <link rel="stylesheet" href="{% static 'css/components/components.css' %}">
 
+    <style>
+    /* ===== THEME VARIABLES ===== */
+    :root {
+    --bg: #FAF9F6;
+    --bg-secondary: #f8f9fa;
+    --bg-card: #ffffff;
+    --text: #1f2937;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --navbar-bg: #ffffff;
+    --offcanvas-bg: #ffffff;
+    --input-bg: #ffffff;
+    --brand-success: #10b981;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+    [data-theme="dark"] {
+        --bg:           #101829; /* Gecə mavisi fon */
+        --bg-secondary: #1f2937;
+        --bg-card:      #1f2937;
+        --text:         #f3f4f6;
+        --text-muted:   #9ca3af;
+        --border:       #374151;
+        --navbar-bg:    #111827;
+        --offcanvas-bg: #111827;
+        --input-bg:     #1f2937;
+    }
+
+    body { background: var(--bg) !important; color: var(--text); transition: all .3s; }
+
+    /* NAVBAR & MENU */
+    .navbar { background: var(--navbar-bg) !important; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+    .navbar-brand, .nav-link { color: var(--text) !important; }
+    .offcanvas { background: var(--offcanvas-bg) !important; }
+
+    /* 🛡️ AĞLIQLARI QIRAN ƏSAS HİSSƏ */
+    [data-theme="dark"] .card, 
+    [data-theme="dark"] .bg-white, 
+    [data-theme="dark"] .bg-light,
+    [data-theme="dark"] .list-group-item,
+    [data-theme="dark"] .container-fluid {
+        background-color: var(--bg-card) !important;
+        color: var(--text) !important;
+        border-color: var(--border) !important;
+    }
+
+    /* 🦓 ZEBRA EFFEKTİNİ SİLƏN HİSSƏ */
+    [data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+        background-color: transparent !important;
+        box-shadow: none !important;
+        color: var(--text) !important;
+    }
+
+    [data-theme="dark"] .table, 
+    [data-theme="dark"] .table td, 
+    [data-theme="dark"] .table th {
+        background-color: transparent !important;
+        border-color: var(--border) !important;
+        color: var(--text) !important;
+    }
+
+    /* FORMS */
+    .form-control, .form-select { 
+        background: var(--input-bg) !important; 
+        border-color: var(--border) !important; 
+        color: var(--text) !important; 
+    }
+
+    /* HELPERS */
+    .text-muted { color: var(--text-muted) !important; }
+    .theme-btn {
+        width: 36px; height: 36px; border-radius: 50%;
+        border: 1.5px solid var(--border); background: var(--bg-secondary);
+        color: var(--text); display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+    }
     
+    .site-footer { background: #111827 !important; border-top: 1px solid var(--border); }
+</style>
 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm py-2" aria-label="Main navigation">
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar navbar-expand-lg fixed-top py-2" aria-label="Main navigation">
     <div class="container">
+
         <a class="navbar-brand fw-bold d-flex align-items-center" href="{% if user.is_authenticated %}{% url 'core:dashboard' %}{% else %}/{% endif %}">
             <i class="fas fa-tractor text-success me-2"></i>
-            <span>
-                {% if user.is_authenticated %}
-                    {{ user_farm_name|default:"Smart Farm" }}
-                {% else %}
-                    Agrovision AI
-                {% endif %}
-            </span>
+            <span>{% if user.is_authenticated %}{{ user_farm_name|default:"Smart Farm" }}{% else %}Agrovision AI{% endif %}</span>
         </a>
 
-        <!-- Centered toggler on mobile -->
-        <button class="navbar-toggler mx-auto d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <!-- Mobile: theme + burger (offcanvas trigger) -->
+        <div class="d-flex d-lg-none align-items-center gap-2 ms-auto">
+            <button class="theme-btn" id="themeBtnMob"><i class="fas fa-moon" id="themeIconMob"></i></button>
+            <button class="btn border-0 p-1" type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#mobileNav"
+                    aria-controls="mobileNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
 
+        <!-- Desktop menyu -->
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
-
                 {% if user.is_authenticated %}
-                    <!-- Logged-in user menu: core app links (fields, plants ...) -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:dashboard' %}"><i class="fas fa-home me-1"></i>{% trans "Dashboard" %}</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'fields:field_list' %}"><i class="fas fa-map me-1"></i>{% trans "Sahələr" %}</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'plants:plant_list' %}"><i class="fas fa-seedling me-1"></i>{% trans "Bitkilər" %}</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'irrigation' in request.path %}active{% endif %}" href="{% url 'irrigation:irrigation_list' %}"><i class="fas fa-tint me-1"></i>{% trans "Suvarma" %}</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'sensors:sensor_list' %}"><i class="fas fa-satellite-dish me-1"></i>{% trans "Sensorlar" %}</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'inventory:inventory_list' %}"><i class="fas fa-box me-1"></i>{% trans "Anbar" %}</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.app_name == 'weather' %}active{% endif %}" href="{% url 'weather:weather_list' %}"><i class="fas fa-cloud-sun me-1"></i>{% trans "Hava" %}</a>
-                    </li>
-
+                    <li class="nav-item"><a class="nav-link" href="{% url 'core:dashboard' %}"><i class="fas fa-home me-1"></i>{% trans "Dashboard" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'fields:field_list' %}"><i class="fas fa-map me-1"></i>{% trans "Sahələr" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'plants:plant_list' %}"><i class="fas fa-seedling me-1"></i>{% trans "Bitkilər" %}</a></li>
+                    <li class="nav-item"><a class="nav-link {% if 'irrigation' in request.path %}active{% endif %}" href="{% url 'irrigation:irrigation_list' %}"><i class="fas fa-tint me-1"></i>{% trans "Suvarma" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'sensors:sensor_list' %}"><i class="fas fa-satellite-dish me-1"></i>{% trans "Sensorlar" %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'inventory:inventory_list' %}"><i class="fas fa-box me-1"></i>{% trans "Anbar" %}</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'weather' %}active{% endif %}" href="{% url 'weather:weather_list' %}"><i class="fas fa-cloud-sun me-1"></i>{% trans "Hava" %}</a></li>
                 {% else %}
-                    <!-- Guest menu: informational pages and product listing -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="aboutDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <i class="fas fa-info-circle me-1"></i>{% trans "HAQQIMIZDA" %}
-                        </a>
-                        <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="aboutDropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="fas fa-info-circle me-1"></i>{% trans "HAQQIMIZDA" %}</a>
+                        <ul class="dropdown-menu shadow-sm border-0">
                             <li><a class="dropdown-item" href="{% url 'pages:about_general' %}">{% trans "Ümumi Məlumatlar" %}</a></li>
                             <li><a class="dropdown-item" href="{% url 'pages:about_goals' %}">{% trans "Məqsədlərimiz" %}</a></li>
                         </ul>
                     </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.app_name == 'careers' %}active{% endif %}" href="{% url 'careers:career_list' %}"><i class="fas fa-briefcase me-1"></i>{% trans "KARYERA" %}</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.app_name == 'news' %}active{% endif %}" href="{% url 'news:news_list' %}"><i class="fas fa-newspaper me-1"></i>{% trans "MEDIA" %}</a>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {% if request.resolver_match.app_name == 'products' %}active{% endif %}" href="#" id="prodDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            <i class="fas fa-industry me-1"></i>{% trans "İSTEHSALAT" %}
-                        </a>
-                        <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="prodDropdown">
-                            <li><a class="dropdown-item" href="{% url 'products:product_list' %}">{% trans "Cihazlarımız" %}</a></li>
-                            <li><a class="dropdown-item" href="{% url 'products:product_list' %}?category=keyfiyyet">{% trans "Keyfiyyət Standartları" %}</a></li>
-                            <li><a class="dropdown-item" href="{% url 'products:product_list' %}?is_featured=true">{% trans "Texnoloji Yeniliklər" %}</a></li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'contact_index' %}active{% endif %}" href="{% url 'pages:contact_index' %}"><i class="fas fa-phone-alt me-1"></i>{% trans "ƏLAQƏ" %}</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'careers' %}active{% endif %}" href="{% url 'careers:career_list' %}"><i class="fas fa-briefcase me-1"></i>{% trans "KARYERA" %}</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'news' %}active{% endif %}" href="{% url 'news:news_list' %}"><i class="fas fa-newspaper me-1"></i>{% trans "MEDIA" %}</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'contact_index' %}active{% endif %}" href="{% url 'pages:contact_index' %}"><i class="fas fa-phone-alt me-1"></i>{% trans "ƏLAQƏ" %}</a></li>
                 {% endif %}
             </ul>
 
             <div class="d-flex align-items-center gap-3">
+                <!-- Dil -->
                 <div class="dropdown">
-                    <a class="nav-link dropdown-toggle fw-bold p-0" href="#" id="langSelector" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-globe me-1"></i> {{ LANGUAGE_CODE|upper }}
+                    <a class="nav-link dropdown-toggle fw-bold p-0" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-globe me-1"></i>{{ LANGUAGE_CODE|upper }}
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="langSelector">
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                         {% get_current_language as CURRENT_LANG %}
                         {% get_available_languages as ALL_LANGS %}
                         {% get_language_info_list for ALL_LANGS as languages %}
@@ -130,96 +168,158 @@
                         {% endfor %}
                     </ul>
                 </div>
-
+                <!-- Theme toggle -->
+                <button class="theme-btn" id="themeBtnDesk"><i class="fas fa-moon" id="themeIconDesk"></i></button>
+                <!-- User -->
                 {% if user.is_authenticated %}
-                    <!-- Authenticated user menu (profile + admin area if staff) -->
-                    <div class="dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle fa-lg me-1"></i> {{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userMenu">
-                            <li><a class="dropdown-item" href="{% url 'users:user_profile' %}">{% trans "Profil" %}</a></li>
-
-                            {% if user.is_staff %}
-                            <li><hr class="dropdown-divider"></li>
-                            <!-- Admin quick links -->
-                            <li class="px-2"><small class="text-muted ms-1">Admin</small></li>
-                            <li><a class="dropdown-item nav-admin" href="{% url 'products:product_create' %}"><i class="fas fa-plus-circle me-2"></i>{% trans "Yeni Product" %}</a></li>
-                            <li><a class="dropdown-item nav-admin" href="{% url 'products:product_list' %}?admin=1"><i class="fas fa-list me-2"></i>{% trans "Bütün Produktlər (İdarə)" %}</a></li>
-
-                            <!-- News & Careers admin placeholders -->
-                            
-                            <li><a class="dropdown-item nav-admin" href="{% url 'news:news_create' %}"><i class="fas fa-newspaper me-2"></i>{% trans "Yeni Xəbər (admin)" %}</a></li>
-                            <li><a class="dropdown-item nav-admin" href="{% url 'news:news_list' %}?admin=1"><i class="fas fa-edit me-2"></i>{% trans "Xəbərlər (İdarə)" %}</a></li>
-                    
-                            <li><a class="dropdown-item nav-admin" href="{% url 'careers:career_list' %}?admin=1"><i class="fas fa-edit me-2"></i>{% trans "Vakansiyalar (İdarə)" %}</a></li>
-                            {% endif %}
-
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="post" action="{% url 'users:user_logout' %}">
-                                    {% csrf_token %}<button type="submit" class="dropdown-item text-danger">{% trans "Çıxış" %}</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle fa-lg me-1"></i>{{ user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><a class="dropdown-item" href="{% url 'users:user_profile' %}">{% trans "Profil" %}</a></li>
+                        {% if user.is_staff %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="px-2"><small class="text-muted ms-1">Admin</small></li>
+                        <li><a class="dropdown-item" href="{% url 'products:product_create' %}"><i class="fas fa-plus-circle me-2"></i>{% trans "Yeni Product" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'products:product_list' %}?admin=1"><i class="fas fa-list me-2"></i>{% trans "Bütün Produktlər" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'news:news_create' %}"><i class="fas fa-newspaper me-2"></i>{% trans "Yeni Xəbər" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'news:news_list' %}?admin=1"><i class="fas fa-edit me-2"></i>{% trans "Xəbərlər (İdarə)" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'careers:career_list' %}?admin=1"><i class="fas fa-edit me-2"></i>{% trans "Vakansiyalar (İdarə)" %}</a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'users:user_logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">{% trans "Çıxış" %}</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
                 {% else %}
-                    <div class="d-flex align-items-center gap-2">
-                        <a class="btn btn-outline-success btn-sm px-3" href="{% url 'users:user_login' %}">
-                            <i class="fas fa-sign-in-alt me-1"></i> {% trans "Giriş" %}
-                        </a>
-                        <a class="btn btn-success btn-sm px-3 shadow-sm" href="{% url 'users:user_register' %}">
-                            <i class="fas fa-user-plus me-1"></i> {% trans "Qeydiyyat" %}
-                        </a>
-                    </div>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-outline-success btn-sm px-3" href="{% url 'users:user_login' %}"><i class="fas fa-sign-in-alt me-1"></i>{% trans "Giriş" %}</a>
+                    <a class="btn btn-success btn-sm px-3 shadow-sm" href="{% url 'users:user_register' %}"><i class="fas fa-user-plus me-1"></i>{% trans "Qeydiyyat" %}</a>
+                </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </nav>
-    <!-- ========== /NAVBAR (UPDATED) ========== -->
 
-    <main class="">
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer class="site-footer bg-dark text-light py-4">
-        <div class="container d-flex align-items-center justify-content-between flex-column flex-md-row">
-            <div class="mb-3 mb-md-0 text-center text-md-start">
-                <p class="mb-0 small">&copy; 2026 Smart Farm. {% trans "Bütün hüquqlar qorunur." %}</p>
-            </div>
-
-            <div class="social-icons text-center text-md-end">
-                <a class="text-light" href="https://instagram.com/" target="_blank" aria-label="Instagram">
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a class="text-light" href="https://facebook.com/" target="_blank" aria-label="Facebook">
-                    <i class="fab fa-facebook"></i>
-                </a>
-                <a class="text-light" href="https://twitter.com/" target="_blank" aria-label="Twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-            </div>
+<!-- ===== OFFCANVAS — Mobile (kənardan açılır) ===== -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-tractor text-success"></i>
+            <span class="offcanvas-title" id="mobileNavLabel">
+                {% if user.is_authenticated %}{{ user_farm_name|default:"Smart Farm" }}{% else %}Agrovision AI{% endif %}
+            </span>
         </div>
-    </footer>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Bağla"></button>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    {% block extra_js %}{% endblock %}
+    <div class="offcanvas-body d-flex flex-column p-3">
+         
+        <ul class="navbar-nav flex-column flex-grow-1">
+    {% if user.is_authenticated %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'core:dashboard' %}"><i class="fas fa-home me-2 text-success"></i>{% trans "Dashboard" %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'fields:field_list' %}"><i class="fas fa-map me-2 text-success"></i>{% trans "Sahələr" %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'plants:plant_list' %}"><i class="fas fa-seedling me-2 text-success"></i>{% trans "Bitkilər" %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'irrigation:irrigation_list' %}"><i class="fas fa-tint me-2 text-success"></i>{% trans "Suvarma" %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'sensors:sensor_list' %}"><i class="fas fa-satellite-dish me-2 text-success"></i>{% trans "Sensorlar" %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'inventory:inventory_list' %}"><i class="fas fa-box me-2 text-success"></i>{% trans "Anbar" %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'weather:weather_list' %}"><i class="fas fa-cloud-sun me-2 text-success"></i>{% trans "Hava" %}</a></li>
+        <hr class="offcanvas-divider">
+        <li class="nav-item"><a class="nav-link" href="{% url 'users:user_profile' %}"><i class="fas fa-user me-2"></i>{% trans "Profil" %}</a></li>
+        <li class="nav-item">
+            <form method="post" action="{% url 'users:user_logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
+                    <i class="fas fa-sign-out-alt me-2"></i>{% trans "Çıxış" %}
+                </button>
+            </form>
+        </li>
+    {% else %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'pages:about_general' %}"><i class="fas fa-info-circle me-2 text-success"></i>{% trans "Haqqımızda" %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'careers:career_list' %}"><i class="fas fa-briefcase me-2 text-success"></i>{% trans "Karyera" %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'news:news_list' %}"><i class="fas fa-newspaper me-2 text-success"></i>{% trans "Media" %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'pages:contact_index' %}"><i class="fas fa-phone-alt me-2 text-success"></i>{% trans "Əlaqə" %}</a></li>
+        <hr class="offcanvas-divider">
+        <li class="nav-item"><a class="nav-link" href="{% url 'users:user_login' %}"><i class="fas fa-sign-in-alt me-2"></i>{% trans "Giriş" %}</a></li>
+        <li class="nav-item"><a class="nav-link text-success fw-bold" href="{% url 'users:user_register' %}"><i class="fas fa-user-plus me-2"></i>{% trans "Qeydiyyat" %}</a></li>
+    {% endif %}
+</ul>
+        <!-- Offcanvas altı: dil + theme -->
+        <div class="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle fw-bold p-0 small" href="#" data-bs-toggle="dropdown">
+                    <i class="fas fa-globe me-1"></i>{{ LANGUAGE_CODE|upper }}
+                </a>
+                <ul class="dropdown-menu shadow border-0">
+                    {% get_current_language as CURRENT_LANG %}
+                    {% get_available_languages as ALL_LANGS %}
+                    {% get_language_info_list for ALL_LANGS as languages %}
+                    {% for lang in languages %}
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post" class="m-0">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.path }}">
+                            <input name="language" type="hidden" value="{{ lang.code }}">
+                            <button type="submit" class="dropdown-item {% if lang.code == CURRENT_LANG %}active bg-success text-white{% endif %}">
+                                {{ lang.name_local }}
+                            </button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <button class="theme-btn" id="themeBtnOff"><i class="fas fa-moon" id="themeIconOff"></i></button>
+        </div>
+    </div>
+</div>
 
-    <!-- Custom small JS: ensure dropdowns inside collapsed menu behave on click only -->
-    <script>
-    (function () {
-        // Prevent any hover-triggered opening if some other script attempted it.
-        // Bootstrap's dropdown works on click by default; this is a safety net.
-        document.querySelectorAll('.navbar .dropdown').forEach(function(dd) {
-            dd.addEventListener('mouseenter', function(e) {
-                // do nothing on hover
-            });
-        });
-    })();
-    </script>
+<!-- ===== MAIN ===== -->
+<main class="mt-5 pt-3">
+    {% block content %}{% endblock %}
+</main>
 
-    <script src="{% static 'js/site.js' %}"></script>
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer py-4 mt-5">
+    <div class="container d-flex align-items-center justify-content-between flex-column flex-md-row">
+        <p class="mb-0 small text-light">&copy; 2026 Smart Farm. {% trans "Bütün hüquqlar qorunur." %}</p>
+        <div class="social-icons mt-2 mt-md-0">
+            <a class="text-light" href="https://www.instagram.com/agrovision_ai/" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a class="text-light ms-3" href="mailto:agrovision.ai.az@gmail.com"><i class="fas fa-envelope"></i></a>
+        </div>
+    </div>
+</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+
+<script>
+// ===== DARK MODE =====
+const html = document.documentElement;
+
+function applyTheme(t) {
+    html.setAttribute('data-theme', t);
+    localStorage.setItem('theme', t);
+    const icon = t === 'dark' ? 'fa-sun' : 'fa-moon';
+    ['themeIconDesk','themeIconMob','themeIconOff'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = 'fas ' + icon;
+    });
+}
+function toggle() { applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark'); }
+
+applyTheme(localStorage.getItem('theme') || 'light');
+
+document.getElementById('themeBtnDesk')?.addEventListener('click', toggle);
+document.getElementById('themeBtnMob')?.addEventListener('click', toggle);
+document.getElementById('themeBtnOff')?.addEventListener('click', toggle);
+</script>
+
+<script src="{% static 'js/site.js' %}"></script>
 </body>
 </html>

@@ -1,107 +1,147 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if form.instance.pk %}Sensoru Redaktə{% else %}Sensor Əlavə Et{% endif %} - AgroVision{% endblock %}
 
-{% block title %}Sensoru Redaktə Et - Smart Farm{% endblock %}
+{% block extra_css %}
+<style>
+@keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.form-wrap { border-radius:24px; overflow:hidden; animation:fadeInUp 0.5s ease backwards; }
+.form-header { background:linear-gradient(135deg, #e8f5e9, #f1f8e9); border-bottom:1px solid #e0f0e3; padding:28px 36px; }
+.form-header h4 { color:#2d6a4f; font-weight:700; }
+.form-control, .form-select {
+    border-radius:10px; padding:10px 14px;
+    border:1.5px solid #e5e7eb; transition:border-color 0.2s, box-shadow 0.2s; font-size:0.9rem;
+}
+.form-control:focus, .form-select:focus { border-color:#52b788; box-shadow:0 0 0 3px rgba(82,183,136,0.12); }
+.lbl { font-size:0.73rem; font-weight:700; text-transform:uppercase; color:#6b7280; letter-spacing:0.5px; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+.lbl i { color:#52b788; }
+.section-bg { background:#f9fafb; border:1px solid #f0f0f0; border-radius:16px; padding:20px; }
+.btn-submit { background:#52b788; color:#fff; border:none; padding:12px 36px; border-radius:12px; font-weight:700; transition:all 0.25s; }
+.btn-submit:hover { background:#40916c; transform:translateY(-2px); box-shadow:0 6px 16px rgba(64,145,108,0.25); color:#fff; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header bg-warning text-white">
-                <h4 class="card-title mb-0">
-                    <i class="fas fa-edit me-2"></i>Sensoru Redaktə Et: {{ sensor.name }}
-                </h4>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <!-- Form Sahələri -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Sahə</label>
-                                {{ form.field }}
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Sensor Adı</label>
-                                {{ form.name }}
-                            </div>
-                        </div>
-                    </div>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Sensor Kodu</label>
-                                {{ form.sensor_code }}
-                            </div>
+            <div class="mb-3">
+                <a href="{% url 'sensors:sensor_dashboard' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="fas fa-arrow-left me-1"></i>Geri
+                </a>
+            </div>
+
+            <div class="card form-wrap shadow-sm border-0">
+                <div class="form-header">
+                    <h4 class="mb-1">
+                        {% if form.instance.pk %}✏️ Sensoru Redaktə Et{% else %}🔬 Yeni Sensor Əlavə Et{% endif %}
+                    </h4>
+                    <p class="text-muted small mb-0">
+                        {% if form.instance.pk %}{{ form.instance.name }} — {{ form.instance.get_sensor_type_display }}
+                        {% else %}Sahəyə yeni sensor qeydiyyatı{% endif %}
+                    </p>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger rounded-3 border-0 small mb-4">
+                            <i class="fas fa-exclamation-circle me-2"></i>Zəhmət olmasa xətaları düzəldin.
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Sensor Növü</label>
+                        {% endif %}
+
+                        <!-- Sahə + Sensor növü -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="lbl"><i class="fas fa-map-marker-alt"></i>{{ form.field.label }}</div>
+                                {{ form.field }}
+                                {% if form.field.errors %}<div class="text-danger small mt-1">{{ form.field.errors|first }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="lbl"><i class="fas fa-microchip"></i>{{ form.sensor_type.label }}</div>
                                 {{ form.sensor_type }}
                             </div>
                         </div>
-                    </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Təsvir</label>
-                        {{ form.description }}
-                    </div>
+                        <!-- Ad + Kod -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="lbl"><i class="fas fa-tag"></i>{{ form.name.label }}</div>
+                                {{ form.name }}
+                                {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors|first }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="lbl"><i class="fas fa-barcode"></i>{{ form.sensor_code.label }}</div>
+                                {{ form.sensor_code }}
+                                {% if form.sensor_code.errors %}<div class="text-danger small mt-1">{{ form.sensor_code.errors|first }}</div>{% endif %}
+                            </div>
+                        </div>
 
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label">Qurulma Tarixi</label>
-                                {{ form.installation_date }}
+                        <!-- Qurulma + İnterval + Batareya -->
+                        <div class="section-bg mb-3">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="lbl"><i class="fas fa-calendar-alt"></i>{{ form.installation_date.label }}</div>
+                                    {{ form.installation_date }}
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="lbl"><i class="fas fa-clock"></i>{{ form.data_interval.label }}</div>
+                                    <div class="input-group">
+                                        {{ form.data_interval }}
+                                        <span class="input-group-text bg-white border-start-0 text-muted small">dəq</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="lbl"><i class="fas fa-battery-half"></i>{{ form.battery_level.label }}</div>
+                                    <div class="input-group">
+                                        {{ form.battery_level }}
+                                        <span class="input-group-text bg-white border-start-0 text-muted">%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label">Enlik</label>
-                                {{ form.latitude }}
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label">Uzunluq</label>
-                                {{ form.longitude }}
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label">Batareya Səviyyəsi (%)</label>
-                                {{ form.battery_level }}
+                        <!-- Koordinat (isteğe bağlı) -->
+                        <div class="section-bg mb-3">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <span class="fw-bold small text-muted text-uppercase">📍 Koordinat</span>
+                                <span class="badge bg-light text-muted border" style="font-size:0.65rem;">İsteğe bağlı</span>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="lbl">{{ form.latitude.label }}</div>
+                                    {{ form.latitude }}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="lbl">{{ form.longitude.label }}</div>
+                                    {{ form.longitude }}
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label">Məlumat Intervalı (dəq)</label>
-                                {{ form.data_interval }}
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3 form-check">
-                                {{ form.is_active }}
-                                <label class="form-check-label">Aktiv</label>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save me-2"></i>Yadda Saxla
-                        </button>
-                        <a href="{% url 'sensors:sensor_detail' sensor.id %}" class="btn btn-secondary">
-                            <i class="fas fa-times me-2"></i>Ləğv Et
-                        </a>
-                    </div>
-                </form>
+                        <!-- Təsvir + Aktiv -->
+                        <div class="mb-3">
+                            <div class="lbl"><i class="fas fa-sticky-note"></i>{{ form.description.label }}</div>
+                            {{ form.description }}
+                        </div>
+                        <div class="form-check form-switch mb-4">
+                            {{ form.is_active }}
+                            <label class="form-check-label fw-bold small ms-2" for="{{ form.is_active.id_for_label }}">
+                                {{ form.is_active.label }}
+                            </label>
+                        </div>
+
+                        <div class="d-flex gap-3 justify-content-end pt-3 border-top">
+                            <a href="{% url 'sensors:sensor_dashboard' %}" class="btn btn-light rounded-pill px-4 border text-muted fw-bold">Ləğv Et</a>
+                            <button type="submit" class="btn-submit shadow-sm">
+                                <i class="fas fa-check-circle me-2"></i>Yadda Saxla
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

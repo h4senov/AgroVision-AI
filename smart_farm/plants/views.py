@@ -55,15 +55,15 @@ def plant_detail(request, plant_id):
 def add_plant(request):
     if request.method == 'POST':
         form = PlantForm(request.POST, request.FILES)
-        if form.is_valid(): # Yuxarıda yazdığımız 'clean' metodu burada işə düşür
+        if form.is_valid():
             plant = form.save(commit=False)
             plant.user = request.user
             plant.save()
             return redirect('plants:plant_list')
     else:
         form = PlantForm()
+        form.fields['field'].queryset = Field.objects.filter(user=request.user)  # ← əlavə et
     return render(request, 'plants/add_plant.html', {'form': form})
-
 
 @login_required
 def edit_plant(request, plant_id):

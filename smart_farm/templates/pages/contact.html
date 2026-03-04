@@ -1,103 +1,227 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block content %}
+{% block title %}Əlaqə - AgroVision AI{% endblock %}
+
+{% block extra_css %}
 <style>
-    .contact-header {
-        background-color: #f8f9fa;
-        padding: 80px 0;
-    }
-    .info-card {
-        background: #198754;
-        color: white;
-        border-radius: 20px;
-        overflow: hidden;
-        position: relative;
-    }
-    .info-card::after {
-        content: '';
-        position: absolute;
-        bottom: -50px; right: -50px;
-        width: 200px; height: 200px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 50%;
-    }
-    .form-control:focus {
-        border-color: #198754;
-        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
-    }
+.contact-hero {
+    background: linear-gradient(135deg, #0d2818 0%, #1a5c35 100%);
+    padding: 80px 0 120px;
+    text-align: center;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+.contact-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%234ade80' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.contact-hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin-bottom: 12px; position: relative; }
+.contact-hero p  { color: rgba(255,255,255,0.7); font-size: 1.05rem; position: relative; }
+
+.contact-wrap {
+    max-width: 1000px; margin: -60px auto 60px;
+    padding: 0 16px;
+    position: relative; z-index: 2;
+}
+.contact-card {
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    display: flex;
+}
+
+/* Sol bilgi paneli */
+.contact-info {
+    width: 36%;
+    background: #198754;
+    padding: 44px 36px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden;
+}
+.contact-info::after {
+    content: '';
+    position: absolute; bottom: -60px; right: -60px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+}
+.contact-info h4 { color: #fff; font-weight: 700; font-size: 1.2rem; margin-bottom: 32px; }
+
+.info-item { display: flex; gap: 14px; margin-bottom: 24px; align-items: flex-start; }
+.info-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 0.9rem; flex-shrink: 0;
+}
+.info-item span { color: rgba(255,255,255,0.85); font-size: 0.88rem; line-height: 1.6; }
+
+.social-row { display: flex; gap: 10px; margin-top: 32px; position: relative; z-index: 1; }
+.social-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 0.85rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+}
+.social-btn:hover { background: rgba(255,255,255,0.25); color: #fff; transform: translateY(-2px); }
+
+/* Sağ form */
+.contact-form-wrap { flex: 1; padding: 44px 44px; }
+.contact-form-wrap h3 { font-size: 1.4rem; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+.contact-form-wrap .sub { font-size: 0.88rem; color: #888; margin-bottom: 28px; }
+
+.field-group { margin-bottom: 18px; }
+.field-label { font-size: 0.82rem; font-weight: 600; color: #444; margin-bottom: 7px; display: block; }
+.field-wrap {
+    display: flex; align-items: center;
+    border: 1.5px solid #e5e7e5; border-radius: 12px;
+    overflow: hidden; background: #fafafa;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field-wrap:focus-within {
+    border-color: #198754;
+    box-shadow: 0 0 0 3px rgba(25,135,84,0.1);
+    background: #fff;
+}
+.field-icon { padding: 0 13px; color: #aaa; font-size: 0.88rem; }
+.field-wrap input,
+.field-wrap textarea {
+    flex: 1; border: none; background: transparent;
+    padding: 12px 12px 12px 0;
+    font-size: 0.93rem; color: #1a1a1a; outline: none;
+    resize: none;
+}
+.field-wrap input::placeholder,
+.field-wrap textarea::placeholder { color: #bbb; }
+.field-wrap textarea { padding-top: 13px; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.btn-send {
+    width: 100%; padding: 14px;
+    background: #198754; color: #fff;
+    border: none; border-radius: 12px;
+    font-size: 1rem; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 8px;
+}
+.btn-send:hover { background: #157347; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(25,135,84,0.3); }
+
+@media(max-width: 767px){
+    .contact-info { display: none; }
+    .contact-form-wrap { padding: 32px 24px; }
+    .two-col { grid-template-columns: 1fr; gap: 0; }
+}
 </style>
+{% endblock %}
 
-<section class="contact-header text-center">
+{% block content %}
+
+<div class="contact-hero">
     <div class="container">
-        <h1 class="fw-bold display-4">Bizimlə Əlaqə</h1>
-        <p class="text-muted lead">Layihəniz var və ya əməkdaşlıq etmək istəyirsiniz? Bizə yazın.</p>
+        <h1>Bizimlə Əlaqə</h1>
+        <p>Layihəniz var və ya əməkdaşlıq etmək istəyirsiniz? Bizə yazın.</p>
     </div>
-</section>
+</div>
 
-<div class="container mb-5 mt-n5" style="transform: translateY(-40px);">
-    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
-        <div class="row g-0">
-            <div class="col-lg-4">
-                <div class="info-card h-100 p-5 d-flex flex-column justify-content-between">
-                    <div>
-                        <h4 class="fw-bold mb-4">Əlaqə Məlumatları</h4>
-                        <div class="d-flex mb-4">
-                            <i class="fas fa-map-marker-alt mt-1 me-3 opacity-75"></i>
-                            <span>Bakı, Azərbaycan<br>Agro Plaza, Nizami küç. 45</span>
-                        </div>
-                        <div class="d-flex mb-4">
-                            <i class="fas fa-phone-alt mt-1 me-3 opacity-75"></i>
-                            <span>+994 50 123 45 67</span>
-                        </div>
-                        <div class="d-flex mb-4">
-                            <i class="fas fa-envelope mt-1 me-3 opacity-75"></i>
-                            <span>info@agrovision.ai</span>
-                        </div>
-                    </div>
-                    
-                    <div class="social-links mt-4">
-                        <p class="small opacity-75 mb-3">Bizi izləyin:</p>
-                        <div class="d-flex gap-3">
-                            <a href="#" class="btn btn-outline-light btn-sm rounded-circle"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="#" class="btn btn-outline-light btn-sm rounded-circle"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="btn btn-outline-light btn-sm rounded-circle"><i class="fab fa-facebook-f"></i></a>
-                        </div>
-                    </div>
+<div class="contact-wrap">
+    <div class="contact-card">
+
+        <!-- Sol panel -->
+        <div class="contact-info">
+            <div>
+                <h4>Əlaqə Məlumatları</h4>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <span>Bakı, Azərbaycan<br>Agro Plaza, Nizami küç. 45</span>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-phone-alt"></i></div>
+                    <span>+994 50 123 45 67</span>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                    <span>info@agrovision.ai</span>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-clock"></i></div>
+                    <span>B.e – Cümə: 09:00 – 18:00</span>
                 </div>
             </div>
-            
-            <div class="col-lg-8 bg-white">
-                <div class="p-5">
-                    <h3 class="fw-bold mb-4 text-dark">Mesaj Göndərin</h3>
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-secondary">Ad Soyad</label>
-                                {{ form.name }} </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-secondary">E-poçt</label>
-                                {{ form.email }}
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label small fw-bold text-secondary">Mövzu</label>
-                                {{ form.subject }}
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label small fw-bold text-secondary">Mesaj</label>
-                                {{ form.message }}
-                            </div>
-                            <div class="col-12 mt-4">
-                                <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill w-100 fw-bold shadow-sm hover-effect">
-                                    Göndər <i class="fas fa-paper-plane ms-2"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+            <div>
+                <p style="color:rgba(255,255,255,0.6);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Bizi izləyin</p>
+                <div class="social-row">
+                    <a href="#" class="social-btn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
                 </div>
             </div>
         </div>
+
+        <!-- Form -->
+        <div class="contact-form-wrap">
+            <h3>Mesaj Göndərin</h3>
+            <p class="sub">Sizinlə ən qısa zamanda əlaqə saxlayacağıq.</p>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success border-0 rounded-3 small mb-4 py-2">
+                        <i class="fas fa-check-circle me-2"></i>{{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="two-col">
+                    <div class="field-group">
+                        <label class="field-label">Ad Soyad</label>
+                        <div class="field-wrap">
+                            <span class="field-icon"><i class="fas fa-user"></i></span>
+                            {{ form.name }}
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">E-poçt</label>
+                        <div class="field-wrap">
+                            <span class="field-icon"><i class="fas fa-envelope"></i></span>
+                            {{ form.email }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Mövzu</label>
+                    <div class="field-wrap">
+                        <span class="field-icon"><i class="fas fa-tag"></i></span>
+                        {{ form.subject }}
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Mesaj</label>
+                    <div class="field-wrap" style="align-items:flex-start;">
+                        <span class="field-icon" style="padding-top:14px;"><i class="fas fa-comment-alt"></i></span>
+                        {{ form.message }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-send">
+                    <i class="fas fa-paper-plane"></i> Göndər
+                </button>
+            </form>
+        </div>
+
     </div>
 </div>
+
 {% endblock %}

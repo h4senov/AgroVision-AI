@@ -1,97 +1,140 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}Yığım Proqnozu - {{ plant.get_plant_type_display }}{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Yığım Proqnozu" %} - {{ plant.get_plant_type_display }}{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --farm-green: #27ae60;
-        --farm-blue: #2980b9;
-        --farm-gold: #f1c40f;
-    }
+.reveal { opacity:0; transform:translateY(28px); transition:opacity .6s ease, transform .6s ease; }
+.reveal.active { opacity:1; transform:translateY(0); }
+.delay-1{transition-delay:.1s} .delay-2{transition-delay:.2s} .delay-3{transition-delay:.3s} .delay-4{transition-delay:.4s}
 
-    .prediction-hero {
-        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-        border-radius: 30px;
-        padding: 40px;
-        color: white;
-        margin-bottom: 30px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    }
+.pred-hero {
+    background:linear-gradient(135deg,#182f4c 0%,#2e8e63 100%);
+    border-radius:24px; color:#fff; padding:36px;
+    position:relative; overflow:hidden;
+}
+.pred-hero::before {
+    content:''; position:absolute; top:-80px; right:-80px;
+    width:260px; height:260px; border-radius:50%;
+    background:rgba(255,255,255,.04);
+}
+.pred-hero::after {
+    content:''; position:absolute; bottom:-60px; left:-40px;
+    width:200px; height:200px; border-radius:50%;
+    background:rgba(255,255,255,.03);
+}
+.days-circle {
+    width:130px; height:130px; border-radius:50%;
+    border:5px solid rgba(255,255,255,.3);
+    background:rgba(255,255,255,.1);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    backdrop-filter:blur(6px);
+}
+.days-circle .num { font-size:2.8rem; font-weight:800; line-height:1; color:#fff; }
+.days-circle .lbl { font-size:.65rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:1px; }
+.conf-bar-wrap { background:rgba(255,255,255,.15); border-radius:10px; height:8px; overflow:hidden; }
+.conf-bar { height:100%; border-radius:10px; background:#fff; transition:width 1.2s ease; }
 
-    .glass-card {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        border: none;
-        transition: transform 0.3s ease;
-    }
+.info-card {
+    background:var(--bg-card) !important;
+    border:1px solid var(--border) !important;
+    border-radius:20px; box-shadow:0 6px 24px rgba(0,0,0,.05);
+    transition:transform .25s ease; color:var(--text);
+}
+.info-card:hover { transform:translateY(-4px); }
 
-    .glass-card:hover { transform: translateY(-5px); }
+.yield-banner {
+    background:linear-gradient(135deg,#11998e,#38ef7d);
+    border-radius:20px; padding:28px; color:#fff;
+}
+.yield-banner .big { font-size:3rem; font-weight:800; line-height:1; }
 
-    .stat-circle {
-        width: 140px;
-        height: 140px;
-        border: 8px solid var(--farm-green);
-        border-radius: 50%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        margin: 0 auto;
-        background: white;
-        color: #333;
-    }
+.factor-bar { height:8px; border-radius:10px; background:var(--border); overflow:hidden; }
+.factor-fill { height:100%; border-radius:10px; transition:width 1.4s ease; width:0; }
 
-    .yield-badge {
-        background: linear-gradient(45deg, #11998e, #38ef7d);
-        padding: 20px;
-        border-radius: 20px;
-        color: white;
-        text-align: center;
-    }
+.risk-high   { background:rgba(192,57,43,.08);  border:1px solid #ffc9c9; color:#c0392b; }
+.risk-medium { background:rgba(183,119,13,.08); border:1px solid #ffe066; color:#b7770d; }
+.risk-low    { background:rgba(26,122,60,.08);  border:1px solid #b2f5c8; color:#1a7a3c; }
+[data-theme="dark"] .risk-high   { background:rgba(192,57,43,.2);  color:#ff7675; }
+[data-theme="dark"] .risk-medium { background:rgba(183,119,13,.2); color:#ffd54f; }
+[data-theme="dark"] .risk-low    { background:rgba(26,122,60,.2);  color:#55efc4; }
+.risk-badge { border-radius:12px; padding:14px 18px; display:flex; align-items:center; gap:12px; }
+.risk-badge .icon  { font-size:1.6rem; }
+.risk-badge .title { font-weight:700; font-size:.9rem; }
+.risk-badge .desc  { font-size:.75rem; opacity:.75; margin-top:2px; }
 
-    .impact-progress {
-        height: 8px;
-        border-radius: 10px;
-        background: #eee;
-    }
+.advice-item {
+    padding:12px 16px; border-radius:12px;
+    background:var(--bg-secondary) !important;
+    border:1px solid var(--border) !important;
+    display:flex; align-items:flex-start; gap:12px; margin-bottom:10px;
+}
+.advice-item .adv-icon { font-size:1.2rem; margin-top:1px; }
+.advice-item .adv-text { font-size:.82rem; color:var(--text); line-height:1.5; }
 
-    .impact-fill {
-        height: 100%;
-        border-radius: 10px;
-        transition: width 1.5s ease-in-out;
-    }
+.info-card ul li { border-color:var(--border) !important; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="prediction-hero text-center">
-        <div class="mb-3">
-            <span class="badge bg-white text-dark rounded-pill px-4 py-2 fw-bold shadow-sm">
-                <i class="fas fa-robot me-2 text-primary"></i>AI ANALİTİKA SİSTEMİ
-            </span>
-        </div>
-        <h1 class="display-5 fw-bold mb-4">🎯 {{ plant.get_plant_type_display }} Proqnozu</h1>
-        
-        <div class="row g-4 justify-content-center">
-            <div class="col-md-3">
-                <div class="stat-circle shadow">
-                    <span class="h1 fw-bold mb-0 text-success">{{ prediction.days_remaining }}</span>
-                    <span class="small text-uppercase fw-bold opacity-50">Gün qalıb</span>
-                </div>
+<div class="container py-4">
+
+    <div class="mb-3 reveal">
+        <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="fas fa-arrow-left me-1"></i>{% trans "Geri qayıt" %}
+        </a>
+    </div>
+
+    <!-- HERO -->
+    <div class="pred-hero mb-4 reveal delay-1">
+        <div style="position:relative;z-index:1">
+            <div class="d-flex align-items-center gap-2 mb-3"
+                 style="font-size:.75rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;">
+                <i class="fas fa-robot"></i> {% trans "AI Yığım Proqnozu" %}
             </div>
-            <div class="col-md-5 text-md-start d-flex flex-column justify-content-center">
-                <h3 class="mb-1 fw-bold">{{ prediction.predicted_harvest_date|date:"d F Y" }}</h3>
-                <p class="lead opacity-75 mb-0">Ehtimal olunan yığım tarixi</p>
-                <div class="mt-3">
-                    <div class="d-flex justify-content-between mb-1 small fw-bold">
-                        <span>Etibarlılıq dərəcəsi</span>
-                        <span>{{ prediction.confidence_score }}%</span>
+            <div class="row align-items-center g-4">
+                <div class="col-md-3 text-center">
+                    <div class="days-circle mx-auto">
+                        <span class="num">{{ prediction.days_remaining }}</span>
+                        <span class="lbl">{% trans "Gün qalır" %}</span>
                     </div>
-                    <div class="progress bg-white bg-opacity-25" style="height: 10px; border-radius: 10px;">
-                        <div class="progress-bar bg-white" style="width: {{ prediction.confidence_score }}%"></div>
+                </div>
+                <div class="col-md-9">
+                    <h2 class="fw-bold mb-1 text-white">{{ plant.get_plant_type_display }}</h2>
+                    <div style="color:rgba(255,255,255,.65);font-size:.9rem;margin-bottom:16px;">
+                        <i class="fas fa-map-marker-alt me-1"></i>{{ plant.field.name }}
+                        {% if plant.field.location %} · {{ plant.field.location }}{% endif %}
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-4">
+                            <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px;text-align:center;">
+                                <div style="font-size:1.1rem;font-weight:700;">{{ prediction.predicted_harvest_date|date:"d/m/Y" }}</div>
+                                <div style="font-size:.68rem;color:rgba(255,255,255,.55);text-transform:uppercase;">{% trans "Yığım tarixi" %}</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px;text-align:center;">
+                                <div style="font-size:1.1rem;font-weight:700;">{{ prediction.adjusted_growth_days }} {% trans "gün" %}</div>
+                                <div style="font-size:.68rem;color:rgba(255,255,255,.55);text-transform:uppercase;">{% trans "Böyümə müddəti" %}</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:12px;text-align:center;">
+                                <div style="font-size:1.1rem;font-weight:700;">{{ prediction.confidence_score }}%</div>
+                                <div style="font-size:.68rem;color:rgba(255,255,255,.55);text-transform:uppercase;">{% trans "Etibarlılıq" %}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1" style="font-size:.75rem;color:rgba(255,255,255,.6);">
+                            <span>{% trans "Etibarlılıq dərəcəsi" %}</span>
+                            <span>{{ prediction.confidence_score }}%</span>
+                        </div>
+                        <div class="conf-bar-wrap">
+                            <div class="conf-bar" style="width:{{ prediction.confidence_score }}%"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -100,95 +143,143 @@
 
     <div class="row g-4">
         <div class="col-lg-7">
-            <div class="yield-badge shadow-sm mb-4">
+
+            <div class="yield-banner mb-4 reveal delay-2">
                 <div class="row align-items-center">
-                    <div class="col-sm-7 text-sm-start">
-                        <h6 class="text-uppercase small fw-bold opacity-75 mb-2">Gözlənilən Ümumi Məhsul</h6>
-                        <h1 class="display-4 fw-bold mb-0">{{ prediction.estimated_yield_ton }} <small class="fs-4">TON</small></h1>
+                    <div class="col-sm-7">
+                        <div style="font-size:.72rem;text-transform:uppercase;opacity:.75;letter-spacing:1px;margin-bottom:6px;">{% trans "Gözlənilən Məhsul" %}</div>
+                        <div class="big">{{ prediction.estimated_yield_ton }} <span style="font-size:1.4rem;">{% trans "Ton" %}</span></div>
                     </div>
-                    <div class="col-sm-5 border-start border-white border-opacity-25 mt-3 mt-sm-0">
-                        <div class="h5 mb-0 fw-bold">{{ prediction.yield_per_ha }}</div>
-                        <div class="small opacity-75">Ton / Hektar</div>
+                    <div class="col-sm-5 border-start border-white border-opacity-25 mt-3 mt-sm-0 ps-4">
+                        <div style="font-size:1.4rem;font-weight:700;">{{ prediction.yield_per_ha }}</div>
+                        <div style="font-size:.8rem;opacity:.75;">{% trans "Ton / Hektar" %}</div>
                     </div>
                 </div>
             </div>
 
-            <div class="card glass-card shadow-sm p-4">
-                <h5 class="fw-bold mb-4"><i class="fas fa-chart-pie me-2 text-primary"></i>Hesablama Faktorları</h5>
-                
+            <div class="info-card p-4 reveal delay-2">
+                <h6 class="fw-bold mb-4"><i class="fas fa-chart-bar me-2 text-primary"></i>{% trans "Hesablama Faktorları" %}</h6>
                 <div class="mb-4">
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="small fw-bold">Hava Şəraiti Təsiri</span>
-                        <span class="text-{% if prediction.factors.weather_impact > 0 %}success{% else %}danger{% endif %} fw-bold">
+                        <span class="small fw-bold">🌤️ {% trans "Hava Şəraiti Təsiri" %}</span>
+                        <span class="fw-bold {% if prediction.factors.weather_impact >= 0 %}text-success{% else %}text-danger{% endif %}">
                             {{ prediction.factors.weather_impact }}%
                         </span>
                     </div>
-                    <div class="impact-progress">
-                        <div class="impact-fill bg-info" style="width: {{ prediction.factors.weather_impact|add:100|divisibleby:2|default:75 }}%"></div>
+                    <div class="factor-bar">
+                        <div class="factor-fill bg-info" data-width="{% if prediction.factors.weather_impact >= 0 %}{{ prediction.factors.weather_impact }}{% else %}10{% endif %}"></div>
                     </div>
                 </div>
-
-                <div class="mb-0">
+                <div class="mb-4">
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="small fw-bold">Bitki Sağlamlıq İndeksi</span>
-                        <span class="text-{% if prediction.factors.health_impact > 0 %}success{% else %}danger{% endif %} fw-bold">
+                        <span class="small fw-bold">🌱 {% trans "Bitki Sağlamlıq İndeksi" %}</span>
+                        <span class="fw-bold {% if prediction.factors.health_impact >= 0 %}text-success{% else %}text-danger{% endif %}">
                             {{ prediction.factors.health_impact }}%
                         </span>
                     </div>
-                    <div class="impact-progress">
-                        <div class="impact-fill bg-success" style="width: {{ prediction.factors.health_impact|add:100|default:85 }}%"></div>
+                    <div class="factor-bar">
+                        <div class="factor-fill" style="background:#3d9970" data-width="{% if prediction.factors.health_impact >= 0 %}{{ prediction.factors.health_impact }}{% else %}10{% endif %}"></div>
                     </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center pt-2" style="border-top:1px solid var(--border)">
+                    <span class="small" style="color:var(--text-muted)">{% trans "Ümumi Effektivlik" %}</span>
+                    <span class="badge bg-success-subtle text-success fs-6 px-3">{{ prediction.factors.overall_efficiency }}x</span>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-5">
-            <div class="card glass-card shadow-sm h-100 p-4">
-                <h5 class="fw-bold mb-4 text-center text-lg-start"><i class="fas fa-info-circle me-2 text-warning"></i>Aqronomik Detallar</h5>
-                
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent py-3">
-                        <span class="text-muted"><i class="fas fa-seedling me-2"></i>Baza yetişmə müddəti</span>
-                        <span class="fw-bold">{{ prediction.base_growth_days }} gün</span>
+
+            <div class="info-card p-4 mb-4 reveal delay-3">
+                <h6 class="fw-bold mb-3"><i class="fas fa-shield-alt me-2 text-warning"></i>{% trans "Xəstəlik Riski" %}</h6>
+                {% with risk=prediction.factors.overall_efficiency %}
+                {% if risk < 0.8 %}
+                <div class="risk-badge risk-high">
+                    <span class="icon">🔴</span>
+                    <div><div class="title">{% trans "Yüksək Risk" %}</div><div class="desc">{% trans "Hava şəraiti və sağlamlıq göstəriciləri narahatdır." %}</div></div>
+                </div>
+                {% elif risk < 1.0 %}
+                <div class="risk-badge risk-medium">
+                    <span class="icon">🟡</span>
+                    <div><div class="title">{% trans "Orta Risk" %}</div><div class="desc">{% trans "Müntəzəm izləmə tövsiyə olunur." %}</div></div>
+                </div>
+                {% else %}
+                <div class="risk-badge risk-low">
+                    <span class="icon">🟢</span>
+                    <div><div class="title">{% trans "Aşağı Risk" %}</div><div class="desc">{% trans "Şərait əlverişlidir, böyümə normaldir." %}</div></div>
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="info-card p-4 mb-4 reveal delay-3">
+                <h6 class="fw-bold mb-3"><i class="fas fa-info-circle me-2" style="color:var(--text-muted)"></i>{% trans "Aqronomik Detallar" %}</h6>
+                <ul class="list-unstyled mb-0">
+                    <li class="d-flex justify-content-between py-2" style="border-bottom:1px solid var(--border)">
+                        <span class="small" style="color:var(--text-muted)">{% trans "Baza yetişmə müddəti" %}</span>
+                        <span class="fw-bold small">{{ prediction.base_growth_days }} {% trans "gün" %}</span>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent py-3">
-                        <span class="text-muted"><i class="fas fa-clock me-2"></i>Tənzimlənmiş müddət</span>
-                        <span class="fw-bold text-primary">{{ prediction.adjusted_growth_days }} gün</span>
+                    <li class="d-flex justify-content-between py-2" style="border-bottom:1px solid var(--border)">
+                        <span class="small" style="color:var(--text-muted)">{% trans "Tənzimlənmiş müddət" %}</span>
+                        <span class="fw-bold small text-primary">{{ prediction.adjusted_growth_days }} {% trans "gün" %}</span>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent py-3">
-                        <span class="text-muted"><i class="fas fa-calendar-alt me-2"></i>Əkin tarixi</span>
-                        <span class="fw-bold">{{ prediction.planting_date|date:"d.m.Y" }}</span>
+                    <li class="d-flex justify-content-between py-2" style="border-bottom:1px solid var(--border)">
+                        <span class="small" style="color:var(--text-muted)">{% trans "Əkin tarixi" %}</span>
+                        <span class="fw-bold small">{{ prediction.planting_date|date:"d.m.Y" }}</span>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent py-3 border-0">
-                        <span class="text-muted"><i class="fas fa-calculator me-2"></i>Ümumi effektivlik</span>
-                        <span class="badge bg-light text-dark fs-6">{{ prediction.factors.overall_efficiency }}x</span>
+                    <li class="d-flex justify-content-between py-2">
+                        <span class="small" style="color:var(--text-muted)">{% trans "Bitkinin statusu" %}</span>
+                        <span class="badge {% if plant.status == 'active' %}bg-success{% elif plant.status == 'diseased' %}bg-danger{% else %}bg-secondary{% endif %} rounded-pill">
+                            {{ plant.get_status_display }}
+                        </span>
                     </li>
                 </ul>
-
-                <div class="mt-auto pt-4">
-                    <a href="{% url 'plants:plant_detail' plant.id %}" class="btn btn-outline-secondary w-100 rounded-pill mb-2">
-                        <i class="fas fa-arrow-left me-2"></i>Geri qayıt
-                    </a>
-                    <button onclick="window.print()" class="btn btn-success w-100 rounded-pill shadow">
-                        <i class="fas fa-file-download me-2"></i>Hesabatı PDF Yüklə
-                    </button>
-                </div>
             </div>
+
+            <div class="info-card p-4 reveal delay-4">
+                <h6 class="fw-bold mb-3"><i class="fas fa-lightbulb me-2 text-warning"></i>{% trans "Tövsiyələr" %}</h6>
+                {% if prediction.days_remaining <= 14 %}
+                <div class="advice-item">
+                    <span class="adv-icon">⚠️</span>
+                    <span class="adv-text">{% trans "Yığım vaxtı yaxınlaşır! Texnika və işçiləri hazırlayın." %}</span>
+                </div>
+                {% endif %}
+                {% if prediction.factors.weather_impact < 0 %}
+                <div class="advice-item">
+                    <span class="adv-icon">🌧️</span>
+                    <span class="adv-text">{% trans "Hava şəraiti mənfi təsir göstərir. Drenaj sistemini yoxlayın." %}</span>
+                </div>
+                {% endif %}
+                {% if prediction.factors.health_impact < 0 %}
+                <div class="advice-item">
+                    <span class="adv-icon">💊</span>
+                    <span class="adv-text">{% trans "Bitki sağlamlığı zəifdir. Xəstəlik və zərərvericiləri yoxlayın." %}</span>
+                </div>
+                {% endif %}
+                <div class="advice-item">
+                    <span class="adv-icon">📊</span>
+                    <span class="adv-text">{% trans "Böyümə mərhələsini mütəmadi yeniləyin — proqnoz dəqiqləşir." %}</span>
+                </div>
+                <button onclick="window.print()" class="btn btn-success w-100 rounded-pill mt-3 fw-bold">
+                    <i class="fas fa-file-download me-2"></i>{% trans "PDF Yüklə" %}
+                </button>
+            </div>
+
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-    // Dinamik barlar üçün animasiya
-    document.addEventListener('DOMContentLoaded', function() {
-        const fills = document.querySelectorAll('.impact-fill');
-        fills.forEach(fill => {
-            const width = fill.style.width;
-            fill.style.width = '0';
-            setTimeout(() => {
-                fill.style.width = width;
-            }, 500);
-        });
-    });
+const obs = new IntersectionObserver(e => {
+    e.forEach(el => { if(el.isIntersecting){ el.target.classList.add('active'); obs.unobserve(el.target); } });
+}, { threshold:.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+document.querySelectorAll('.factor-fill').forEach(bar => {
+    const w = Math.min(Math.max(parseInt(bar.dataset.width) + 50, 5), 100);
+    setTimeout(() => bar.style.width = w + '%', 600);
+});
 </script>
 {% endblock %}

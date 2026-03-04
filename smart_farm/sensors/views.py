@@ -7,10 +7,9 @@ from .forms import SensorForm, SensorFilterForm, SensorSearchForm
 from fields.models import Field
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 class SensorDashboardView(LoginRequiredMixin, ListView):
     model = Sensor
-    template_name = 'sensors/sensor_dashboard.html'
+    template_name = 'sensors/dashboard.html'
     context_object_name = 'sensors'
 
     def get_queryset(self):
@@ -18,8 +17,14 @@ class SensorDashboardView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        sensor_ids = list(self.get_queryset().values_list('id', flat=True))
-        context['real_time_data'] = Sensor.objects.get_real_time_data(sensor_ids)
+        sensors = context['sensors']
+        rt_data = Sensor.objects.get_real_time_data(
+            list(sensors.values_list('id', flat=True))
+        )
+        
+        context['combined'] = [
+            {'sensor': s, 'rt': rt_data.get(s.id, {})} for s in sensors
+        ]
         return context
 
 
@@ -75,7 +80,8 @@ def add_sensor(request):
     else:
         form = SensorForm()
         
-        form.fields['field'].queryset = Field.objects.filter(user=request.user)  
+        form.fields['field'].queryset = Field.objects.filter(user=request.user)
+
     
     return render(request, 'sensors/add_sensor.html', {'form': form})
 

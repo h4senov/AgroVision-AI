@@ -2,71 +2,192 @@
 {% load static %}
 {% block title %}Daxil Ol - AgroVision AI{% endblock %}
 
+{% block extra_css %}
+<style>
+.auth-page {
+    min-height: 100vh;
+    background: #f4f7f4;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 16px;
+}
+.auth-card {
+    width: 100%; max-width: 920px;
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    display: flex;
+}
+.auth-left {
+    width: 42%;
+    background: url('https://i.pinimg.com/736x/fd/e7/1d/fde71d86758e9a757d17bbbf42905299.jpg') center/cover;
+    position: relative;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 40px;
+}
+.auth-left::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(10,50,15,0.3) 0%, rgba(10,50,15,0.85) 100%);
+}
+.auth-left-content { position: relative; z-index: 1; color: #fff; }
+.auth-left-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 6px 14px; border-radius: 50px;
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.5px;
+    margin-bottom: 16px;
+}
+.badge-dot { width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pulse-d 1.5s ease-in-out infinite; }
+@keyframes pulse-d { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.5)} }
+
+.auth-right {
+    flex: 1;
+    padding: 48px 44px;
+    display: flex; flex-direction: column; justify-content: center;
+}
+
+.auth-logo { display:flex;align-items:center;gap:10px;margin-bottom:36px; }
+.auth-logo-icon { width:40px;height:40px;border-radius:12px;background:#198754;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem; }
+.auth-logo span { font-weight:700;font-size:1.1rem;color:#1a1a1a; }
+
+.auth-title { font-size:1.65rem;font-weight:700;color:#1a1a1a;margin-bottom:6px; }
+.auth-sub { font-size:0.9rem;color:#888;margin-bottom:32px; }
+
+.field-group { margin-bottom:20px; }
+.field-label { font-size:0.82rem;font-weight:600;color:#444;margin-bottom:8px;display:block; }
+.field-wrap {
+    display:flex;align-items:center;
+    border:1.5px solid #e5e7e5;
+    border-radius:12px;
+    overflow:hidden;
+    transition:border-color 0.2s,box-shadow 0.2s;
+    background:#fafafa;
+}
+.field-wrap:focus-within {
+    border-color:#198754;
+    box-shadow:0 0 0 3px rgba(25,135,84,0.1);
+    background:#fff;
+}
+.field-icon { padding:0 14px;color:#aaa;font-size:0.9rem; }
+.field-wrap input {
+    flex:1; border:none; background:transparent;
+    padding:13px 14px 13px 0;
+    font-size:0.95rem; color:#1a1a1a;
+    outline:none;
+}
+.field-wrap input::placeholder { color:#bbb; }
+
+.auth-options { display:flex;justify-content:space-between;align-items:center;margin-bottom:28px; }
+.auth-options label { font-size:0.83rem;color:#666;cursor:pointer; }
+.auth-options a { font-size:0.83rem;color:#198754;text-decoration:none;font-weight:600; }
+.auth-options a:hover { text-decoration:underline; }
+
+.btn-auth {
+    width:100%; padding:14px;
+    background:#198754; color:#fff;
+    border:none; border-radius:12px;
+    font-size:1rem; font-weight:600;
+    cursor:pointer;
+    transition:background 0.2s, transform 0.2s, box-shadow 0.2s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-auth:hover { background:#157347; transform:translateY(-1px); box-shadow:0 6px 20px rgba(25,135,84,0.3); }
+.btn-auth:active { transform:translateY(0); }
+
+.auth-footer { text-align:center;margin-top:28px;font-size:0.87rem;color:#888; }
+.auth-footer a { color:#198754;font-weight:600;text-decoration:none; }
+.auth-footer a:hover { text-decoration:underline; }
+
+/* Mobile */
+@media(max-width:767px){
+    .auth-left { display:none; }
+    .auth-right { padding:36px 24px; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
-    <div class="row g-0 auth-wrapper shadow-lg rounded-5 overflow-hidden bg-white" style="max-width: 900px; width: 100%;">
-        
-        <div class="col-lg-6 d-none d-lg-block position-relative" style="background: url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80') center/cover;">
-             <div class="overlay position-absolute w-100 h-100" style="background: linear-gradient(135deg, rgba(46, 125, 50, 0.9), rgba(27, 94, 32, 0.9));"></div>
-             <div class="position-relative z-3 p-5 text-white h-100 d-flex flex-column justify-content-center text-center">
-                <i class="fas fa-seedling fa-4x mb-4 text-warning"></i>
-                <h2 class="fw-bold">Xoş Gəldiniz!</h2>
-                <p class="opacity-75">Sistemə daxil olaraq təsərrüfatınızı uzaqdan idarə etməyə davam edin.</p>
-             </div>
+<div class="auth-page">
+  <div class="auth-card">
+
+    <!-- Sol panel -->
+    <div class="auth-left">
+      <div class="auth-left-content">
+        <div class="auth-left-badge">
+          <span class="badge-dot"></span> Canlı sistem aktiv
         </div>
-
-        <div class="col-lg-6 p-4 p-md-5 align-self-center">
-            <div class="text-center mb-5">
-                <h3 class="fw-bold">Giriş Paneli</h3>
-                <div class="mx-auto bg-success" style="width: 50px; height: 3px;"></div>
-            </div>
-
-            {% if messages %}
-    {% for message in messages %}
-        {% if not message.used %}
-        <div class="alert alert-{{ message.tags }} rounded-4 border-0 small shadow-sm mb-4">
-            {{ message }}
+        <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:10px;">Xoş Gəldiniz!</h2>
+        <p style="color:rgba(255,255,255,0.75);font-size:0.9rem;line-height:1.6;margin:0;">
+          Sistemə daxil olaraq təsərrüfatınızı<br>uzaqdan idarə etməyə davam edin.
+        </p>
+        <div style="display:flex;gap:16px;margin-top:24px;">
+          <div style="background:rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;text-align:center;">
+            <div style="font-size:1.3rem;font-weight:700;color:#fff;">24/7</div>
+            <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Nəzarət</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;text-align:center;">
+            <div style="font-size:1.3rem;font-weight:700;color:#4ade80;">92%</div>
+            <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">AI Dəqiqlik</div>
+          </div>
         </div>
-        {% endif %}
-    {% endfor %}
-{% endif %}
-
-            <form method="post">
-                {% csrf_token %}
-                <div class="mb-4">
-                    <label class="form-label small fw-bold text-secondary">İstifadəçi adı</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-transparent border-end-0 rounded-start-4"><i class="fas fa-user text-muted"></i></span>
-                        <input type="text" name="username" class="form-control border-start-0 rounded-end-4" placeholder="İstifadəçi adınız" required>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label small fw-bold text-secondary">Şifrə</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-transparent border-end-0 rounded-start-4"><i class="fas fa-lock text-muted"></i></span>
-                        <input type="password" name="password" class="form-control border-start-0 rounded-end-4" placeholder="********" required>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between mb-4 small">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="remember">
-                        <label class="form-check-label" for="remember">Məni xatırla</label>
-                    </div>
-                    <a href="#" class="text-success text-decoration-none">Şifrəni unutmusunuz?</a>
-                </div>
-
-                <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill shadow-lg py-3">
-                    DAXİL OL <i class="fas fa-sign-in-alt ms-2"></i>
-                </button>
-
-                <div class="text-center mt-5">
-                    <p class="text-muted small mb-0">Hələ də qeydiyyatdan keçməmisiniz?</p>
-                    <a href="{% url 'users:user_register' %}" class="text-success fw-bold text-decoration-none">Yeni hesab yarat</a>
-                </div>
-            </form>
-        </div>
+      </div>
     </div>
+
+    <!-- Sağ panel -->
+    <div class="auth-right">
+      <div class="auth-logo">
+        <div class="auth-logo-icon"><i class="fas fa-tractor"></i></div>
+        <span>AgroVision <span style="color:#198754;">AI</span></span>
+      </div>
+
+      <div class="auth-title">Hesabınıza daxil olun</div>
+      <div class="auth-sub">Zəhmət olmasa məlumatlarınızı daxil edin</div>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} rounded-3 border-0 small mb-4 py-2">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="field-group">
+          <label class="field-label">İstifadəçi adı</label>
+          <div class="field-wrap">
+            <span class="field-icon"><i class="fas fa-user"></i></span>
+            <input type="text" name="username" placeholder="İstifadəçi adınız" required>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Şifrə</label>
+          <div class="field-wrap">
+            <span class="field-icon"><i class="fas fa-lock"></i></span>
+            <input type="password" name="password" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <div class="auth-options">
+          <label>
+            <input type="checkbox" style="accent-color:#198754;margin-right:6px;">
+            Məni xatırla
+          </label>
+          <a href="#">Şifrəni unutmusunuz?</a>
+        </div>
+
+        <button type="submit" class="btn-auth">
+          <i class="fas fa-sign-in-alt"></i> Daxil Ol
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Hesabınız yoxdur? <a href="{% url 'users:user_register' %}">Qeydiyyat</a>
+      </div>
+    </div>
+
+  </div>
 </div>
 {% endblock %}

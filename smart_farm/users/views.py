@@ -35,26 +35,31 @@ def user_register(request):
     return render(request, 'users/register.html', {'form': form})
 
 # ============ AUTH VIEWS ============
-
 def user_login(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+        remember = request.POST.get('remember')  
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
             if user.is_active:
                 login(request, user)
+                
+                if not remember: 
+                    request.session.set_expiry(0)   
+                else:
+                    request.session.set_expiry(1209600)   
+                
                 user.last_login = timezone.now()
                 user.save()
                 messages.success(request, f'👋 Xoş gəldiniz, {user.username}!')
                 return redirect('core:dashboard')
             else:
-                messages.error(request, '❌ Hesabınız deaktiv edilib.')
+                messages.error(request, '❌ Hesabınız deaktivdir. Zəhmət olmasa administratorla əlaqə saxlayın.')
         else:
-            messages.error(request, '❌ Yanlış istifadəçi adı və ya şifrə.')
-    
-    return render(request, 'users/login.html')
+            messages.error(request, '❌ İstifadəçi adı və ya şifrə yanlışdır.')     
+    return render(request, 'users/login.html')            
         
  
 

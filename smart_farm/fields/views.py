@@ -35,6 +35,7 @@ def field_list(request):
         'min_area': request.GET.get('min_area', ''),
         'max_area': request.GET.get('max_area', ''),
         'irrigated': request.GET.get('irrigated', ''),
+        'location': request.GET.get('location', ''),
     }
 
     fields = Field.objects.search_fields(query, request.user, filters)    

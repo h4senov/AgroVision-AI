@@ -1,168 +1,224 @@
-<!-- templates/weather/weather_detail.html -->
 {% extends 'base.html' %}
+{% block title %}{{ weather.field.name }} - Hava Detalları{% endblock %}
 
-{% block title %}{{ weather.field.name }} - {{ weather.weather_date }} - Hava Məlumatı{% endblock %}
+{% block extra_css %}
+<style>
+.reveal { opacity:0; transform:translateY(24px); transition:opacity 0.6s ease, transform 0.6s ease; }
+.reveal.active { opacity:1; transform:translateY(0); }
+.delay-1{transition-delay:0.1s;} .delay-2{transition-delay:0.2s;} .delay-3{transition-delay:0.3s;}
+
+.hero-card {
+    background: linear-gradient(135deg, #0b2a1a 0%, #1a6b3c 100%);
+    border-radius: 24px; color:#fff; padding:32px;
+    position:relative; overflow:hidden;
+}
+.hero-card::before {
+    content:''; position:absolute; top:-60px; right:-60px;
+    width:220px; height:220px; border-radius:50%;
+    background:rgba(255,255,255,0.04);
+}
+.hero-temp { font-size:4rem; font-weight:800; line-height:1; }
+
+.metric-pill {
+    background:rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:14px; padding:14px 12px; text-align:center;
+    transition: background 0.2s;
+}
+.metric-pill:hover { background:rgba(255,255,255,0.18); }
+.metric-pill .val { font-size:1.2rem; font-weight:700; color:#fff; line-height:1; }
+.metric-pill .lbl { font-size:0.68rem; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; }
+
+.day-card {
+    border-radius:16px; border:1.5px solid #eee;
+    padding:14px 8px; text-align:center;
+    transition: all 0.25s ease; background:#fff;
+    min-width: 88px;
+}
+.day-card:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,0.08); }
+.day-card.is-today { border-color:#198754; background:#f0fff6; }
+.day-card .dname { font-size:0.7rem; font-weight:700; text-transform:uppercase; color:#aaa; margin-bottom:4px; }
+.day-card.is-today .dname { color:#198754; }
+.day-card .icon { font-size:1.5rem; margin:4px 0; }
+.day-card .temp { font-size:1.15rem; font-weight:700; color:#1a1a1a; }
+.day-card .trange { font-size:0.72rem; color:#bbb; margin-top:2px; }
+.day-card .humid { font-size:0.7rem; color:#888; margin-top:6px; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'weather:weather_list' %}">Hava Məlumatları</a></li>
-                    <li class="breadcrumb-item active">{{ weather.field.name }} - {{ weather.weather_date|date:"d.m.Y" }}</li>
-                </ol>
-            </nav>
-            <h1 class="h3 mb-0">
-                {% if weather.weather_condition == 'sunny' %}☀️
-                {% elif weather.weather_condition == 'rainy' %}🌧️
-                {% elif weather.weather_condition == 'cloudy' %}☁️
-                {% elif weather.weather_condition == 'stormy' %}⛈️
-                {% elif weather.weather_condition == 'foggy' %}🌫️
-                {% elif weather.weather_condition == 'snowy' %}❄️
-                {% elif weather.weather_condition == 'windy' %}💨
-                {% endif %}
-                {{ weather.get_weather_condition_display }}
-            </h1>
-            <p class="text-muted">{{ weather.field.name }} sahəsi üçün {{ weather.weather_date|date:"d.m.Y" }} tarixli hava məlumatı</p>
-        </div>
-        <div class="col-md-4 text-end">
-            <div class="btn-group">
-                <a href="{% url 'weather:weather_edit' weather.pk %}" class="btn btn-warning">
-                    <i class="fas fa-edit"></i> Redaktə
-                </a>
-                <a href="{% url 'weather:weather_delete' weather.pk %}" class="btn btn-danger">
-                    <i class="fas fa-trash"></i> Sil
-                </a>
-            </div>
-        </div>
-    </div>
+<div class="container-fluid py-4">
 
-    <div class="row">
-        <!-- Risk Səviyyəsi -->
-        <div class="col-md-3 mb-4">
-            <div class="card border-{% if weather.get_weather_risk_level == 'high' %}danger{% elif weather.get_weather_risk_level == 'medium' %}warning{% else %}success{% endif %}">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Risk Səviyyəsi</h5>
-                    <div class="display-4">
-                        {% if weather.get_weather_risk_level == 'high' %}
-                        <span class="text-danger">🔴</span>
-                        {% elif weather.get_weather_risk_level == 'medium' %}
-                        <span class="text-warning">🟡</span>
-                        {% else %}
-                        <span class="text-success">🟢</span>
-                        {% endif %}
-                    </div>
-                    <p class="card-text">
-                        <span class="badge bg-{% if weather.get_weather_risk_level == 'high' %}danger{% elif weather.get_weather_risk_level == 'medium' %}warning{% else %}success{% endif %} p-2">
-                            {{ weather.get_weather_risk_level|upper }}
-                        </span>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Temperatur Kartı -->
-        <div class="col-md-3 mb-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">🌡️ Temperatur</h5>
-                    <div class="display-4 {% if weather.is_hot_day %}text-danger{% elif weather.is_cold_day %}text-info{% endif %}">
-                        {{ weather.temperature_avg|default:"-" }}°C
-                    </div>
-                    <p class="card-text">
-                        <small>Min: {{ weather.temperature_min|default:"-" }}°C</small><br>
-                        <small>Maks: {{ weather.temperature_max|default:"-" }}°C</small>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Rütubət Kartı -->
-        <div class="col-md-3 mb-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">💧 Rütubət</h5>
-                    <div class="display-4">{{ weather.humidity_avg|default:"-" }}%</div>
-                    <p class="card-text">
-                        <small>Min: {{ weather.humidity_min|default:"-" }}%</small><br>
-                        <small>Maks: {{ weather.humidity_max|default:"-" }}%</small>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Yağıntı Kartı -->
-        <div class="col-md-3 mb-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h5 class="card-title">🌧️ Yağıntı</h5>
-                    <div class="display-4 {% if weather.is_rainy_day %}text-primary{% endif %}">
-                        {{ weather.precipitation_mm|default:"0" }} mm
-                    </div>
-                    <p class="card-text">
-                        {% if weather.is_rainy_day %}
-                        <span class="badge bg-primary">Yağışlı gün</span>
-                        {% else %}
-                        <span class="badge bg-success">Yağışsız</span>
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Digər Parametrlər -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">💨 Külək Məlumatları</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Orta Sürət:</strong> {{ weather.wind_speed_avg|default:"-" }} m/s</p>
-                            <p><strong>Maksimum Sürət:</strong> {{ weather.wind_speed_max|default:"-" }} m/s</p>
-                            {% if weather.is_windy_day %}
-                            <span class="badge bg-warning">💨 Küləkli gün</span>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>İstiqamət:</strong> {{ weather.wind_direction_degrees|default:"-" }}°</p>
-                            <p><strong>Məlumat Mənbəyi:</strong> {{ weather.data_source|default:"-" }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">📋 Digər Parametrlər</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>🌞 Günəş Radiasiyası:</strong> {{ weather.solar_radiation_mj_m2|default:"-" }} MJ/m²</p>
-                            <p><strong>💦 Evapotranspirasiya:</strong> {{ weather.evapotranspiration_mm|default:"-" }} mm</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>🎯 Proqnoz Dəqiqliyi:</strong> {{ weather.forecast_accuracy|default:"-" }}%</p>
-                            <p><strong>📅 Qeyd Tarixi:</strong> {{ weather.created_at|date:"d.m.Y H:i" }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sahə Linki -->
-    <div class="mt-4">
-        <a href="{% url 'fields:field_detail' weather.field.id %}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> {{ weather.field.name }} sahəsinə qayıt
+    <div class="mb-3 reveal">
+        <a href="{% url 'weather:weather_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="fas fa-arrow-left me-1"></i> Siyahıya qayıt
         </a>
     </div>
+
+    <!-- HERO -->
+    <div class="hero-card mb-4 reveal delay-1">
+        <div class="row align-items-center g-4" style="position:relative;z-index:1;">
+            <div class="col-md-7">
+                <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+                    <i class="fas fa-map-marker-alt me-1"></i>{{ weather.field.location|default:weather.field.name }}
+                </div>
+                <h2 class="fw-bold mb-1">{{ weather.field.name }}</h2>
+                <div style="color:rgba(255,255,255,0.6);font-size:0.88rem;margin-bottom:20px;">
+                    {{ weather.weather_date|date:"d/m/Y" }}
+                </div>
+                <div class="d-flex align-items-end gap-3">
+                    <div class="hero-temp">{{ weather.temperature_avg|default:"—" }}°</div>
+                    <div>
+                        <div style="font-size:1.8rem;">
+                            {% if weather.weather_condition == 'sunny' %}☀️
+                            {% elif weather.weather_condition == 'rainy' %}🌧️
+                            {% elif weather.weather_condition == 'cloudy' %}☁️
+                            {% elif weather.weather_condition == 'stormy' %}⛈️
+                            {% elif weather.weather_condition == 'foggy' %}🌫️
+                            {% elif weather.weather_condition == 'snowy' %}❄️
+                            {% elif weather.weather_condition == 'windy' %}💨
+                            {% else %}🌤️{% endif %}
+                        </div>
+                        <div style="color:rgba(255,255,255,0.6);font-size:0.9rem;">
+                            {{ weather.temperature_min|default:"—" }}° / {{ weather.temperature_max|default:"—" }}°
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="metric-pill">
+                            <div class="val">{{ weather.humidity_avg|default:"—" }}%</div>
+                            <div class="lbl">💧 Rütubət</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="metric-pill">
+                            <div class="val">{{ weather.precipitation_mm|default:"0" }} mm</div>
+                            <div class="lbl">🌧️ Yağıntı</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="metric-pill">
+                            <div class="val">{{ weather.wind_speed_avg|default:"—" }} m/s</div>
+                            <div class="lbl">💨 Külək</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="metric-pill">
+                            {% with risk=weather.get_weather_risk_level %}
+                            <div class="val">
+                                {% if risk == 'high' %}🔴 Yüksək
+                                {% elif risk == 'medium' %}🟡 Orta
+                                {% else %}🟢 Aşağı{% endif %}
+                            </div>
+                            <div class="lbl">⚠️ Risk</div>
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7 Günlük -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 reveal delay-2">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-4">📅 7 Günlük Məlumat</h5>
+            {% if week_data %}
+            <div class="d-flex gap-2 overflow-auto pb-2">
+                {% for w in week_data %}
+                <div class="day-card {% if w.weather_date == weather.weather_date %}is-today{% endif %}">
+                    <div class="dname">
+                        {% if w.weather_date == weather.weather_date %}Bugün
+                        {% else %}{{ w.weather_date|date:"D" }}{% endif %}
+                    </div>
+                    <div style="font-size:0.7rem;color:#ccc;">{{ w.weather_date|date:"d/m" }}</div>
+                    <div class="icon">
+                        {% if w.weather_condition == 'sunny' %}☀️
+                        {% elif w.weather_condition == 'rainy' %}🌧️
+                        {% elif w.weather_condition == 'cloudy' %}☁️
+                        {% elif w.weather_condition == 'stormy' %}⛈️
+                        {% elif w.weather_condition == 'foggy' %}🌫️
+                        {% elif w.weather_condition == 'snowy' %}❄️
+                        {% elif w.weather_condition == 'windy' %}💨
+                        {% else %}🌤️{% endif %}
+                    </div>
+                    <div class="temp">{{ w.temperature_avg|default:"—" }}°</div>
+                    <div class="trange">{{ w.temperature_min|default:"—" }}°/{{ w.temperature_max|default:"—" }}°</div>
+                    <div class="humid">💧{{ w.humidity_avg|default:"—" }}%</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-4">
+                <canvas id="tempChart" height="60"></canvas>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-3">7 günlük data tapılmadı.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 reveal delay-3">
+        <a href="{% url 'fields:field_detail' weather.field.id %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 ms-auto">
+            <i class="fas fa-map me-1"></i> Sahəyə qayıt
+        </a>
+    </div>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const obs = new IntersectionObserver(e => {
+    e.forEach(el => { if(el.isIntersecting){ el.target.classList.add('active'); obs.unobserve(el.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+{% if week_data %}
+const labels = [{% for w in week_data %}"{{ w.weather_date|date:'d/m' }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+const temps  = [{% for w in week_data %}{{ w.temperature_avg|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const precip = [{% for w in week_data %}{{ w.precipitation_mm|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+new Chart(document.getElementById('tempChart'), {
+    type: 'line',
+    data: {
+        labels,
+        datasets: [
+            {
+                label: 'Temperatur (°C)',
+                data: temps,
+                borderColor: '#198754',
+                backgroundColor: 'rgba(25,135,84,0.08)',
+                fill: true, tension: 0.4,
+                pointBackgroundColor: '#198754',
+                pointRadius: 4,
+                yAxisID: 'y',
+            },
+            {
+                label: 'Yağıntı (mm)',
+                data: precip,
+                backgroundColor: 'rgba(13,110,253,0.15)',
+                borderColor: 'rgba(13,110,253,0.4)',
+                borderWidth: 1,
+                type: 'bar',
+                yAxisID: 'y1',
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        interaction: { mode:'index', intersect:false },
+        plugins: { legend:{ position:'top' } },
+        scales: {
+            y:  { position:'left',  grid:{ color:'#f0f0f0' }, title:{ display:true, text:'°C' } },
+            y1: { position:'right', grid:{ drawOnChartArea:false }, title:{ display:true, text:'mm' } }
+        }
+    }
+});
+{% endif %}
+</script>
 {% endblock %}

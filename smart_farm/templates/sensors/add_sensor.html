@@ -1,147 +1,148 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if form.instance.pk %}Sensoru Redaktə{% else %}Sensor Əlavə Et{% endif %} - AgroVision{% endblock %}
+
+{% block extra_css %}
+<style>
+@keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.form-wrap { border-radius:24px; overflow:hidden; animation:fadeInUp 0.5s ease backwards; }
+.form-header { background:linear-gradient(135deg, #e8f5e9, #f1f8e9); border-bottom:1px solid #e0f0e3; padding:28px 36px; }
+.form-header h4 { color:#2d6a4f; font-weight:700; }
+.form-control, .form-select {
+    border-radius:10px; padding:10px 14px;
+    border:1.5px solid #e5e7eb; transition:border-color 0.2s, box-shadow 0.2s; font-size:0.9rem;
+}
+.form-control:focus, .form-select:focus { border-color:#52b788; box-shadow:0 0 0 3px rgba(82,183,136,0.12); }
+.lbl { font-size:0.73rem; font-weight:700; text-transform:uppercase; color:#6b7280; letter-spacing:0.5px; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+.lbl i { color:#52b788; }
+.section-bg { background:#f9fafb; border:1px solid #f0f0f0; border-radius:16px; padding:20px; }
+.btn-submit { background:#52b788; color:#fff; border:none; padding:12px 36px; border-radius:12px; font-weight:700; transition:all 0.25s; }
+.btn-submit:hover { background:#40916c; transform:translateY(-2px); box-shadow:0 6px 16px rgba(64,145,108,0.25); color:#fff; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Yeni Sensor əlavə et</h2>
-        <a href="{% url 'sensors:sensor_list' %}" class="btn btn-secondary">Geri</a>
-    </div>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="mb-3">
+                <a href="{% url 'sensors:sensor_dashboard' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="fas fa-arrow-left me-1"></i>Geri
+                </a>
             </div>
-        {% endfor %}
-    {% endif %}
 
-    <div class="card">
-        <div class="card-body">
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {{ form.non_field_errors }}
-                
-                <div class="mb-3">
-                    <label for="{{ form.field.id_for_label }}" class="form-label">{{ form.field.label }}</label>
-                    {{ form.field }}
-                    {% if form.field.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.field.errors|striptags }}
+            <div class="card form-wrap shadow-sm border-0">
+                <div class="form-header">
+                    <h4 class="mb-1">
+                        {% if form.instance.pk %}✏️ Sensoru Redaktə Et{% else %}🔬 Yeni Sensor Əlavə Et{% endif %}
+                    </h4>
+                    <p class="text-muted small mb-0">
+                        {% if form.instance.pk %}{{ form.instance.name }} — {{ form.instance.get_sensor_type_display }}
+                        {% else %}Sahəyə yeni sensor qeydiyyatı{% endif %}
+                    </p>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger rounded-3 border-0 small mb-4">
+                            <i class="fas fa-exclamation-circle me-2"></i>Zəhmət olmasa xətaları düzəldin.
                         </div>
-                    {% endif %}
-                </div>
+                        {% endif %}
 
-                <div class="mb-3">
-                    <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
-                    {{ form.name }}
-                    {% if form.name.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.name.errors|striptags }}
+                        <!-- Sahə + Sensor növü -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="lbl"><i class="fas fa-map-marker-alt"></i>{{ form.field.label }}</div>
+                                {{ form.field }}
+                                {% if form.field.errors %}<div class="text-danger small mt-1">{{ form.field.errors|first }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="lbl"><i class="fas fa-microchip"></i>{{ form.sensor_type.label }}</div>
+                                {{ form.sensor_type }}
+                            </div>
                         </div>
-                    {% endif %}
-                </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="{{ form.sensor_code.id_for_label }}" class="form-label">{{ form.sensor_code.label }}</label>
-                        {{ form.sensor_code }}
-                        {% if form.sensor_code.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.sensor_code.errors|striptags }}
+                        <!-- Ad + Kod -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="lbl"><i class="fas fa-tag"></i>{{ form.name.label }}</div>
+                                {{ form.name }}
+                                {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors|first }}</div>{% endif %}
                             </div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="{{ form.sensor_type.id_for_label }}" class="form-label">{{ form.sensor_type.label }}</label>
-                        {{ form.sensor_type }}
-                        {% if form.sensor_type.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.sensor_type.errors|striptags }}
+                            <div class="col-md-6">
+                                <div class="lbl"><i class="fas fa-barcode"></i>{{ form.sensor_code.label }}</div>
+                                {{ form.sensor_code }}
+                                {% if form.sensor_code.errors %}<div class="text-danger small mt-1">{{ form.sensor_code.errors|first }}</div>{% endif %}
                             </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
-                    {{ form.description }}
-                    {% if form.description.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.description.errors|striptags }}
                         </div>
-                    {% endif %}
-                </div>
 
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label for="{{ form.installation_date.id_for_label }}" class="form-label">{{ form.installation_date.label }}</label>
-                        {{ form.installation_date }}
-                        {% if form.installation_date.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.installation_date.errors|striptags }}
+                        <!-- Qurulma + İnterval + Batareya -->
+                        <div class="section-bg mb-3">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="lbl"><i class="fas fa-calendar-alt"></i>{{ form.installation_date.label }}</div>
+                                    {{ form.installation_date }}
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="lbl"><i class="fas fa-clock"></i>{{ form.data_interval.label }}</div>
+                                    <div class="input-group">
+                                        {{ form.data_interval }}
+                                        <span class="input-group-text bg-white border-start-0 text-muted small">dəq</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="lbl"><i class="fas fa-battery-half"></i>{{ form.battery_level.label }}</div>
+                                    <div class="input-group">
+                                        {{ form.battery_level }}
+                                        <span class="input-group-text bg-white border-start-0 text-muted">%</span>
+                                    </div>
+                                </div>
                             </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-4 mb-3">
-                        <label for="{{ form.latitude.id_for_label }}" class="form-label">{{ form.latitude.label }}</label>
-                        {{ form.latitude }}
-                        {% if form.latitude.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.latitude.errors|striptags }}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-4 mb-3">
-                        <label for="{{ form.longitude.id_for_label }}" class="form-label">{{ form.longitude.label }}</label>
-                        {{ form.longitude }}
-                        {% if form.longitude.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.longitude.errors|striptags }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="{{ form.battery_level.id_for_label }}" class="form-label">{{ form.battery_level.label }}</label>
-                        {{ form.battery_level }}
-                        {% if form.battery_level.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.battery_level.errors|striptags }}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label for="{{ form.data_interval.id_for_label }}" class="form-label">{{ form.data_interval.label }}</label>
-                        {{ form.data_interval }}
-                        {% if form.data_interval.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ form.data_interval.errors|striptags }}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="form-check mb-3">
-                    {{ form.is_active }}
-                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
-                    {% if form.is_active.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.is_active.errors|striptags }}
                         </div>
-                    {% endif %}
-                </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Əlavə et</button>
-                    <a href="{% url 'sensors:sensor_list' %}" class="btn btn-outline-secondary">İmtina</a>
+                        <!-- Koordinat (isteğe bağlı) -->
+                        <div class="section-bg mb-3">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <span class="fw-bold small text-muted text-uppercase">📍 Koordinat</span>
+                                <span class="badge bg-light text-muted border" style="font-size:0.65rem;">İsteğe bağlı</span>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="lbl">{{ form.latitude.label }}</div>
+                                    {{ form.latitude }}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="lbl">{{ form.longitude.label }}</div>
+                                    {{ form.longitude }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Təsvir + Aktiv -->
+                        <div class="mb-3">
+                            <div class="lbl"><i class="fas fa-sticky-note"></i>{{ form.description.label }}</div>
+                            {{ form.description }}
+                        </div>
+                        <div class="form-check form-switch mb-4">
+                            {{ form.is_active }}
+                            <label class="form-check-label fw-bold small ms-2" for="{{ form.is_active.id_for_label }}">
+                                {{ form.is_active.label }}
+                            </label>
+                        </div>
+
+                        <div class="d-flex gap-3 justify-content-end pt-3 border-top">
+                            <a href="{% url 'sensors:sensor_dashboard' %}" class="btn btn-light rounded-pill px-4 border text-muted fw-bold">Ləğv Et</a>
+                            <button type="submit" class="btn-submit shadow-sm">
+                                <i class="fas fa-check-circle me-2"></i>Yadda Saxla
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
