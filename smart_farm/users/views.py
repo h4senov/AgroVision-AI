@@ -26,7 +26,6 @@ def admin_required(function):
     return actual_decorator(function)
 
 # users/views.py
-
 def user_register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -34,15 +33,25 @@ def user_register(request):
             user = form.save()
             # Backend-i dəqiqləşdiririk ki, login problemi olmasın
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+
+            # --- SESSİYA QEYDİNİ BURADA DA YARADIRIQ ---
+            UserSession.objects.create(
+                user=user, # yeni yaradılan user
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
+                city="Baku",
+                browser=request.META.get('HTTP_USER_AGENT', '').split(' ')[0],
+                device="Mobile" if "Mobile" in request.META.get('HTTP_USER_AGENT', '') else "Desktop"
+            )
+            # ------------------------------------------
+
             messages.success(request, '🎉 Uğurla qeydiyyatdan keçdiniz!')
             return redirect('core:dashboard')
         else:
-            # Form valid deyilsə, xəta mesajı verək
             messages.error(request, '❌ Zəhmət olmasa xətaları düzəldin.')
     else:
         form = CustomUserCreationForm()
     return render(request, 'users/register.html', {'form': form})
-
 # ============ AUTH VIEWS ============ 
 def user_login(request):
     if request.method == 'POST':
@@ -65,15 +74,15 @@ def user_login(request):
                 
                 # 3. UserSession logunu YALNIZ uğurlu girişdən sonra yarat/yenilə
                 
-                UserSession.objects.update_or_create(
+                UserSession.objects.create(
                     user=user_obj,
-                    defaults={
-                        'ip_address': get_client_ip(request),
-                        'user_agent': request.META.get('HTTP_USER_AGENT', '')[:500],
-                    }
+                    ip_address=get_client_ip(request),
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
+                    city="Baku",  # Bura bərabərdir (=) olmalıdır
+                    browser=request.META.get('HTTP_USER_AGENT', '').split(' ')[0], # bərabərdir (=)
+                    device="Mobile" if "Mobile" in request.META.get('HTTP_USER_AGENT', '') else "Desktop" # bərabərdir (=)
                 )
-
-                # 4. Son giriş vaxtını yenilə
+                            # 4. Son giriş vaxtını yenilə
                 user_obj.last_login = timezone.now()
                 user_obj.save()
 
@@ -86,6 +95,11 @@ def user_login(request):
             
     return render(request, 'users/login.html')
         
+def all_user_sessions(request):
+    # .all() yazırıq ki, hamı gəlsin
+    sessions = UserSession.objects.all().select_related('user').order_by('-created_at')
+    return render(request, 'users/all_sessions.html', {'sessions': sessions})
+
 
 def user_logout(request):
     logout(request)

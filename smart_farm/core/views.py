@@ -9,12 +9,35 @@ from inventory.models import Inventory
 from plants.models import Plant
 from sensors.models import Sensor
 from fields.models import Field
+from users.views import get_client_ip
+from users.models import UserSession
 from weather.models import WeatherData
 
 from news.models import News   # ← faylın yuxarısına əlavə et (digər import-ların yanına)
 
 
 def home(request):
+
+    # 1. QONAQ DATASINI TUTMAQ
+    client_ip = get_client_ip(request)
+    u_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
+    
+    # Giriş edibsə user-i götür, etməyibsə None (qonaq) qalsın
+    curr_user = request.user if request.user.is_authenticated else None
+
+    # Eyni qonaq səhifəni hər dəfə refresh edəndə bazanı doldurmasın deyə
+    # IP və User-ə görə son girişi yeniləyirik (və ya .create istifadə et)
+    UserSession.objects.update_or_create(
+        ip_address=client_ip,
+        user=curr_user,
+        defaults={
+            'user_agent': u_agent,
+            'last_login': timezone.now(),
+            'city': "Baku (Guest)", # Statikdir, GeoIP ilə dəyişmək olar
+            'device': "Mobile" if "Mobile" in u_agent else "Desktop",
+            'browser': u_agent.split(' ')[0] if u_agent else "Unknown"
+        }
+    )
      
     context = {
         'latest_news': News.objects.filter(is_published=True)[:3]

@@ -1,15 +1,59 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
-# Register your models here.
+from django.utils.html import format_html
+from .models import CustomUser, UserSession
 
-admin.site.register(CustomUser,UserAdmin)
-
-from .models import UserSession
+# CustomUser Admini
+admin.site.register(CustomUser, UserAdmin)
 
 @admin.register(UserSession)
 class UserSessionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'ip_address', 'country', 'last_login', 'user_agent')
-    list_filter  = ('country',)
-    search_fields = ('user__username', 'ip_address')
-    ordering = ('-last_login',)
+    # Cədvəldə hansı sütunlar görünsün
+    list_display = ('get_user_status', 'display_user', 'ip_address', 'country_city', 'device_info', 'last_activity_formatted')
+    
+    # Sağ tərəfdəki filtrlər
+    list_filter = ('user__role', 'country', 'device', 'is_bot', 'created_at')
+    
+    # Axtarış sahəsi
+    search_fields = ('user__username', 'ip_address', 'city', 'user__phone')
+    
+    # --- Xüsusi Sütun Funksiyaları ---
+
+    def get_user_status(self, obj):
+        if not obj.user:
+            return format_html('<span style="color: #666;">🔍 Anonim Qonaq</span>')
+        
+        # Roluna görə rənglər
+        colors = {
+            'admin': '#d9534f',   # Qırmızı
+            'farmer': '#5cb85c',  # Yaşıl
+            'expert': '#5bc0de',  # Mavi
+            'guest': '#f0ad4e',   # Narıncı
+        }
+        role_name = dict(CustomUser.ROLE_CHOICES).get(obj.user.role, "Bilinmir")
+        color = colors.get(obj.user.role, "#777")
+        
+        return format_html(
+            '<strong style="color: {};">{}</strong>',
+            color, role_name
+        )
+    get_user_status.short_description = 'İstifadəçi Tipi'
+
+    def display_user(self, obj):
+        if obj.user:
+            return f"{obj.user.username} ({obj.user.get_full_name()})"
+        return obj.ip_address
+    display_user.short_description = 'İstifadəçi / IP'
+
+    def country_city(self, obj):
+        return f"{obj.country} / {obj.city}" if obj.country else "Məlum deyil"
+    country_city.short_description = 'Məkan'
+
+    def device_info(self, obj):
+        icon = "📱" if obj.device == "Mobile" else "💻"
+        return f"{icon} {obj.browser} ({obj.os})"
+    device_info.short_description = 'Cihaz/Brauzer'
+
+    def last_activity_formatted(self, obj):
+        return obj.last_activity.strftime("%d.%m.%Y %H:%M")
+    last_activity_formatted.short_description = 'Son Aktivlik'

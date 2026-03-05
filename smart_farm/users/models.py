@@ -72,19 +72,40 @@ class CustomUser(AbstractUser):
 from django.db import models
 from django.conf import settings
 
-
 class UserSession(models.Model):
-    user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sessions')
-    ip_address   = models.GenericIPAddressField(null=True, blank=True)
-    user_agent   = models.TextField(blank=True)
-    country      = models.CharField(max_length=100, blank=True)
-    last_login   = models.DateTimeField(auto_now=True)
-    created_at   = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-last_login']
-        verbose_name = "İstifadəçi Sessiyası"
-        verbose_name_plural = "İstifadəçi Sessiyaları"
+    # Foreign Key ilə User-ə bağlanırıq. Rolu buradan götürəcəyik.
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='sessions',
+        null=True,  # Qonaqlar üçün boş qalmalıdır
+        blank=True
+    )
+    
+    # Şəbəkə məlumatları
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    country    = models.CharField(max_length=100, blank=True)
+    city       = models.CharField(max_length=100, blank=True)
+    
+    # Texniki detallar
+    user_agent = models.TextField(blank=True)
+    browser    = models.CharField(max_length=50, blank=True)
+    os         = models.CharField(max_length=50, blank=True)
+    device     = models.CharField(max_length=50, blank=True) # Mobile / Desktop
+    
+    # Aktivlik
+    is_bot     = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_login = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} — {self.ip_address}"        
+        if self.user:
+            return f"{self.user.username} ({self.user.get_role_display()})"
+        return f"Qonaq ({self.ip_address})"
+
+    # BU FUNKSİYA VACİBDİR: Sessiya üzərindən rolu çəkmək üçün
+    @property
+    def user_role(self):
+        if self.user:
+            return self.user.role # 'farmer', 'expert' və s. qaytarır
+        return 'guest' # Login olmayıbsa avtomatik qonaq sayılır
