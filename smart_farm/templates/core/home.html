@@ -617,45 +617,45 @@
 </section>
 
 <!-- ════════════════ ── YENİ: SON XƏBƏRLƏR ── ════════════════ -->
-<section class="news-section py-5">
+ <section class="news-section py-5">
   <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3 reveal">
-      <div>
-        <h2 class="display-5 fw-bold sec-title mb-1">{% trans "Aqronom Bloqu" %}</h2>
-        <p class="sec-subtitle mb-0">{% trans "Kənd təsərrüfatında ən son tövsiyələr" %}</p>
-      </div>
+    <div class="text-center mb-5 reveal">
+      <h2 class="display-5 fw-bold mb-3">{% trans "Son Xəbərlər" %}</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">
+        {% trans "AgroVision AI haqqında ən son yeniliklər və məqalələr." %}
+      </p>
     </div>
-    <div class="row g-4">
-      <div class="col-md-6 col-lg-4 reveal delay-1">
-        <div class="news-card">
-          <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=80" alt="suvarma" class="news-img">
-          <div class="news-body">
-            <div class="news-tag">💧 {% trans "Suvarma" %}</div>
-            <div class="news-title">{% trans "Damcı Suvarma ilə 40% Su Qənaəti: Əməli Bələdçi" %}</div>
-            <div class="news-date">📅 02 Mart 2026</div>
-          </div>
+
+    <div class="row g-4"> {% if latest_news %}
+        {% for item in latest_news %}
+        <div class="col-md-6 col-lg-4 reveal delay-{{ forloop.counter }}">
+          <a href="{% url 'news:news_detail' item.slug %}" class="news-card-link text-decoration-none">
+            <div class="news-card h-100 shadow-sm border-0">
+              <div class="news-img-wrapper">
+                {% if item.image %}
+                  <img src="{{ item.image.url }}" alt="{{ item.title }}" class="news-img">
+                {% else %}
+                  <div class="news-img-placeholder">📰</div>
+                {% endif %}
+                <div class="news-tag-overlay">🌱 {% trans "Aqronom Bloqu" %}</div>
+              </div>
+
+              <div class="news-body p-4">
+                <div class="news-date mb-2 text-muted small">
+                  <i class="far fa-calendar-alt me-1"></i> {{ item.created_at|date:"d F Y" }}
+                </div>
+                <h5 class="news-title fw-bold mb-0">{{ item.title }}</h5>
+              </div>
+            </div>
+          </a>
         </div>
-      </div>
-      <div class="col-md-6 col-lg-4 reveal delay-2">
-        <div class="news-card">
-          <img src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=600&q=80" alt="bitki" class="news-img">
-          <div class="news-body">
-            <div class="news-tag">🌱 {% trans "Bitki Sağlamlığı" %}</div>
-            <div class="news-title">{% trans "Yaz Mövsümü Üçün Gübrələmə Cədvəli: AI Tövsiyəsi" %}</div>
-            <div class="news-date">📅 28 Fevral 2026</div>
-          </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12 text-center py-5">
+          <div class="opacity-50 fs-1 mb-3">📭</div>
+          <p class="text-muted">{% trans "Tezliklə yeni məqalələr əlavə olunacaq." %}</p>
         </div>
-      </div>
-      <div class="col-md-6 col-lg-4 reveal delay-3">
-        <div class="news-card">
-          <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&q=80" alt="texnologiya" class="news-img">
-          <div class="news-body">
-            <div class="news-tag">🤖 {% trans "Texnologiya" %}</div>
-            <div class="news-title">{% trans "IoT Sensoru Nədir? Fermerçilikdə Necə İstifadə Edirsiniz?" %}</div>
-            <div class="news-date">📅 20 Fevral 2026</div>
-          </div>
-        </div>
-      </div>
+      {% endif %}
     </div>
   </div>
 </section>

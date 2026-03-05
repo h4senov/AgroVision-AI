@@ -1,23 +1,26 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Daxil Ol - AgroVision AI{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Daxil Ol" %} - AgroVision AI{% endblock %}
 
 {% block extra_css %}
 <style>
 .auth-page {
     min-height: 100vh;
-    background: #f4f7f4;
+    background: var(--bg-secondary);                    /* ← düzəldi */
     display: flex; align-items: center; justify-content: center;
     padding: 40px 16px;
 }
 .auth-card {
     width: 100%; max-width: 920px;
-    background: #fff;
-    border-radius: 24px;
-    overflow: hidden;
+    background: var(--bg-card);                         /* ← düzəldi */
+    border-radius: 24px; overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    border: 1px solid var(--border);                    /* ← düzəldi */
     display: flex;
 }
+[data-theme="dark"] .auth-card { box-shadow: 0 20px 60px rgba(0,0,0,0.45); }
+
 .auth-left {
     width: 42%;
     background: url('https://i.pinimg.com/736x/fd/e7/1d/fde71d86758e9a757d17bbbf42905299.jpg') center/cover;
@@ -26,78 +29,76 @@
     padding: 40px;
 }
 .auth-left::before {
-    content: '';
-    position: absolute; inset: 0;
+    content: ''; position: absolute; inset: 0;
     background: linear-gradient(180deg, rgba(10,50,15,0.3) 0%, rgba(10,50,15,0.85) 100%);
 }
 .auth-left-content { position: relative; z-index: 1; color: #fff; }
 .auth-left-badge {
     display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
     padding: 6px 14px; border-radius: 50px;
-    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.5px;
-    margin-bottom: 16px;
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 16px;
 }
-.badge-dot { width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pulse-d 1.5s ease-in-out infinite; }
-@keyframes pulse-d { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.5)} }
+.badge-dot { width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pd 1.5s ease-in-out infinite; }
+@keyframes pd { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.5)} }
 
 .auth-right {
-    flex: 1;
-    padding: 48px 44px;
+    flex: 1; padding: 48px 44px;
     display: flex; flex-direction: column; justify-content: center;
+    background: var(--bg-card);                         /* ← düzəldi */
 }
 
 .auth-logo { display:flex;align-items:center;gap:10px;margin-bottom:36px; }
-.auth-logo-icon { width:40px;height:40px;border-radius:12px;background:#198754;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem; }
-.auth-logo span { font-weight:700;font-size:1.1rem;color:#1a1a1a; }
+.auth-logo-icon {
+    width:40px;height:40px;border-radius:12px;
+    background:linear-gradient(135deg,#182f4c,#2e8e63);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;
+}
+.auth-logo-name { font-weight:700;font-size:1.1rem;color:var(--text); }
 
-.auth-title { font-size:1.65rem;font-weight:700;color:#1a1a1a;margin-bottom:6px; }
-.auth-sub { font-size:0.9rem;color:#888;margin-bottom:32px; }
+.auth-title { font-size:1.65rem;font-weight:700;color:var(--text);margin-bottom:6px; }
+.auth-sub   { font-size:0.9rem;color:var(--text-muted);margin-bottom:32px; }
 
 .field-group { margin-bottom:20px; }
-.field-label { font-size:0.82rem;font-weight:600;color:#444;margin-bottom:8px;display:block; }
+.field-label { font-size:0.82rem;font-weight:600;color:var(--text);margin-bottom:8px;display:block; }
 .field-wrap {
     display:flex;align-items:center;
-    border:1.5px solid #e5e7e5;
-    border-radius:12px;
-    overflow:hidden;
-    transition:border-color 0.2s,box-shadow 0.2s;
-    background:#fafafa;
+    border:1.5px solid var(--border);                   /* ← düzəldi */
+    border-radius:12px; overflow:hidden;
+    background:var(--bg-secondary);                     /* ← düzəldi */
+    transition:border-color .2s, box-shadow .2s;
 }
 .field-wrap:focus-within {
-    border-color:#198754;
-    box-shadow:0 0 0 3px rgba(25,135,84,0.1);
-    background:#fff;
+    border-color:#2e8e63;
+    box-shadow:0 0 0 3px rgba(46,142,99,0.12);
+    background:var(--bg-card);                          /* ← düzəldi */
 }
-.field-icon { padding:0 14px;color:#aaa;font-size:0.9rem; }
+.field-icon { padding:0 14px;color:var(--text-muted);font-size:0.9rem; } /* ← düzəldi */
 .field-wrap input {
     flex:1; border:none; background:transparent;
     padding:13px 14px 13px 0;
-    font-size:0.95rem; color:#1a1a1a;
+    font-size:0.95rem; color:var(--text);               /* ← düzəldi */
     outline:none;
 }
-.field-wrap input::placeholder { color:#bbb; }
+.field-wrap input::placeholder { color:var(--text-muted); }            /* ← düzəldi */
 
 .auth-options { display:flex;justify-content:space-between;align-items:center;margin-bottom:28px; }
-.auth-options label { font-size:0.83rem;color:#666;cursor:pointer; }
-.auth-options a { font-size:0.83rem;color:#198754;text-decoration:none;font-weight:600; }
+.auth-options label { font-size:0.83rem;color:var(--text-muted);cursor:pointer; }
+.auth-options a { font-size:0.83rem;color:#2e8e63;text-decoration:none;font-weight:600; }
 .auth-options a:hover { text-decoration:underline; }
 
 .btn-auth {
     width:100%; padding:14px;
-    background:#198754; color:#fff;
-    border:none; border-radius:12px;
-    font-size:1rem; font-weight:600;
-    cursor:pointer;
-    transition:background 0.2s, transform 0.2s, box-shadow 0.2s;
+    background:linear-gradient(135deg,#182f4c,#2e8e63);
+    color:#fff; border:none; border-radius:12px;
+    font-size:1rem; font-weight:600; cursor:pointer;
+    transition:opacity .2s, transform .2s;
     display:flex; align-items:center; justify-content:center; gap:8px;
 }
-.btn-auth:hover { background:#157347; transform:translateY(-1px); box-shadow:0 6px 20px rgba(25,135,84,0.3); }
-.btn-auth:active { transform:translateY(0); }
+.btn-auth:hover { opacity:.9; transform:translateY(-1px); }
 
-.auth-footer { text-align:center;margin-top:28px;font-size:0.87rem;color:#888; }
-.auth-footer a { color:#198754;font-weight:600;text-decoration:none; }
+.auth-footer { text-align:center;margin-top:28px;font-size:0.87rem;color:var(--text-muted); }
+.auth-footer a { color:#2e8e63;font-weight:600;text-decoration:none; }
 .auth-footer a:hover { text-decoration:underline; }
 
 @media(max-width:767px){
@@ -110,79 +111,63 @@
 {% block content %}
 <div class="auth-page">
   <div class="auth-card">
-
-    <!-- Sol panel -->
     <div class="auth-left">
       <div class="auth-left-content">
-        <div class="auth-left-badge">
-          <span class="badge-dot"></span> Canlı sistem aktiv
-        </div>
-        <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:10px;">Xoş Gəldiniz!</h2>
-        <p style="color:rgba(255,255,255,0.75);font-size:0.9rem;line-height:1.6;margin:0;">
-          Sistemə daxil olaraq təsərrüfatınızı<br>uzaqdan idarə etməyə davam edin.
+        <div class="auth-left-badge"><span class="badge-dot"></span>{% trans "Canlı sistem aktiv" %}</div>
+        <h2 style="font-size:1.5rem;font-weight:700;margin-bottom:10px">{% trans "Xoş Gəldiniz!" %}</h2>
+        <p style="color:rgba(255,255,255,0.75);font-size:0.9rem;line-height:1.6;margin:0 0 24px">
+          {% trans "Sistemə daxil olaraq təsərrüfatınızı uzaqdan idarə etməyə davam edin." %}
         </p>
-        <div style="display:flex;gap:16px;margin-top:24px;">
-          <div style="background:rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;text-align:center;">
-            <div style="font-size:1.3rem;font-weight:700;color:#fff;">24/7</div>
-            <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Nəzarət</div>
+        <div style="display:flex;gap:16px">
+          <div style="background:rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;text-align:center">
+            <div style="font-size:1.3rem;font-weight:700;color:#fff">24/7</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-top:2px">{% trans "Nəzarət" %}</div>
           </div>
-          <div style="background:rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;text-align:center;">
-            <div style="font-size:1.3rem;font-weight:700;color:#4ade80;">92%</div>
-            <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">AI Dəqiqlik</div>
+          <div style="background:rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;text-align:center">
+            <div style="font-size:1.3rem;font-weight:700;color:#4ade80">92%</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-top:2px">{% trans "AI Dəqiqlik" %}</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sağ panel -->
     <div class="auth-right">
       <div class="auth-logo">
         <div class="auth-logo-icon"><i class="fas fa-tractor"></i></div>
-        <span>AgroVision <span style="color:#198754;">AI</span></span>
+        <span class="auth-logo-name">AgroVision <span style="color:#2e8e63">AI</span></span>
       </div>
-
-      <div class="auth-title">Hesabınıza daxil olun</div>
-      <div class="auth-sub">Zəhmət olmasa məlumatlarınızı daxil edin</div>
-
-      {# messages artıq base.html-də toast kimi göstərilir — burada təkrar lazım deyil #}
+      <div class="auth-title">{% trans "Hesabınıza daxil olun" %}</div>
+      <div class="auth-sub">{% trans "Zəhmət olmasa məlumatlarınızı daxil edin" %}</div>
 
       <form method="post" novalidate>
         {% csrf_token %}
-
         <div class="field-group">
-          <label class="field-label">İstifadəçi adı</label>
+          <label class="field-label">{% trans "İstifadəçi adı" %}</label>
           <div class="field-wrap">
             <span class="field-icon"><i class="fas fa-user"></i></span>
-            <input type="text" name="username" placeholder="İstifadəçi adınız" required>
+            <input type="text" name="username" placeholder="{% trans "İstifadəçi adınız" %}" required>
           </div>
         </div>
-
         <div class="field-group">
-          <label class="field-label">Şifrə</label>
+          <label class="field-label">{% trans "Şifrə" %}</label>
           <div class="field-wrap">
             <span class="field-icon"><i class="fas fa-lock"></i></span>
             <input type="password" name="password" placeholder="••••••••" required>
           </div>
         </div>
-
         <div class="auth-options">
-          <label>
-            <input type="checkbox" name="remember" style="accent-color:#198754;margin-right:6px;">
-            Məni xatırla
-          </label>
-          <a href="#">Şifrəni unutmusunuz?</a>
+          <label><input type="checkbox" name="remember" style="accent-color:#2e8e63;margin-right:6px">{% trans "Məni xatırla" %}</label>
+          <a href="#">{% trans "Şifrəni unutmusunuz?" %}</a>
         </div>
-
         <button type="submit" class="btn-auth">
-          <i class="fas fa-sign-in-alt"></i> Daxil Ol
+          <i class="fas fa-sign-in-alt"></i>{% trans "Daxil Ol" %}
         </button>
       </form>
 
       <div class="auth-footer">
-        Hesabınız yoxdur? <a href="{% url 'users:user_register' %}">Qeydiyyat</a>
+        {% trans "Hesabınız yoxdur?" %} <a href="{% url 'users:user_register' %}">{% trans "Qeydiyyat" %}</a>
       </div>
     </div>
-
   </div>
 </div>
 {% endblock %}

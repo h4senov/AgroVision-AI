@@ -22,9 +22,9 @@ urlpatterns += i18n_patterns(
     path('irrigation/', include('irrigation.urls', namespace='irrigation')),
    
     path('careers/', include('careers.urls')),
-    path('news/', include('news.urls')),
-    path('products/', include('products.urls')),
-    path('info/', include('pages.urls')),
+    path('news/', include('news.urls', namespace='news')),
+    path('products/', include('products.urls', namespace='products')),
+    path('info/', include('pages.urls', namespace='pages')),
     
     
     # prefix_default_language=False 

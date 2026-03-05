@@ -1,56 +1,176 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load i18n %}
+{% block title %}{{ news.title }} - AgroVision{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <style>
-.article-hero { border-radius: 12px; overflow: hidden; }
-.article-meta { color: rgba(15,23,42,0.6); font-size: .95rem; }
+:root { --v2-from:#182f4c; --v2-to:#2e8e63; --v2-accent:#3d9970; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+.au { animation:fadeUp .5s ease backwards; }
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}
+
+/* ── Breadcrumb ── */
+.bc-link { color:var(--text-muted); text-decoration:none; font-size:.8rem; font-weight:600; }
+.bc-link:hover { color:var(--v2-accent); }
+.bc-sep  { color:var(--text-muted); margin:0 6px; }
+
+/* ── Hero şəkil ── */
+.article-cover {
+  width:100%; border-radius:22px; overflow:hidden;
+  height:420px; position:relative; background:var(--bg-secondary);
+  margin-bottom:32px;
+}
+.article-cover img { width:100%; height:100%; object-fit:cover; }
+.article-cover-placeholder {
+  height:100%; display:flex; align-items:center; justify-content:center;
+  font-size:5rem; opacity:.12;
+}
+/* Gradient overlay - başlıq üçün */
+.cover-overlay {
+  position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(0,0,0,.65) 0%, transparent 55%);
+  border-radius:22px;
+}
+.cover-title {
+  position:absolute; bottom:0; left:0; right:0; padding:28px 32px;
+}
+
+/* ── Article body kartı ── */
+.article-card {
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:22px; padding:36px 40px;
+}
+@media(max-width:575px) { .article-card { padding:22px 18px; } .article-cover { height:240px; } .cover-title { padding:18px; } }
+
+/* ── Meta ── */
+.article-meta { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:24px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+.meta-chip { display:inline-flex; align-items:center; gap:6px; font-size:.8rem; color:var(--text-muted); }
+
+/* ── Məzmun tipografiyası ── */
+.article-content { color:var(--text); line-height:1.85; font-size:1.02rem; }
+.article-content h1,.article-content h2,.article-content h3 { color:var(--text); margin-top:2rem; margin-bottom:.75rem; font-weight:700; }
+.article-content p  { margin-bottom:1.1rem; }
+.article-content a  { color:var(--v2-accent); text-decoration:underline; }
+.article-content img { max-width:100%; border-radius:14px; margin:1rem 0; }
+.article-content ul,.article-content ol { padding-left:1.4rem; margin-bottom:1rem; }
+.article-content li { margin-bottom:.4rem; }
+.article-content blockquote {
+  border-left:4px solid var(--v2-accent); padding:12px 20px;
+  background:rgba(61,153,112,.07); border-radius:0 12px 12px 0; margin:1.2rem 0;
+  color:var(--text-muted); font-style:italic;
+}
+[data-theme="dark"] .article-content blockquote { background:rgba(61,153,112,.12); }
+.article-content code {
+  background:var(--bg-secondary); border:1px solid var(--border);
+  border-radius:6px; padding:2px 7px; font-size:.88em;
+}
+
+/* ── Action düymələri ── */
+.act-btn {
+  display:inline-flex; align-items:center; gap:7px; padding:10px 18px;
+  border-radius:12px; font-weight:600; font-size:.85rem;
+  border:1.5px solid var(--border); background:transparent; color:var(--text-muted);
+  text-decoration:none; transition:all .2s;
+}
+.act-btn:hover        { border-color:var(--v2-accent); color:var(--v2-accent); background:rgba(61,153,112,.05); }
+.act-btn.edit:hover   { border-color:#3b82f6; color:#3b82f6; background:rgba(59,130,246,.06); }
+.act-btn.danger:hover { border-color:#ef4444; color:#ef4444; background:rgba(239,68,68,.06); }
+
+/* ── Draft xəbərdarlıq ── */
+.draft-warn {
+  background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3);
+  border-left:4px solid #f59e0b; border-radius:12px; padding:12px 16px;
+  font-size:.84rem; color:var(--text-muted); display:flex; align-items:center; gap:10px;
+  margin-bottom:22px;
+}
+[data-theme="dark"] .draft-warn { background:rgba(245,158,11,.15); }
 </style>
 {% endblock %}
 
-{% block title %}{{ news.title }}{% endblock %}
-
 {% block content %}
-<div class="container my-5">
+<div class="container-fluid py-4 px-3 px-md-4">
   <div class="row justify-content-center">
-    <div class="col-lg-10">
-      <div class="card border-0 shadow-sm animate__animated animate__fadeIn">
-        {% if news.image %}
-        <div class="article-hero">
-          <img src="{{ news.image.url }}" alt="{{ news.title }}" style="width:100%; height:380px; object-fit:cover;">
-        </div>
-        {% endif %}
-        <div class="card-body">
-          <h1 class="mb-2">{{ news.title }}</h1>
-          <p class="article-meta mb-3">
-            <i class="fas fa-calendar-alt me-1"></i> {{ news.created_at|date:"d F Y H:i" }}
-            {% if request.user.is_staff %} · <span class="ms-2"><i class="fas fa-user-shield me-1"></i>{% trans "Admin" %}</span>{% endif %}
-          </p>
+    <div class="col-12 col-lg-9 col-xl-8">
 
-          <div class="content mb-4">
-            {{ news.content|safe }}
-          </div>
-
-          <div class="d-flex justify-content-between align-items-center">
-            <a href="{% url 'news:news_list' %}" class="btn btn-outline-secondary">
-              <i class="fas fa-arrow-left me-1"></i> {% trans "Geri" %}
-            </a>
-
-            <div>
-              {% if request.user.is_authenticated and request.user.is_staff %}
-                <a href="{% url 'news:news_update' news.slug %}" class="btn btn-warning me-2">
-                  <i class="fas fa-edit me-1"></i> {% trans "Redaktə et" %}
-                </a>
-                <a href="{% url 'news:news_delete' news.slug %}" class="btn btn-danger">
-                  <i class="fas fa-trash-alt me-1"></i> {% trans "Sil" %}
-                </a>
-              {% endif %}
-            </div>
-          </div>
-
-        </div>
+      <!-- Breadcrumb -->
+      <div class="mb-4 d-flex align-items-center flex-wrap gap-1 au">
+        <a href="{% url 'news:news_list' %}" class="bc-link">
+          <i class="fas fa-newspaper me-1"></i>{% trans "Xəbərlər" %}
+        </a>
+        <span class="bc-sep">›</span>
+        <span style="font-size:.8rem;color:var(--text)">{{ news.title|truncatechars:40 }}</span>
       </div>
+
+      <!-- Draft xəbərdarlığı (yalnız admin görür) -->
+      {% if not news.is_published and request.user.is_staff %}
+      <div class="draft-warn au">
+        <i class="fas fa-eye-slash" style="color:#f59e0b;flex-shrink:0"></i>
+        <span>{% trans "Bu xəbər hələ dərc edilməyib (Draft). Yalnız siz görürsünüz." %}</span>
+      </div>
+      {% endif %}
+
+      <!-- Örtük şəkil -->
+      <div class="article-cover au d1">
+        {% if news.image %}
+          <img src="{{ news.image.url }}" alt="{{ news.title }}">
+          <div class="cover-overlay"></div>
+          <div class="cover-title">
+            <h1 class="fw-bold text-white" style="font-size:clamp(1.4rem,3vw,2rem);margin:0">{{ news.title }}</h1>
+          </div>
+        {% else %}
+          <div class="article-cover-placeholder">📰</div>
+        {% endif %}
+      </div>
+
+      <!-- Məqalə kartı -->
+      <div class="article-card au d2">
+
+        <!-- Meta (şəkil olmayanda başlıq burada görünür) -->
+        {% if not news.image %}
+        <h1 class="fw-bold mb-4" style="color:var(--text);font-size:clamp(1.4rem,3vw,2rem)">{{ news.title }}</h1>
+        {% endif %}
+
+        <div class="article-meta">
+          <span class="meta-chip">
+            <i class="fas fa-calendar-alt" style="color:var(--v2-accent)"></i>
+            {{ news.created_at|date:"d F Y" }}
+          </span>
+          <span class="meta-chip">
+            <i class="fas fa-clock" style="color:#3b82f6"></i>
+            {{ news.created_at|date:"H:i" }}
+          </span>
+          {% if request.user.is_staff %}
+          <span class="meta-chip">
+            <i class="fas fa-user-shield" style="color:#f59e0b"></i>{% trans "Admin" %}
+          </span>
+          {% endif %}
+        </div>
+
+        <!-- Məzmun -->
+        <div class="article-content">
+          {{ news.content|safe }}
+        </div>
+
+        <!-- Footer — geri + admin actions -->
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-4 pt-3 au d3"
+             style="border-top:1px solid var(--border)">
+          <a href="{% url 'news:news_list' %}" class="act-btn">
+            <i class="fas fa-arrow-left"></i>{% trans "Bütün Xəbərlər" %}
+          </a>
+          {% if request.user.is_authenticated and request.user.is_staff %}
+          <div class="d-flex gap-2">
+            <a href="{% url 'news:news_update' news.slug %}" class="act-btn edit">
+              <i class="fas fa-edit"></i>{% trans "Redaktə" %}
+            </a>
+            <a href="{% url 'news:news_delete' news.slug %}" class="act-btn danger">
+              <i class="fas fa-trash-alt"></i>{% trans "Sil" %}
+            </a>
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+
     </div>
   </div>
 </div>

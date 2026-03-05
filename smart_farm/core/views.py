@@ -11,9 +11,15 @@ from sensors.models import Sensor
 from fields.models import Field
 from weather.models import WeatherData
 
+from news.models import News   # ← faylın yuxarısına əlavə et (digər import-ların yanına)
+
 
 def home(request):
-    context = {}
+     
+    context = {
+        'latest_news': News.objects.filter(is_published=True)[:3]
+    }
+
     if request.user.is_authenticated:
         user = request.user
         last_moisture = IrrigationSchedule.objects.filter(
@@ -31,7 +37,10 @@ def home(request):
             if critical_field
             else "Sistem stabil işləyir, kritik vəziyyət aşkarlanmadı."
         )
-        context.update({'field_moisture': field_moisture, 'ai_message': ai_message})
+        context.update({
+            'field_moisture': field_moisture,
+            'ai_message':     ai_message,
+        })
 
     return render(request, 'core/home.html', context)
 
@@ -59,9 +68,7 @@ def dashboard(request):
     ph_acidic   = Field.objects.filter(user=user, ph_level__lt=6.5).count()
     ph_alkaline = Field.objects.filter(user=user, ph_level__gt=7.5).count()
 
-    # ── Temperatur qrafiki ─────────────────────────────────────
-    # BUG DÜZƏLİŞ 1: Bütün sahələr deyil, son 7 günün unikal tarixləri
-    # BUG DÜZƏLİŞ 2: %H:%M → %d %b (DateField-in saati yoxdur)
+    # ── Hava qrafikləri ───────────────────────────────────────
     temp_data = (
         WeatherData.objects
         .filter(field__user=user, weather_date__gte=today - timedelta(days=6))

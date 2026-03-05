@@ -4,7 +4,8 @@
 {% block title %}Əlaqə - AgroVision AI{% endblock %}
 
 {% block extra_css %}
-<style>
+ <style>
+/* HERO BÖLMƏSİ - Gecə rejimində bir az daha tünd olması üçün */
 .contact-hero {
     background: linear-gradient(135deg, #0d2818 0%, #1a5c35 100%);
     padding: 80px 0 120px;
@@ -13,28 +14,34 @@
     position: relative;
     overflow: hidden;
 }
+[data-theme='dark'] .contact-hero {
+    background: linear-gradient(135deg, #05140b 0%, #0d2818 100%);
+}
+
 .contact-hero::before {
     content: '';
     position: absolute; inset: 0;
     background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%234ade80' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
-.contact-hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin-bottom: 12px; position: relative; }
-.contact-hero p  { color: rgba(255,255,255,0.7); font-size: 1.05rem; position: relative; }
 
 .contact-wrap {
     max-width: 1000px; margin: -60px auto 60px;
     padding: 0 16px;
     position: relative; z-index: 2;
 }
+
+/* ƏSAS KART - Dinamik Arxa Fon */
 .contact-card {
-    background: #fff;
+    background: var(--bg-card) !important; /* Dəyişənə bağlandı */
     border-radius: 24px;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.1);
     display: flex;
+    border: 1px solid var(--border-color); /* Gecə rejimində görünməsi üçün */
+    transition: background 0.3s ease, border 0.3s ease;
 }
 
-/* Sol bilgi paneli */
+/* Sol bilgi paneli - Yaşıl rəng sabit qalır, brend rəngidir */
 .contact-info {
     width: 36%;
     background: #198754;
@@ -42,13 +49,6 @@
     display: flex; flex-direction: column; justify-content: space-between;
     position: relative; overflow: hidden;
 }
-.contact-info::after {
-    content: '';
-    position: absolute; bottom: -60px; right: -60px;
-    width: 220px; height: 220px; border-radius: 50%;
-    background: rgba(255,255,255,0.07);
-}
-.contact-info h4 { color: #fff; font-weight: 700; font-size: 1.2rem; margin-bottom: 32px; }
 
 .info-item { display: flex; gap: 14px; margin-bottom: 24px; align-items: flex-start; }
 .info-icon {
@@ -57,68 +57,61 @@
     display: flex; align-items: center; justify-content: center;
     color: #fff; font-size: 0.9rem; flex-shrink: 0;
 }
-.info-item span { color: rgba(255,255,255,0.85); font-size: 0.88rem; line-height: 1.6; }
 
-.social-row { display: flex; gap: 10px; margin-top: 32px; position: relative; z-index: 1; }
-.social-btn {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.2);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 0.85rem;
-    text-decoration: none;
-    transition: background 0.2s, transform 0.2s;
-}
-.social-btn:hover { background: rgba(255,255,255,0.25); color: #fff; transform: translateY(-2px); }
+/* Sağ form paneli */
+.contact-form-wrap { flex: 1; padding: 44px 44px; background: var(--bg-card); }
+.contact-form-wrap h3 { font-size: 1.4rem; font-weight: 700; color: var(--text-main) !important; margin-bottom: 6px; }
+.contact-form-wrap .sub { font-size: 0.88rem; color: var(--text-muted) !important; margin-bottom: 28px; }
 
-/* Sağ form */
-.contact-form-wrap { flex: 1; padding: 44px 44px; }
-.contact-form-wrap h3 { font-size: 1.4rem; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
-.contact-form-wrap .sub { font-size: 0.88rem; color: #888; margin-bottom: 28px; }
+.field-label { font-size: 0.82rem; font-weight: 600; color: var(--text-main); margin-bottom: 7px; display: block; opacity: 0.8; }
 
-.field-group { margin-bottom: 18px; }
-.field-label { font-size: 0.82rem; font-weight: 600; color: #444; margin-bottom: 7px; display: block; }
+/* INPUT SAHƏLƏRİ - Dinamik Rənglər */
 .field-wrap {
     display: flex; align-items: center;
-    border: 1.5px solid #e5e7e5; border-radius: 12px;
-    overflow: hidden; background: #fafafa;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    border: 1.5px solid var(--border-color); 
+    border-radius: 12px;
+    overflow: hidden; 
+    background: var(--bg-section) !important; /* Daxili fon dəyişənə bağlandı */
+    transition: all 0.2s ease;
 }
+
 .field-wrap:focus-within {
-    border-color: #198754;
+    border-color: #198754 !important;
+    background: var(--bg-card) !important;
     box-shadow: 0 0 0 3px rgba(25,135,84,0.1);
-    background: #fff;
 }
-.field-icon { padding: 0 13px; color: #aaa; font-size: 0.88rem; }
+
+.field-icon { padding: 0 13px; color: var(--text-muted); font-size: 0.88rem; }
+
 .field-wrap input,
 .field-wrap textarea {
-    flex: 1; border: none; background: transparent;
+    flex: 1; border: none; background: transparent !important;
     padding: 12px 12px 12px 0;
-    font-size: 0.93rem; color: #1a1a1a; outline: none;
+    font-size: 0.93rem; 
+    color: var(--text-main) !important; /* Yazı rəngi dinamik oldu */
+    outline: none;
     resize: none;
 }
-.field-wrap input::placeholder,
-.field-wrap textarea::placeholder { color: #bbb; }
-.field-wrap textarea { padding-top: 13px; }
 
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field-wrap input::placeholder,
+.field-wrap textarea::placeholder { color: var(--text-muted); opacity: 0.5; }
 
 .btn-send {
     width: 100%; padding: 14px;
-    background: #198754; color: #fff;
+    background: #198754; color: #fff !important;
     border: none; border-radius: 12px;
     font-size: 1rem; font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    transition: all 0.2s ease;
     display: flex; align-items: center; justify-content: center; gap: 8px;
     margin-top: 8px;
 }
-.btn-send:hover { background: #157347; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(25,135,84,0.3); }
+.btn-send:hover { background: #157347; transform: translateY(-1px); }
 
 @media(max-width: 767px){
     .contact-info { display: none; }
+    .contact-card { flex-direction: column; }
     .contact-form-wrap { padding: 32px 24px; }
-    .two-col { grid-template-columns: 1fr; gap: 0; }
 }
 </style>
 {% endblock %}

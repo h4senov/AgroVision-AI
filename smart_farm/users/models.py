@@ -66,3 +66,25 @@ class CustomUser(AbstractUser):
         verbose_name = 'İstifadəçi'
         verbose_name_plural = 'İstifadəçilər'
         ordering = ['-date_joined']
+
+
+
+from django.db import models
+from django.conf import settings
+
+
+class UserSession(models.Model):
+    user         = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sessions')
+    ip_address   = models.GenericIPAddressField(null=True, blank=True)
+    user_agent   = models.TextField(blank=True)
+    country      = models.CharField(max_length=100, blank=True)
+    last_login   = models.DateTimeField(auto_now=True)
+    created_at   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-last_login']
+        verbose_name = "İstifadəçi Sessiyası"
+        verbose_name_plural = "İstifadəçi Sessiyaları"
+
+    def __str__(self):
+        return f"{self.user.username} — {self.ip_address}"        

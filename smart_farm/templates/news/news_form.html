@@ -1,109 +1,260 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load i18n %}
+{% block title %}{{ title }} - AgroVision{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <style>
-.form-card { transition: transform .18s ease, box-shadow .18s ease; }
-.form-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(2,6,23,0.06); }
-.preview-img { width:100%; max-height:280px; object-fit:cover; border-radius:8px; margin-bottom:12px; }
+:root { --v2-from:#182f4c; --v2-to:#2e8e63; --v2-accent:#3d9970; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.au { animation:fadeUp .45s ease backwards; }
+.d1{animation-delay:.05s}.d2{animation-delay:.10s}.d3{animation-delay:.15s}
+
+/* ── Başlıq ── */
+.form-hero {
+  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
+  border-radius:22px; padding:22px 28px; color:#fff; margin-bottom:24px;
+  position:relative; overflow:hidden;
+}
+[data-theme="dark"] .form-hero { background:linear-gradient(135deg,#09203c,#09482d); }
+.form-hero::before { content:''; position:absolute; top:-50px; right:-50px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,.05); }
+
+/* ── Kart ── */
+.form-sec {
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:20px; padding:26px; margin-bottom:20px;
+}
+.sec-label {
+  font-weight:700; font-size:.85rem; color:var(--text);
+  display:flex; align-items:center; gap:8px;
+  padding-bottom:14px; border-bottom:1px solid var(--border); margin-bottom:20px;
+}
+
+/* ── Form elementlər ── */
+.form-label { font-weight:600; font-size:.82rem; color:var(--text); margin-bottom:6px; }
+.req { color:#ef4444; margin-left:3px; }
+.form-control, .form-select {
+  background:var(--bg-secondary) !important; border:1px solid var(--border) !important;
+  color:var(--text) !important; border-radius:11px; padding:10px 14px; font-size:.875rem;
+  transition:border-color .2s, box-shadow .2s;
+}
+.form-control:focus, .form-select:focus {
+  border-color:var(--v2-accent) !important;
+  box-shadow:0 0 0 3px rgba(61,153,112,.12) !important; outline:none;
+}
+textarea.form-control { min-height:260px; resize:vertical; }
+.field-err  { color:#ef4444; font-size:.78rem; margin-top:4px; }
+.field-hint { font-size:.75rem; color:var(--text-muted); margin-top:4px; }
+
+/* ── Şəkil upload ── */
+.img-upload-zone {
+  border:2px dashed var(--border); border-radius:14px; padding:24px;
+  text-align:center; cursor:pointer; background:var(--bg-secondary);
+  transition:border-color .2s, background .2s;
+}
+.img-upload-zone:hover { border-color:var(--v2-accent); background:rgba(61,153,112,.04); }
+.img-upload-zone input[type="file"] { display:none; }
+.img-preview { max-height:180px; border-radius:12px; object-fit:contain; margin-bottom:10px; }
+
+/* ── Cari şəkil ── */
+.cur-img-wrap {
+  background:var(--bg-secondary); border:1px solid var(--border);
+  border-radius:14px; padding:16px; text-align:center; margin-bottom:14px;
+}
+.cur-img-wrap img { max-height:160px; border-radius:10px; object-fit:contain; }
+
+/* ── Published checkbox ── */
+.pub-toggle {
+  background:var(--bg-secondary) !important; border:1px solid var(--border) !important;
+  border-radius:14px; padding:16px 18px; display:flex; align-items:center; gap:14px;
+}
+.pub-toggle .form-check-input { width:2.4em; height:1.4em; cursor:pointer; }
+.pub-toggle .form-check-input:checked { background-color:var(--v2-accent); border-color:var(--v2-accent); }
+
+/* ── Düymələr ── */
+.btn-save {
+  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
+  color:#fff; border:none; border-radius:13px; padding:12px 28px;
+  font-weight:700; font-size:.9rem; cursor:pointer; transition:opacity .2s;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn-save:hover { opacity:.9; }
+.btn-cancel {
+  background:var(--bg-secondary); border:1.5px solid var(--border); color:var(--text-muted);
+  border-radius:13px; padding:12px 22px; font-weight:600; font-size:.9rem;
+  text-decoration:none; display:inline-flex; align-items:center; gap:7px; transition:all .2s;
+}
+.btn-cancel:hover { color:var(--text); }
+.bc-link { color:var(--text-muted); text-decoration:none; font-size:.8rem; font-weight:600; display:inline-flex; align-items:center; gap:6px; }
+.bc-link:hover { color:var(--v2-accent); }
+
+/* ── Slug yardım ── */
+.slug-preview {
+  font-size:.75rem; color:var(--v2-accent); margin-top:5px; font-family:monospace;
+  background:rgba(61,153,112,.08); padding:4px 10px; border-radius:7px; display:inline-block;
+}
 </style>
 {% endblock %}
 
-{% block title %}{{ title|default:_("Xəbər formu") }}{% endblock %}
-
 {% block content %}
-<div class="container my-5">
+<div class="container-fluid py-4 px-3 px-md-4">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card form-card shadow-sm animate__animated animate__fadeInUp">
-        <div class="card-header bg-success text-white">
-          <h5 class="mb-0">
-            {% if news %}{% trans "Xəbəri redaktə et" %}{% else %}{% trans "Yeni Xəbər əlavə et" %}{% endif %}
-          </h5>
-        </div>
+    <div class="col-12 col-lg-10 col-xl-9">
 
-        <div class="card-body">
-          <form method="post" enctype="multipart/form-data" novalidate>
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            
-            <div class="mb-3">
-              <label class="form-label">{% trans "Başlıq" %}</label>
-              {{ form.title }}
-              {{ form.title.errors }}
-            </div>
+      <!-- Geri -->
+      <div class="mb-3 au">
+        <a href="{% url 'news:news_list' %}" class="bc-link">
+          <i class="fas fa-arrow-left"></i>{% trans "Xəbərlər siyahısına qayıt" %}
+        </a>
+      </div>
 
-            <div class="mb-3">
-              <label class="form-label">{% trans "Link (slug)" %}</label>
-              {{ form.slug }}
-              {{ form.slug.errors }}
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">{% trans "Məzmun" %}</label>
-              {{ form.content }}
-              {{ form.content.errors }}
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">{% trans "Şəkil" %}</label>
-              {% if news and news.image %}
-                <img id="preview" src="{{ news.image.url }}" class="preview-img" alt="Preview">
-              {% else %}
-                <img id="preview" class="preview-img d-none" alt="Preview">
-              {% endif %}
-              {{ form.image }}
-              {{ form.image.errors }}
-            </div>
-
-            <div class="form-check mb-3">
-              {{ form.is_published }}
-              <label class="form-check-label ms-2">{% trans "Dərc et" %}</label>
-              {{ form.is_published.errors }}
-            </div>
-
-            <div class="d-flex justify-content-between">
-              <a href="{% url 'news:news_list' %}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-1"></i> {% trans "Geri" %}
-              </a>
-              <button type="submit" class="btn btn-success">
-                <i class="fas fa-save me-1"></i>
-                {% if news %}{% trans "Yadda saxla" %}{% else %}{% trans "Yarat" %}{% endif %}
-              </button>
-            </div>
-          </form>
+      <!-- Başlıq -->
+      <div class="form-hero au d1" style="position:relative;z-index:1">
+        <div style="position:relative;z-index:1">
+          <p class="mb-1 small" style="opacity:.6;text-transform:uppercase;letter-spacing:1px">
+            <i class="fas fa-newspaper me-2"></i>{% trans "Xəbər İdarəetməsi" %}
+          </p>
+          <h3 class="fw-bold text-white mb-0">{{ title }}</h3>
         </div>
       </div>
+
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div style="background:rgba(239,68,68,.1);border-left:4px solid #ef4444;border-radius:12px;padding:14px 16px;margin-bottom:16px;color:#ef4444;font-size:.85rem">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Örtük şəkil -->
+        <div class="form-sec au d1">
+          <div class="sec-label"><i class="fas fa-image" style="color:var(--v2-accent)"></i>{% trans "Örtük Şəkli" %}</div>
+
+          {% if form.instance.pk and form.instance.image %}
+          <div class="cur-img-wrap">
+            <img src="{{ form.instance.image.url }}" alt="current" id="curImg">
+            <div style="font-size:.72rem;color:var(--text-muted);margin-top:6px">{% trans "Mövcud şəkil — yeni seçsəniz əvəz olunur" %}</div>
+          </div>
+          {% endif %}
+
+          <div class="img-upload-zone" onclick="document.getElementById('imgInp').click()">
+            <img id="imgPreview" class="img-preview d-none">
+            <div id="uploadPH">
+              <div style="font-size:2.5rem;opacity:.25;margin-bottom:8px">🖼️</div>
+              <div style="font-weight:600;color:var(--text);font-size:.9rem">{% trans "Şəkil seçin" %}</div>
+              <div style="font-size:.73rem;color:var(--text-muted);margin-top:4px">JPG, PNG, WEBP — maks 8MB</div>
+            </div>
+          </div>
+          <input type="file" id="imgInp" name="{{ form.image.html_name }}" accept="image/*">
+          {% for err in form.image.errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+        </div>
+
+        <!-- Əsas məlumat -->
+        <div class="form-sec au d2">
+          <div class="sec-label"><i class="fas fa-info-circle" style="color:#3b82f6"></i>{% trans "Əsas Məlumat" %}</div>
+
+          <div class="mb-4">
+            <label class="form-label">{{ form.title.label }}<span class="req">*</span></label>
+            {{ form.title }}
+            {% for err in form.title.errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">{{ form.slug.label }}<span class="req">*</span></label>
+            {{ form.slug }}
+            <div class="field-hint">{{ form.slug.help_text }}</div>
+            <div class="slug-preview" id="slugPreview" style="display:none">
+              /news/<span id="slugVal"></span>/
+            </div>
+            {% for err in form.slug.errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+          </div>
+
+          <!-- Dərc statusu -->
+          <div class="pub-toggle">
+            {{ form.is_published }}
+            <div>
+              <div class="fw-600" style="font-size:.88rem;color:var(--text)">{% trans "Dərc et" %}</div>
+              <div class="field-hint" style="margin-top:2px">{% trans "Aktiv etməsəniz, xəbər yalnız adminlərə görünəcək." %}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Məzmun -->
+        <div class="form-sec au d3">
+          <div class="sec-label"><i class="fas fa-align-left" style="color:#f59e0b"></i>{% trans "Məzmun" %}</div>
+          <label class="form-label">{{ form.content.label }}<span class="req">*</span></label>
+          {{ form.content }}
+          <div class="field-hint">{% trans "HTML teqlərindən istifadə edə bilərsiniz: &lt;b&gt;, &lt;i&gt;, &lt;a&gt;, &lt;ul&gt;, &lt;blockquote&gt; və s." %}</div>
+          {% for err in form.content.errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+        </div>
+
+        <!-- Düymələr -->
+        <div class="d-flex gap-3 flex-wrap au d3">
+          <button type="submit" class="btn-save">
+            <i class="fas fa-save"></i>
+            {% if form.instance.pk %}{% trans "Dəyişiklikləri Saxla" %}{% else %}{% trans "Xəbəri Dərc Et" %}{% endif %}
+          </button>
+          <a href="{% url 'news:news_list' %}" class="btn-cancel">
+            <i class="fas fa-times"></i>{% trans "Ləğv Et" %}
+          </a>
+        </div>
+      </form>
+
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  // Image preview
-  (function () {
-    const fileInput = document.querySelector('input[type="file"][name="image"]');
-    const preview = document.getElementById('preview');
-    if (!fileInput) return;
+/* ── Şəkil önizləmə ── */
+document.getElementById('imgInp').addEventListener('change', function(){
+  const f = this.files[0]; if (!f) return;
+  const pr = document.getElementById('imgPreview');
+  const ph = document.getElementById('uploadPH');
+  const cur = document.getElementById('curImg');
+  const r = new FileReader();
+  r.onload = e => {
+    pr.src = e.target.result;
+    pr.classList.remove('d-none');
+    ph.style.display = 'none';
+    if (cur) cur.style.opacity = '.4';
+  };
+  r.readAsDataURL(f);
+});
 
-    fileInput.addEventListener('change', function (e) {
-      const file = e.target.files[0];
-      if (!file) {
-        if (preview) preview.classList.add('d-none');
-        return;
+/* ── Slug önizləmə ── */
+const slugInput = document.querySelector('input[name="{{ form.slug.html_name }}"]');
+const titleInput = document.querySelector('input[name="{{ form.title.html_name }}"]');
+const slugPreview = document.getElementById('slugPreview');
+const slugVal = document.getElementById('slugVal');
+
+function makeSlug(str) {
+  return str.toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9\-ğüşıöçəƏĞÜŞİÖÇ]/g, '')
+    .replace(/-+/g, '-');
+}
+
+if (slugInput) {
+  slugInput.addEventListener('input', () => {
+    const v = slugInput.value.trim();
+    if (v) { slugVal.textContent = v; slugPreview.style.display = 'inline-block'; }
+    else    { slugPreview.style.display = 'none'; }
+  });
+  // Slug boşdursa başlıqdan avtomatik yarat
+  if (titleInput && !slugInput.value) {
+    titleInput.addEventListener('input', () => {
+      if (!slugInput.value) {
+        const s = makeSlug(titleInput.value);
+        slugInput.value = s;
+        slugVal.textContent = s;
+        slugPreview.style.display = s ? 'inline-block' : 'none';
       }
-      const reader = new FileReader();
-      reader.onload = function (ev) {
-        if (preview) {
-          preview.src = ev.target.result;
-          preview.classList.remove('d-none');
-        }
-      }
-      reader.readAsDataURL(file);
     });
-  })();
+  }
+  // İlkin dəyər
+  if (slugInput.value) { slugVal.textContent = slugInput.value; slugPreview.style.display = 'inline-block'; }
+}
 </script>
 {% endblock %}

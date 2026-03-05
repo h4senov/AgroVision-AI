@@ -8,6 +8,15 @@ from django.utils import timezone
 from datetime import timedelta
 from .forms import CustomUserCreationForm, CustomUserUpdateForm, CustomPasswordChangeForm, UserDeactivationForm
 from .models import CustomUser
+from .models import UserSession
+def get_client_ip(request):
+    """Real IP-ni al (proxy arxasında da işləyir)"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
 
 def admin_required(function):
     actual_decorator =  user_passes_test(
@@ -34,34 +43,49 @@ def user_register(request):
         form = CustomUserCreationForm()
     return render(request, 'users/register.html', {'form': form})
 
-# ============ AUTH VIEWS ============
+# ============ AUTH VIEWS ============ 
 def user_login(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         remember = request.POST.get('remember')  
-        user = authenticate(request, username=username, password=password)
         
-        if user is not None:
-            if user.is_active:
-                login(request, user)
+        user_obj = authenticate(request, username=username, password=password)
+        
+        if user_obj is not None:
+            if user_obj.is_active:
+                # 1. Giriş et
+                login(request, user_obj)
                 
+                # 2. Sessiya müddətini nizamla (DÜZ YAZMISAN)
                 if not remember: 
                     request.session.set_expiry(0)   
                 else:
-                    request.session.set_expiry(1209600)   
+                    request.session.set_expiry(1209600) # 14 gün
                 
-                user.last_login = timezone.now()
-                user.save()
-                messages.success(request, f'👋 Xoş gəldiniz, {user.username}!')
+                # 3. UserSession logunu YALNIZ uğurlu girişdən sonra yarat/yenilə
+                
+                UserSession.objects.update_or_create(
+                    user=user_obj,
+                    defaults={
+                        'ip_address': get_client_ip(request),
+                        'user_agent': request.META.get('HTTP_USER_AGENT', '')[:500],
+                    }
+                )
+
+                # 4. Son giriş vaxtını yenilə
+                user_obj.last_login = timezone.now()
+                user_obj.save()
+
+                messages.success(request, f'👋 Xoş gəldiniz, {user_obj.username}!')
                 return redirect('core:dashboard')
             else:
-                messages.error(request, '❌ Hesabınız deaktivdir. Zəhmət olmasa administratorla əlaqə saxlayın.')
+                messages.error(request, '❌ Hesabınız deaktivdir.')
         else:
-            messages.error(request, '❌ İstifadəçi adı və ya şifrə yanlışdır.')     
-    return render(request, 'users/login.html')            
+            messages.error(request, '❌ İstifadəçi adı və ya şifrə yanlışdır.') 
+            
+    return render(request, 'users/login.html')
         
- 
 
 def user_logout(request):
     logout(request)
@@ -72,7 +96,14 @@ def user_logout(request):
 
 @login_required
 def user_profile(request):
-    user_stats = {
+    user_session = UserSession.objects.filter(user=request.user).first()
+
+    recent_sessions = None
+    if request.user.is_superuser:
+        recent_sessions = UserSession.objects.select_related('user').order_by('-last_login')[:20]
+    context = {
+        'user_session':    user_session,
+        'recent_sessions': recent_sessions,
         'fields_count': request.user.get_fields_count(),
         'plants_count': request.user.get_plants_count(),
         'sensors_count': request.user.get_sensors_count(),
@@ -81,10 +112,7 @@ def user_profile(request):
         'last_activity_days': request.user.get_last_activity_days(),
     }
     
-    return render(request, 'users/profile.html', {
-        'user': request.user,
-        'user_stats': user_stats
-    })
+    return render(request, 'users/profile.html', context)
 
 @login_required
 def update_user_profile(request):

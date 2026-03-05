@@ -1,36 +1,104 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load i18n %}
+{% block title %}{% trans "Xəbəri Sil" %} - AgroVision{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <style>
-.delete-card { max-width:720px; margin: 40px auto; }
+:root { --v2-from:#182f4c; --v2-to:#2e8e63; --v2-accent:#3d9970; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.del-wrap { min-height:72vh; display:flex; align-items:center; justify-content:center; padding:32px 16px; }
+.del-card {
+  width:100%; max-width:480px;
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:24px; overflow:hidden; box-shadow:0 20px 48px rgba(0,0,0,.1);
+  animation:fadeUp .4s ease backwards;
+}
+.del-head { background:linear-gradient(135deg,#7f1d1d,#ef4444); padding:24px 28px; text-align:center; }
+[data-theme="dark"] .del-head { background:linear-gradient(135deg,#450a0a,#b91c1c); }
+.del-icon { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.6rem; }
+
+.info-strip { background:var(--bg-secondary) !important; border:1px solid var(--border) !important; border-radius:14px; padding:16px 18px; margin:18px 0; }
+.ir { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border); font-size:.875rem; }
+.ir:last-child { border-bottom:none; }
+.ik { color:var(--text-muted); display:flex; align-items:center; gap:7px; }
+.iv { font-weight:700; color:var(--text); max-width:55%; text-align:right; }
+
+.warn-b { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25); border-left:4px solid #f59e0b; border-radius:12px; padding:12px 15px; font-size:.82rem; color:var(--text-muted); display:flex; align-items:center; gap:10px; }
+[data-theme="dark"] .warn-b { background:rgba(245,158,11,.15); }
+
+.btn-conf { flex:1; padding:12px; border-radius:13px; border:none; background:linear-gradient(135deg,#b91c1c,#ef4444); color:#fff; font-weight:600; font-size:.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; transition:all .2s; }
+.btn-conf:hover { opacity:.9; transform:translateY(-1px); }
+.btn-back { flex:1; padding:12px; border-radius:13px; border:1.5px solid var(--border); background:transparent; color:var(--text-muted); font-weight:600; font-size:.9rem; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:7px; transition:all .2s; }
+.btn-back:hover { background:var(--bg-secondary); color:var(--text); }
+.del-foot { padding:14px 28px; text-align:center; border-top:1px solid var(--border); font-size:.72rem; color:var(--text-muted); }
+
+.bc-link { color:var(--text-muted); text-decoration:none; font-size:.8rem; font-weight:600; }
+.bc-link:hover { color:var(--v2-accent); }
+.bc-sep  { color:var(--text-muted); margin:0 5px; }
 </style>
 {% endblock %}
 
-{% block title %}{% trans "Xəbəri sil" %}{% endblock %}
-
 {% block content %}
-<div class="container">
-  <div class="card delete-card shadow-sm animate__animated animate__shakeX">
-    <div class="card-header bg-danger text-white">
-      <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-1"></i> {% trans "Diqqət!" %}</h5>
+<div class="del-wrap">
+  <div style="width:100%;max-width:500px">
+
+    <!-- Breadcrumb -->
+    <div class="mb-3 d-flex align-items-center flex-wrap gap-1">
+      <a href="{% url 'news:news_list' %}" class="bc-link"><i class="fas fa-newspaper me-1"></i>{% trans "Xəbərlər" %}</a>
+      <span class="bc-sep">›</span>
+      <a href="{% url 'news:news_detail' news.slug %}" class="bc-link">{{ news.title|truncatechars:30 }}</a>
+      <span class="bc-sep">›</span>
+      <span style="font-size:.8rem;color:var(--text-muted)">{% trans "Sil" %}</span>
     </div>
-    <div class="card-body">
-      <p>{% trans "Aşağıdakı xəbəri silmək istədiyinizə əminsiniz?" %}</p>
-      <h5 class="mb-3">{{ news.title }}</h5>
-      <form method="post">
-        {% csrf_token %}
-        <div class="d-flex justify-content-between">
-          <a href="{% url 'news:news_detail' news.slug %}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-1"></i> {% trans "Geri" %}
-          </a>
-          <button type="submit" class="btn btn-danger">
-            <i class="fas fa-trash me-1"></i> {% trans "Tamamilə sil" %}
-          </button>
+
+    <div class="del-card">
+      <!-- Qırmızı başlıq -->
+      <div class="del-head">
+        <div class="del-icon">🗑️</div>
+        <h4 class="fw-bold text-white mb-1">{% trans "Xəbəri Sil" %}</h4>
+        <p class="mb-0 small" style="color:rgba(255,255,255,.65)">{% trans "Bu əməliyyat geri qaytarıla bilməz" %}</p>
+      </div>
+
+      <div class="p-4 p-md-5">
+        <div class="warn-b mb-4">
+          <i class="fas fa-exclamation-triangle" style="color:#f59e0b;flex-shrink:0"></i>
+          <span>{% trans "Aşağıdakı xəbər qalıcı olaraq silinəcək." %}</span>
         </div>
-      </form>
+
+        <div class="info-strip">
+          <div class="ir">
+            <span class="ik"><i class="fas fa-heading" style="color:var(--v2-accent)"></i>{% trans "Başlıq" %}</span>
+            <span class="iv">{{ news.title }}</span>
+          </div>
+          <div class="ir">
+            <span class="ik"><i class="fas fa-calendar" style="color:#3b82f6"></i>{% trans "Tarix" %}</span>
+            <span class="iv">{{ news.created_at|date:"d F Y" }}</span>
+          </div>
+          <div class="ir">
+            <span class="ik"><i class="fas fa-eye" style="color:#f59e0b"></i>{% trans "Status" %}</span>
+            <span class="iv">{% if news.is_published %}{% trans "Dərc edilib" %}{% else %}{% trans "Draft" %}{% endif %}</span>
+          </div>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex gap-2">
+            <a href="{% url 'news:news_detail' news.slug %}" class="btn-back">
+              <i class="fas fa-times"></i>{% trans "Ləğv et" %}
+            </a>
+            <button type="submit" class="btn-conf">
+              <i class="fas fa-trash"></i>{% trans "Bəli, Sil" %}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="del-foot">
+        <i class="fas fa-info-circle me-1"></i>{% trans "Silinən xəbər bərpa edilə bilməz." %}
+      </div>
     </div>
+
   </div>
 </div>
 {% endblock %}

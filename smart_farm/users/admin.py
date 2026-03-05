@@ -5,3 +5,11 @@ from .models import CustomUser
 
 admin.site.register(CustomUser,UserAdmin)
 
+from .models import UserSession
+
+@admin.register(UserSession)
+class UserSessionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'ip_address', 'country', 'last_login', 'user_agent')
+    list_filter  = ('country',)
+    search_fields = ('user__username', 'ip_address')
+    ordering = ('-last_login',)
