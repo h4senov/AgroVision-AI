@@ -9,7 +9,7 @@ admin.site.register(CustomUser, UserAdmin)
 @admin.register(UserSession)
 class UserSessionAdmin(admin.ModelAdmin):
     # Cədvəldə hansı sütunlar görünsün
-    list_display = ('get_user_status', 'display_user', 'ip_address', 'country_city', 'device_info', 'last_activity_formatted')
+    list_display = ('get_user_status', 'display_user', 'ip_address', 'country_city', 'device_info', 'last_login_formatted')
     
     # Sağ tərəfdəki filtrlər
     list_filter = ('user__role', 'country', 'device', 'is_bot', 'created_at')
@@ -54,6 +54,9 @@ class UserSessionAdmin(admin.ModelAdmin):
         return f"{icon} {obj.browser} ({obj.os})"
     device_info.short_description = 'Cihaz/Brauzer'
 
-    def last_activity_formatted(self, obj):
-        return obj.last_activity.strftime("%d.%m.%Y %H:%M")
-    last_activity_formatted.short_description = 'Son Aktivlik'
+    # Xətanı düzəldən hissə: last_activity -> last_login
+    def last_login_formatted(self, obj):
+        if obj.last_login:
+            return obj.last_login.strftime("%d.%m.%Y %H:%M")
+        return "-"
+    last_login_formatted.short_description = 'Son Giriş'

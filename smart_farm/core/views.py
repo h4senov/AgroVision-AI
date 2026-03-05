@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, Avg, Q
 from django.utils import timezone
@@ -12,32 +12,30 @@ from fields.models import Field
 from users.views import get_client_ip
 from users.models import UserSession
 from weather.models import WeatherData
+from news.models import News
 
-from news.models import News   # ← faylın yuxarısına əlavə et (digər import-ların yanına)
-
-
-def home(request):
-
-    # 1. QONAQ DATASINI TUTMAQ
+def log_user_session(request):
+    """Sessiya məlumatlarını qeyd edən köməkçi funksiya"""
     client_ip = get_client_ip(request)
     u_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
-    
-    # Giriş edibsə user-i götür, etməyibsə None (qonaq) qalsın
     curr_user = request.user if request.user.is_authenticated else None
 
-    # Eyni qonaq səhifəni hər dəfə refresh edəndə bazanı doldurmasın deyə
-    # IP və User-ə görə son girişi yeniləyirik (və ya .create istifadə et)
+    # update_or_create istifadəsi bazanın şişməsinin qarşısını alır
     UserSession.objects.update_or_create(
         ip_address=client_ip,
         user=curr_user,
         defaults={
             'user_agent': u_agent,
             'last_login': timezone.now(),
-            'city': "Baku (Guest)", # Statikdir, GeoIP ilə dəyişmək olar
+            'city': "Baku (Guest)", 
             'device': "Mobile" if "Mobile" in u_agent else "Desktop",
             'browser': u_agent.split(' ')[0] if u_agent else "Unknown"
         }
     )
+
+def home(request):
+
+    log_user_session(request)
      
     context = {
         'latest_news': News.objects.filter(is_published=True)[:3]
