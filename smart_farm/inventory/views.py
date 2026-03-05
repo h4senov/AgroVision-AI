@@ -173,7 +173,7 @@ def low_stock(request):
 
     low_stock_items = [
         item for item in user_inventory 
-        if item.stock_status() == 'low'
+        if item.stock_status == 'low'
     ]
     
 

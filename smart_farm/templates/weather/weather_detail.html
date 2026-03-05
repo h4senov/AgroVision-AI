@@ -1,224 +1,637 @@
 {% extends 'base.html' %}
-{% block title %}{{ weather.field.name }} - Hava Detalları{% endblock %}
+{% load i18n %}
+{% block title %}{{ weather.field.name }} - {% trans "Hava Detalları" %}{% endblock %}
 
 {% block extra_css %}
 <style>
-.reveal { opacity:0; transform:translateY(24px); transition:opacity 0.6s ease, transform 0.6s ease; }
-.reveal.active { opacity:1; transform:translateY(0); }
-.delay-1{transition-delay:0.1s;} .delay-2{transition-delay:0.2s;} .delay-3{transition-delay:0.3s;}
+:root  { --v2-from:#182f4c; --v2-to:#2e8e63; --v2-accent:#3d9970; }
 
-.hero-card {
-    background: linear-gradient(135deg, #0b2a1a 0%, #1a6b3c 100%);
-    border-radius: 24px; color:#fff; padding:32px;
-    position:relative; overflow:hidden;
-}
-.hero-card::before {
-    content:''; position:absolute; top:-60px; right:-60px;
-    width:220px; height:220px; border-radius:50%;
-    background:rgba(255,255,255,0.04);
-}
-.hero-temp { font-size:4rem; font-weight:800; line-height:1; }
+/* ── Animasiyalar ── */
+@keyframes fadeUp   { from{opacity:0;transform:translateY(26px)} to{opacity:1;transform:translateY(0)} }
+@keyframes floatUp  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+@keyframes spin     { to{transform:rotate(360deg)} }
+.au  { animation:fadeUp .55s ease backwards; }
+.d1{animation-delay:.05s} .d2{animation-delay:.10s} .d3{animation-delay:.15s}
+.d4{animation-delay:.20s} .d5{animation-delay:.25s} .d6{animation-delay:.30s}
 
-.metric-pill {
-    background:rgba(255,255,255,0.1);
-    border:1px solid rgba(255,255,255,0.15);
-    border-radius:14px; padding:14px 12px; text-align:center;
-    transition: background 0.2s;
+/* ── Hero ── */
+.w-hero {
+  background: linear-gradient(135deg,var(--v2-from),var(--v2-to));
+  border-radius:24px; padding:32px 28px; color:#fff; position:relative; overflow:hidden;
 }
-.metric-pill:hover { background:rgba(255,255,255,0.18); }
-.metric-pill .val { font-size:1.2rem; font-weight:700; color:#fff; line-height:1; }
-.metric-pill .lbl { font-size:0.68rem; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; }
+[data-theme="dark"] .w-hero { background:linear-gradient(135deg,#09203c,#09482d); }
+.w-hero::before {
+  content:''; position:absolute; top:-80px; right:-80px;
+  width:260px; height:260px; border-radius:50%; background:rgba(255,255,255,.05);
+}
+.w-hero::after {
+  content:''; position:absolute; bottom:-50px; left:60px;
+  width:170px; height:170px; border-radius:50%; background:rgba(255,255,255,.03);
+}
+.hero-temp { font-size:5rem; font-weight:800; line-height:1; color:#fff; }
+.hero-icon { font-size:3.5rem; animation:floatUp 3s ease-in-out infinite; display:inline-block; }
+.hero-badge {
+  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.22);
+  border-radius:50px; padding:5px 14px; font-size:.8rem; font-weight:600; color:#fff;
+  display:inline-flex; align-items:center; gap:6px; margin-bottom:10px;
+}
+.hero-pill {
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18);
+  border-radius:14px; padding:14px 10px; text-align:center; flex:1;
+  transition:background .2s;
+}
+.hero-pill:hover { background:rgba(255,255,255,.18); }
+.hero-pill .val { font-size:1.2rem; font-weight:700; color:#fff; line-height:1; }
+.hero-pill .lbl { font-size:.65rem; color:rgba(255,255,255,.55); text-transform:uppercase; letter-spacing:.5px; margin-top:4px; }
 
+/* ── Section card ── */
+.sec-card {
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:20px; padding:22px 22px;
+}
+.sec-title { font-weight:700; color:var(--text); font-size:.95rem; display:flex; align-items:center; gap:8px; margin-bottom:18px; }
+
+/* ── 7 günlük kartlar (MOBILE SCROLL) ── */
+.week-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:6px; }
+.week-scroll::-webkit-scrollbar { height:4px; }
+.week-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.week-track { display:flex; gap:10px; }
 .day-card {
-    border-radius:16px; border:1.5px solid #eee;
-    padding:14px 8px; text-align:center;
-    transition: all 0.25s ease; background:#fff;
-    min-width: 88px;
+  flex: 0 0 88px;           /* sabit en — scroll baş verir */
+  background:var(--bg-secondary) !important; border:1.5px solid var(--border) !important;
+  border-radius:16px; padding:14px 6px; text-align:center;
+  transition:all .25s; text-decoration:none; color:var(--text); display:block;
 }
-.day-card:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,0.08); }
-.day-card.is-today { border-color:#198754; background:#f0fff6; }
-.day-card .dname { font-size:0.7rem; font-weight:700; text-transform:uppercase; color:#aaa; margin-bottom:4px; }
-.day-card.is-today .dname { color:#198754; }
-.day-card .icon { font-size:1.5rem; margin:4px 0; }
-.day-card .temp { font-size:1.15rem; font-weight:700; color:#1a1a1a; }
-.day-card .trange { font-size:0.72rem; color:#bbb; margin-top:2px; }
-.day-card .humid { font-size:0.7rem; color:#888; margin-top:6px; }
+.day-card:hover { transform:translateY(-4px); border-color:var(--v2-accent) !important; color:var(--text); }
+.day-card.today { border-color:var(--v2-accent) !important; background:rgba(61,153,112,.08) !important; }
+.day-card.today .dn { color:var(--v2-accent); }
+.dn { font-size:.68rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:3px; }
+.dd { font-size:.63rem; color:var(--text-muted); margin-bottom:4px; }
+.di { font-size:1.5rem; margin:4px 0; }
+.dt { font-size:1.05rem; font-weight:700; color:var(--text); }
+.dr { font-size:.68rem; color:var(--text-muted); margin-top:2px; }
+.dh { font-size:.68rem; color:var(--text-muted); margin-top:5px; }
+
+/* ── Qrafik container (mobile responsive) ── */
+.chart-wrap { position:relative; width:100%; }
+/* Desktop: daha hündür */
+.chart-wrap canvas { max-height:280px; }
+@media(max-width:767px) {
+  /* Mobil: bir qrafik — dual axis problem həll olur */
+  .chart-wrap canvas { max-height:220px; }
+  .chart-desktop-only { display:none; }
+  .chart-mobile-only  { display:block; }
+}
+@media(min-width:768px){
+  .chart-desktop-only { display:block; }
+  .chart-mobile-only  { display:none; }
+}
+
+/* ── Külək kompas ── */
+.compass-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.compass {
+  width:100px; height:100px; border-radius:50%;
+  border:2px solid var(--border); position:relative;
+  background:var(--bg-secondary);
+}
+.compass-labels span {
+  position:absolute; font-size:.6rem; font-weight:700; color:var(--text-muted);
+}
+.compass-arrow {
+  position:absolute; top:50%; left:50%; width:4px; height:44px;
+  background:linear-gradient(to bottom, #ef4444 50%, var(--border) 50%);
+  border-radius:2px; transform-origin:bottom center;
+  transform:translateX(-50%) translateY(-100%);
+  transition:transform .8s cubic-bezier(.25,.8,.25,1);
+}
+.compass-center {
+  position:absolute; top:50%; left:50%; width:10px; height:10px;
+  border-radius:50%; background:var(--v2-accent);
+  transform:translate(-50%,-50%); z-index:1;
+}
+.wind-dir-label { font-size:.8rem; font-weight:700; color:var(--text); }
+
+/* ── Rütubət qeydgöstəricisi ── */
+.humidity-bar-bg { height:10px; border-radius:5px; background:var(--border); overflow:hidden; }
+.humidity-bar {
+  height:100%; border-radius:5px; transition:width 1.2s ease;
+  background:linear-gradient(90deg,#3b82f6,#06b6d4);
+}
+
+/* ── Kənd təsərrüfatı tövsiyə kartı ── */
+.advice-card {
+  border-radius:16px; padding:16px 18px;
+  display:flex; align-items:flex-start; gap:14px;
+}
+.advice-icon {
+  width:44px; height:44px; border-radius:13px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:1.2rem;
+}
+.advice-ok     { background:rgba(61,153,112,.12); }
+.advice-warn   { background:rgba(245,158,11,.12); }
+.advice-danger { background:rgba(239,68,68,.12);  }
+[data-theme="dark"] .advice-ok     { background:rgba(61,153,112,.22); }
+[data-theme="dark"] .advice-warn   { background:rgba(245,158,11,.22); }
+[data-theme="dark"] .advice-danger { background:rgba(239,68,68,.22);  }
+
+/* ── Risk indicator ── */
+.risk-meter { height:6px; border-radius:3px; background:var(--border); overflow:hidden; }
+.risk-fill  { height:100%; border-radius:3px; transition:width 1s ease; }
+
+/* ── Action buttons ── */
+.act-btn {
+  display:flex; align-items:center; gap:8px; padding:11px 18px;
+  border-radius:13px; text-decoration:none; font-weight:600; font-size:.85rem;
+  border:1.5px solid var(--border); color:var(--text-muted); background:transparent; transition:all .22s;
+}
+.act-btn:hover { border-color:var(--v2-accent); color:var(--v2-accent); background:rgba(61,153,112,.05); }
+.act-btn.danger:hover { border-color:#ef4444; color:#ef4444; background:rgba(239,68,68,.06); }
+
+/* ── Stat row (mini pillər) ── */
+.stat-mini-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.stat-mini {
+  background:var(--bg-secondary) !important; border:1px solid var(--border) !important;
+  border-radius:14px; padding:14px 12px; text-align:center;
+}
+.stat-mini .sv { font-size:1.25rem; font-weight:700; color:var(--text); }
+.stat-mini .sl { font-size:.65rem; text-transform:uppercase; letter-spacing:.4px; color:var(--text-muted); margin-top:4px; }
+
+/* ── Mobile ── */
+@media(max-width:575px) {
+  .w-hero { padding:22px 18px; }
+  .hero-temp { font-size:3.6rem; }
+  .hero-icon { font-size:2.8rem; }
+  .hero-pill .val { font-size:1rem; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 px-3 px-md-4">
 
-    <div class="mb-3 reveal">
-        <a href="{% url 'weather:weather_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-            <i class="fas fa-arrow-left me-1"></i> Siyahıya qayıt
-        </a>
-    </div>
+  <!-- Geri düyməsi -->
+  <div class="mb-3 au">
+    <a href="{% url 'weather:weather_list' %}" class="act-btn d-inline-flex">
+      <i class="fas fa-arrow-left"></i>{% trans "Siyahıya qayıt" %}
+    </a>
+  </div>
 
-    <!-- HERO -->
-    <div class="hero-card mb-4 reveal delay-1">
-        <div class="row align-items-center g-4" style="position:relative;z-index:1;">
-            <div class="col-md-7">
-                <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
-                    <i class="fas fa-map-marker-alt me-1"></i>{{ weather.field.location|default:weather.field.name }}
-                </div>
-                <h2 class="fw-bold mb-1">{{ weather.field.name }}</h2>
-                <div style="color:rgba(255,255,255,0.6);font-size:0.88rem;margin-bottom:20px;">
-                    {{ weather.weather_date|date:"d/m/Y" }}
-                </div>
-                <div class="d-flex align-items-end gap-3">
-                    <div class="hero-temp">{{ weather.temperature_avg|default:"—" }}°</div>
-                    <div>
-                        <div style="font-size:1.8rem;">
-                            {% if weather.weather_condition == 'sunny' %}☀️
-                            {% elif weather.weather_condition == 'rainy' %}🌧️
-                            {% elif weather.weather_condition == 'cloudy' %}☁️
-                            {% elif weather.weather_condition == 'stormy' %}⛈️
-                            {% elif weather.weather_condition == 'foggy' %}🌫️
-                            {% elif weather.weather_condition == 'snowy' %}❄️
-                            {% elif weather.weather_condition == 'windy' %}💨
-                            {% else %}🌤️{% endif %}
-                        </div>
-                        <div style="color:rgba(255,255,255,0.6);font-size:0.9rem;">
-                            {{ weather.temperature_min|default:"—" }}° / {{ weather.temperature_max|default:"—" }}°
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-5">
-                <div class="row g-2">
-                    <div class="col-6">
-                        <div class="metric-pill">
-                            <div class="val">{{ weather.humidity_avg|default:"—" }}%</div>
-                            <div class="lbl">💧 Rütubət</div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="metric-pill">
-                            <div class="val">{{ weather.precipitation_mm|default:"0" }} mm</div>
-                            <div class="lbl">🌧️ Yağıntı</div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="metric-pill">
-                            <div class="val">{{ weather.wind_speed_avg|default:"—" }} m/s</div>
-                            <div class="lbl">💨 Külək</div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="metric-pill">
-                            {% with risk=weather.get_weather_risk_level %}
-                            <div class="val">
-                                {% if risk == 'high' %}🔴 Yüksək
-                                {% elif risk == 'medium' %}🟡 Orta
-                                {% else %}🟢 Aşağı{% endif %}
-                            </div>
-                            <div class="lbl">⚠️ Risk</div>
-                            {% endwith %}
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- ══ HERO ══════════════════════════════════════════════ -->
+  <div class="w-hero mb-4 au d1">
+    <div class="row align-items-center g-4" style="position:relative;z-index:1">
+
+      <!-- Sol -->
+      <div class="col-md-6">
+        <div class="hero-badge">
+          <i class="fas fa-map-marker-alt"></i>
+          {{ weather.field.location|default:weather.field.name }}
         </div>
+        <h2 class="fw-bold mb-1 text-white">{{ weather.field.name }}</h2>
+        <p style="color:rgba(255,255,255,.55);font-size:.85rem;margin-bottom:20px">
+          {{ weather.weather_date|date:"d F Y, l" }}
+        </p>
+        <div class="d-flex align-items-center gap-4">
+          <div class="hero-temp">{{ weather.temperature_avg|default:"—" }}°</div>
+          <div>
+            <div class="hero-icon">{{ weather.get_smart_condition_icon }}</div>
+            <div style="color:rgba(255,255,255,.65);font-size:.88rem;margin-top:4px">
+              {{ weather.get_smart_condition_display }}
+            </div>
+            <div style="color:rgba(255,255,255,.45);font-size:.78rem">
+              {{ weather.temperature_min|default:"—" }}° / {{ weather.temperature_max|default:"—" }}°
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sağ — metrik pill-lər -->
+      <div class="col-md-6">
+        <div class="d-flex gap-2 flex-wrap">
+          <div class="hero-pill">
+            <div class="val">{{ weather.humidity_avg|default:"—" }}%</div>
+            <div class="lbl">💧 {% trans "Rütubət" %}</div>
+          </div>
+          <div class="hero-pill">
+            <div class="val">{{ weather.precipitation_mm|floatformat:1|default:"0" }} mm</div>
+            <div class="lbl">🌧️ {% trans "Yağıntı" %}</div>
+          </div>
+          <div class="hero-pill">
+            <div class="val">{{ weather.wind_speed_avg|floatformat:1|default:"—" }} m/s</div>
+            <div class="lbl">💨 {% trans "Külək" %}</div>
+          </div>
+          <div class="hero-pill">
+            {% with r=weather.get_weather_risk_level %}
+            <div class="val">
+              {% if r == 'high' %}🔴 {% trans "Yüksək" %}
+              {% elif r == 'medium' %}🟡 {% trans "Orta" %}
+              {% else %}🟢 {% trans "Aşağı" %}{% endif %}
+            </div>
+            {% endwith %}
+            <div class="lbl">⚠️ {% trans "Risk" %}</div>
+          </div>
+          {% if weather.wind_speed_max %}
+          <div class="hero-pill">
+            <div class="val">{{ weather.wind_speed_max|floatformat:1 }} m/s</div>
+            <div class="lbl">💨 {% trans "Maks.Külək" %}</div>
+          </div>
+          {% endif %}
+          {% if weather.evapotranspiration_mm %}
+          <div class="hero-pill">
+            <div class="val">{{ weather.evapotranspiration_mm|floatformat:1 }} mm</div>
+            <div class="lbl">🌱 {% trans "Evapotrans." %}</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- ══ SOL SÜTUN ══════════════════════════════════════ -->
+    <div class="col-lg-8">
+
+      <!-- 7 Günlük kartlar -->
+      <div class="sec-card mb-4 au d2">
+        <div class="sec-title">
+          <i class="fas fa-calendar-week" style="color:var(--v2-accent)"></i>
+          {% trans "7 Günlük Məlumat" %}
+        </div>
+        {% if week_data %}
+        <div class="week-scroll">
+          <div class="week-track">
+            {% for w in week_data %}
+            <a href="{% url 'weather:weather_detail' w.pk %}" class="day-card {% if w.weather_date == weather.weather_date %}today{% endif %}">
+              <div class="dn">
+                {% if w.weather_date == weather.weather_date %}{% trans "Bugün" %}
+                {% else %}{{ w.weather_date|date:"D" }}{% endif %}
+              </div>
+              <div class="dd">{{ w.weather_date|date:"d/m" }}</div>
+              <div class="di">{{ w.get_smart_condition_icon }}</div>
+              <div class="dt">{{ w.temperature_avg|default:"—" }}°</div>
+              <div class="dr">{{ w.temperature_min|default:"—" }}°/{{ w.temperature_max|default:"—" }}°</div>
+              <div class="dh">💧{{ w.humidity_avg|default:"—" }}%</div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- ── Qrafik ─────────────────────────────────────── -->
+        <!-- DESKTOP: iki axis (temperatur + yağıntı) -->
+        <div class="chart-wrap mt-4 chart-desktop-only">
+          <canvas id="chartDesk"></canvas>
+        </div>
+        <!-- MOBİL: yalnız temperatur (axis problem yoxdur) -->
+        <div class="chart-wrap mt-4 chart-mobile-only">
+          <canvas id="chartMob"></canvas>
+        </div>
+
+        {% else %}
+        <p class="text-center py-4" style="color:var(--text-muted)">{% trans "7 günlük data tapılmadı." %}</p>
+        {% endif %}
+      </div>
+
+      <!-- Kənd Təsərrüfatı Tövsiyələri -->
+      <div class="sec-card au d3">
+        <div class="sec-title">
+          <i class="fas fa-tractor" style="color:var(--v2-accent)"></i>
+          {% trans "Kənd Təsərrüfatı Tövsiyələri" %}
+        </div>
+        <div class="d-flex flex-column gap-3">
+
+          {% with r=weather.get_weather_risk_level p=weather.precipitation_mm w=weather.wind_speed_max t=weather.temperature_max %}
+
+          <!-- Suvarma tövsiyəsi -->
+          {% if p and p > 5 %}
+          <div class="advice-card advice-ok" style="border:1px solid rgba(61,153,112,.2);border-radius:16px">
+            <div class="advice-icon advice-ok"><i class="fas fa-tint" style="color:var(--v2-accent)"></i></div>
+            <div>
+              <div class="fw-bold mb-1" style="color:var(--text);font-size:.9rem">{% trans "Suvarma lazım deyil" %}</div>
+              <div class="small" style="color:var(--text-muted)">{% trans "Bugün" %} {{ p|floatformat:1 }} mm {% trans "yağıntı var — qənaət şəkilidə suvarın." %}</div>
+            </div>
+          </div>
+          {% elif p is None or p == 0 %}
+          <div class="advice-card" style="border:1px solid rgba(59,130,246,.2);border-radius:16px;background:rgba(59,130,246,.06)">
+            <div class="advice-icon" style="background:rgba(59,130,246,.12)"><i class="fas fa-tint" style="color:#3b82f6"></i></div>
+            <div>
+              <div class="fw-bold mb-1" style="color:var(--text);font-size:.9rem">{% trans "Suvarma tövsiyə olunur" %}</div>
+              <div class="small" style="color:var(--text-muted)">{% trans "Bu gün yağıntı gözlənilmir. Sahənizi suvarın." %}</div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Külək tövsiyəsi -->
+          {% if w and w > 10 %}
+          <div class="advice-card advice-warn" style="border:1px solid rgba(245,158,11,.2);border-radius:16px">
+            <div class="advice-icon advice-warn"><i class="fas fa-wind" style="color:#f59e0b"></i></div>
+            <div>
+              <div class="fw-bold mb-1" style="color:var(--text);font-size:.9rem">{% trans "Güclü külək xəbərdarlığı" %}</div>
+              <div class="small" style="color:var(--text-muted)">{{ w|floatformat:1 }} m/s {% trans "külək — çiləmə suvarma tövsiyə edilmir." %}</div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Temperatur tövsiyəsi -->
+          {% if t and t > 30 %}
+          <div class="advice-card advice-danger" style="border:1px solid rgba(239,68,68,.2);border-radius:16px">
+            <div class="advice-icon advice-danger"><i class="fas fa-thermometer-full" style="color:#ef4444"></i></div>
+            <div>
+              <div class="fw-bold mb-1" style="color:var(--text);font-size:.9rem">{% trans "Yüksək temperatur riski" %}</div>
+              <div class="small" style="color:var(--text-muted)">{{ t }}°C {% trans "— erkən səhər (06-09) suvarın, bitkini stressdən qoruyun." %}</div>
+            </div>
+          </div>
+          {% elif weather.temperature_min and weather.temperature_min < 2 %}
+          <div class="advice-card advice-danger" style="border:1px solid rgba(59,130,246,.2);border-radius:16px;background:rgba(59,130,246,.06)">
+            <div class="advice-icon" style="background:rgba(59,130,246,.12)"><i class="fas fa-snowflake" style="color:#3b82f6"></i></div>
+            <div>
+              <div class="fw-bold mb-1" style="color:var(--text);font-size:.9rem">{% trans "Don riski!" %}</div>
+              <div class="small" style="color:var(--text-muted)">{{ weather.temperature_min }}°C {% trans "— həssas bitkiləri gecə örtün." %}</div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Ümumi risk -->
+          {% if r == 'low' %}
+          <div class="advice-card advice-ok" style="border:1px solid rgba(61,153,112,.2);border-radius:16px">
+            <div class="advice-icon advice-ok"><i class="fas fa-check-circle" style="color:var(--v2-accent)"></i></div>
+            <div>
+              <div class="fw-bold mb-1" style="color:var(--text);font-size:.9rem">{% trans "Əlverişli iş günü" %}</div>
+              <div class="small" style="color:var(--text-muted)">{% trans "Hava şəraiti sahə işləri üçün uyğundur." %}</div>
+            </div>
+          </div>
+          {% endif %}
+
+          {% endwith %}
+        </div>
+      </div>
+
     </div>
 
-    <!-- 7 Günlük -->
-    <div class="card border-0 shadow-sm rounded-4 mb-4 reveal delay-2">
-        <div class="card-body p-4">
-            <h5 class="fw-bold mb-4">📅 7 Günlük Məlumat</h5>
-            {% if week_data %}
-            <div class="d-flex gap-2 overflow-auto pb-2">
-                {% for w in week_data %}
-                <div class="day-card {% if w.weather_date == weather.weather_date %}is-today{% endif %}">
-                    <div class="dname">
-                        {% if w.weather_date == weather.weather_date %}Bugün
-                        {% else %}{{ w.weather_date|date:"D" }}{% endif %}
-                    </div>
-                    <div style="font-size:0.7rem;color:#ccc;">{{ w.weather_date|date:"d/m" }}</div>
-                    <div class="icon">
-                        {% if w.weather_condition == 'sunny' %}☀️
-                        {% elif w.weather_condition == 'rainy' %}🌧️
-                        {% elif w.weather_condition == 'cloudy' %}☁️
-                        {% elif w.weather_condition == 'stormy' %}⛈️
-                        {% elif w.weather_condition == 'foggy' %}🌫️
-                        {% elif w.weather_condition == 'snowy' %}❄️
-                        {% elif w.weather_condition == 'windy' %}💨
-                        {% else %}🌤️{% endif %}
-                    </div>
-                    <div class="temp">{{ w.temperature_avg|default:"—" }}°</div>
-                    <div class="trange">{{ w.temperature_min|default:"—" }}°/{{ w.temperature_max|default:"—" }}°</div>
-                    <div class="humid">💧{{ w.humidity_avg|default:"—" }}%</div>
-                </div>
-                {% endfor %}
+    <!-- ══ SAĞ SÜTUN ══════════════════════════════════════ -->
+    <div class="col-lg-4 d-flex flex-column gap-4">
+
+      <!-- Ətraflı Metriklər -->
+      <div class="sec-card au d2">
+        <div class="sec-title">
+          <i class="fas fa-chart-bar" style="color:#3b82f6"></i>
+          {% trans "Ətraflı Məlumatlar" %}
+        </div>
+        <div class="stat-mini-row mb-3">
+          <div class="stat-mini">
+            <div class="sv">{{ weather.temperature_max|default:"—" }}°C</div>
+            <div class="sl">{% trans "Maks. Temp." %}</div>
+          </div>
+          <div class="stat-mini">
+            <div class="sv">{{ weather.temperature_min|default:"—" }}°C</div>
+            <div class="sl">{% trans "Min. Temp." %}</div>
+          </div>
+          <div class="stat-mini">
+            <div class="sv">{{ weather.humidity_max|default:"—" }}%</div>
+            <div class="sl">{% trans "Maks. Rüt." %}</div>
+          </div>
+          <div class="stat-mini">
+            <div class="sv">{{ weather.humidity_min|default:"—" }}%</div>
+            <div class="sl">{% trans "Min. Rüt." %}</div>
+          </div>
+        </div>
+
+        <!-- Rütubət indikator çubuğu -->
+        {% if weather.humidity_avg %}
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-2 small">
+            <span style="color:var(--text-muted)">💧 {% trans "Hava Rütubəti" %}</span>
+            <span class="fw-bold" style="color:#3b82f6">{{ weather.humidity_avg }}%</span>
+          </div>
+          <div class="humidity-bar-bg">
+            <div class="humidity-bar" id="humBar" style="width:0%" data-w="{{ weather.humidity_avg }}"></div>
+          </div>
+          <div class="d-flex justify-content-between mt-1" style="font-size:.65rem;color:var(--text-muted)">
+            <span>0%</span><span>50%</span><span>100%</span>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Risk meter -->
+        {% with r=weather.get_weather_risk_level %}
+        <div class="mb-2">
+          <div class="d-flex justify-content-between mb-2 small">
+            <span style="color:var(--text-muted)">⚠️ {% trans "Ümumi Risk" %}</span>
+            <span class="fw-bold" style="color:{% if r == 'high' %}#ef4444{% elif r == 'medium' %}#f59e0b{% else %}var(--v2-accent){% endif %}">
+              {% if r == 'high' %}{% trans "Yüksək" %}{% elif r == 'medium' %}{% trans "Orta" %}{% else %}{% trans "Aşağı" %}{% endif %}
+            </span>
+          </div>
+          <div class="risk-meter">
+            <div class="risk-fill" id="riskBar" style="width:0%;background:{% if r == 'high' %}#ef4444{% elif r == 'medium' %}#f59e0b{% else %}var(--v2-accent){% endif %}"
+                 data-w="{% if r == 'high' %}90{% elif r == 'medium' %}55{% else %}20{% endif %}"></div>
+          </div>
+        </div>
+        {% endwith %}
+      </div>
+
+      <!-- Külək Kompası -->
+      {% if weather.wind_direction_degrees is not None or weather.wind_speed_avg %}
+<div class="sec-card au d3">
+    <div class="sec-title">
+        <i class="fas fa-compass" style="color:var(--v2-accent)"></i>
+        {% trans "Külək Məlumatları" %}
+    </div>
+
+    <div class="compass-wrap" style="display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 10px 0;">
+        
+        <div class="compass" id="compass" style="position: relative; width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--border-color); background: var(--card-bg);">
+            
+            <span style="position: absolute; top: 4px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; font-weight: bold; color: var(--text-muted);">N</span>
+            <span style="position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; font-weight: bold; color: var(--text-muted);">S</span>
+            <span style="position: absolute; left: 4px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; font-weight: bold; color: var(--text-muted);">W</span>
+            <span style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; font-weight: bold; color: var(--text-muted);">E</span>
+
+            <div class="compass-arrow" id="compassArrow"
+                 style="position: absolute; top: 50%; left: 50%; width: 2px; height: 35px; background: var(--v2-accent); transform-origin: bottom center; transform: translateX(-50%) translateY(-100%) rotate({{ weather.wind_direction_degrees|default:0 }}deg); transition: transform 0.5s ease-in-out;">
+                 <div style="position: absolute; top: -5px; left: 50%; transform: translateX(-50%); border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 8px solid var(--v2-accent);"></div>
             </div>
 
-            <div class="mt-4">
-                <canvas id="tempChart" height="60"></canvas>
+            <div class="compass-center" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; background: var(--text); border-radius: 50%; z-index: 2;"></div>
+        </div>
+
+        <div class="wind-dir-label" id="windDirLabel" style="font-weight: bold; font-size: 1.1rem; color: var(--text);">
+            {% if weather.wind_direction_degrees is not None %}
+                {{ weather.wind_direction_degrees }}°
+            {% else %}—{% endif %}
+        </div>
+
+        <div class="d-flex gap-4 mt-1" style="justify-content: center; width: 100%;">
+            {% if weather.wind_speed_avg %}
+            <div class="text-center">
+                <div class="fw-bold" style="color:var(--text); font-size: 1rem;">{{ weather.wind_speed_avg|floatformat:1 }}</div>
+                <div style="font-size:.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing: 0.5px;">{% trans "Ort. m/s" %}</div>
             </div>
-            {% else %}
-            <p class="text-muted text-center py-3">7 günlük data tapılmadı.</p>
+            {% endif %}
+
+            {% if weather.wind_speed_max %}
+            <div class="text-center">
+                <div class="fw-bold" style="color:var(--text); font-size: 1rem;">{{ weather.wind_speed_max|floatformat:1 }}</div>
+                <div style="font-size:.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing: 0.5px;">{% trans "Maks. m/s" %}</div>
+            </div>
             {% endif %}
         </div>
     </div>
-
-    <div class="d-flex gap-2 reveal delay-3">
-        <a href="{% url 'fields:field_detail' weather.field.id %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 ms-auto">
-            <i class="fas fa-map me-1"></i> Sahəyə qayıt
-        </a>
-    </div>
-
 </div>
+{% endif %}
+
+      <!-- Əlavə məlumat -->
+      {% if weather.solar_radiation_mj_m2 or weather.evapotranspiration_mm or weather.forecast_accuracy %}
+      <div class="sec-card au d4">
+        <div class="sec-title">
+          <i class="fas fa-sun" style="color:#f59e0b"></i>
+          {% trans "Əlavə Göstəricilər" %}
+        </div>
+        <div class="d-flex flex-column gap-3">
+          {% if weather.solar_radiation_mj_m2 %}
+          <div class="d-flex justify-content-between align-items-center">
+            <span style="color:var(--text-muted);font-size:.85rem">☀️ {% trans "Günəş Radiasiyası" %}</span>
+            <span class="fw-bold" style="color:var(--text)">{{ weather.solar_radiation_mj_m2 }} MJ/m²</span>
+          </div>
+          {% endif %}
+          {% if weather.evapotranspiration_mm %}
+          <div class="d-flex justify-content-between align-items-center">
+            <span style="color:var(--text-muted);font-size:.85rem">🌱 {% trans "Evapotranspirasiya" %}</span>
+            <span class="fw-bold" style="color:var(--text)">{{ weather.evapotranspiration_mm }} mm</span>
+          </div>
+          {% endif %}
+          {% if weather.forecast_accuracy %}
+          <div class="d-flex justify-content-between align-items-center">
+            <span style="color:var(--text-muted);font-size:.85rem">🎯 {% trans "Proqnoz Dəqiqliyi" %}</span>
+            <span class="fw-bold" style="color:var(--v2-accent)">{{ weather.forecast_accuracy }}%</span>
+          </div>
+          {% endif %}
+          <div class="d-flex justify-content-between align-items-center">
+            <span style="color:var(--text-muted);font-size:.85rem">🔗 {% trans "Məlumat mənbəyi" %}</span>
+            <span class="fw-bold" style="color:var(--text)">{{ weather.data_source|upper }}</span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Action düymələri -->
+      <div class="d-flex flex-column gap-2 au d5">
+         
+        <a href="{% url 'fields:field_detail' weather.field.id %}" class="act-btn">
+          <i class="fas fa-map" style="color:#3b82f6"></i>{% trans "Sahəyə qayıt" %}
+        </a>
+        <a href="{% url 'weather:weather_delete' weather.pk %}" class="act-btn danger">
+          <i class="fas fa-trash-alt" style="color:#ef4444"></i>{% trans "Məlumatı Sil" %}
+        </a>
+      </div>
+
+    </div><!-- /col-lg-4 -->
+  </div><!-- /row -->
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const obs = new IntersectionObserver(e => {
-    e.forEach(el => { if(el.isIntersecting){ el.target.classList.add('active'); obs.unobserve(el.target); } });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+/* ── Rütubət + Risk bar animasiyası ── */
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const h = document.getElementById('humBar');
+    if (h) h.style.width = h.dataset.w + '%';
+    const r = document.getElementById('riskBar');
+    if (r) r.style.width = r.dataset.w + '%';
+  }, 400);
+});
+
+/* ── Tema-a uyğun Chart.js rəngləri ── */
+const isDark   = document.documentElement.getAttribute('data-theme') === 'dark';
+const gridC    = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+const textC    = isDark ? '#94a3b8' : '#6b7280';
+const tooltipBg= isDark ? '#1e293b' : '#ffffff';
+const tooltipTx= isDark ? '#f1f5f9' : '#1e293b';
 
 {% if week_data %}
-const labels = [{% for w in week_data %}"{{ w.weather_date|date:'d/m' }}"{% if not forloop.last %},{% endif %}{% endfor %}];
-const temps  = [{% for w in week_data %}{{ w.temperature_avg|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
-const precip = [{% for w in week_data %}{{ w.precipitation_mm|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const labels  = [{% for w in week_data %}"{{ w.weather_date|date:'d/m' }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+const tAvg    = [{% for w in week_data %}{{ w.temperature_avg|default:"null" }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const tMax    = [{% for w in week_data %}{{ w.temperature_max|default:"null" }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const tMin    = [{% for w in week_data %}{{ w.temperature_min|default:"null" }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const precip  = [{% for w in week_data %}{{ w.precipitation_mm|default:"0" }}{% if not forloop.last %},{% endif %}{% endfor %}];
+const humidity= [{% for w in week_data %}{{ w.humidity_avg|default:"null" }}{% if not forloop.last %},{% endif %}{% endfor %}];
 
-new Chart(document.getElementById('tempChart'), {
-    type: 'line',
+const commonOptions = {
+  responsive: true, maintainAspectRatio: true,
+  interaction: { mode:'index', intersect:false },
+  plugins: {
+    legend: { position:'top', labels:{ color:textC, usePointStyle:true, padding:16, font:{size:11} } },
+    tooltip: { backgroundColor:tooltipBg, titleColor:tooltipTx, bodyColor:textC, borderColor:isDark?'#334155':'#e5e7eb', borderWidth:1 }
+  },
+  scales: {
+    x: { grid:{ color:gridC }, ticks:{ color:textC, font:{size:11} } }
+  }
+};
+
+/* ── DESKTOP qrafik (2 axis: temp + yağıntı) ── */
+const deskEl = document.getElementById('chartDesk');
+if (deskEl) {
+  new Chart(deskEl.getContext('2d'), {
+    type:'line',
     data: {
-        labels,
-        datasets: [
-            {
-                label: 'Temperatur (°C)',
-                data: temps,
-                borderColor: '#198754',
-                backgroundColor: 'rgba(25,135,84,0.08)',
-                fill: true, tension: 0.4,
-                pointBackgroundColor: '#198754',
-                pointRadius: 4,
-                yAxisID: 'y',
-            },
-            {
-                label: 'Yağıntı (mm)',
-                data: precip,
-                backgroundColor: 'rgba(13,110,253,0.15)',
-                borderColor: 'rgba(13,110,253,0.4)',
-                borderWidth: 1,
-                type: 'bar',
-                yAxisID: 'y1',
-            }
-        ]
+      labels,
+      datasets:[
+        { label:'{% trans "Ort. Temp °C" %}', data:tAvg,    borderColor:'#3d9970', backgroundColor:'rgba(61,153,112,.1)',  fill:true, tension:.4, pointBackgroundColor:'#3d9970', pointRadius:4, yAxisID:'y' },
+        { label:'{% trans "Maks °C" %}',       data:tMax,    borderColor:'#ef4444', backgroundColor:'transparent',         fill:false, tension:.4, pointBackgroundColor:'#ef4444', pointRadius:3, borderDash:[4,3], yAxisID:'y' },
+        { label:'{% trans "Min °C" %}',         data:tMin,    borderColor:'#3b82f6', backgroundColor:'transparent',         fill:false, tension:.4, pointBackgroundColor:'#3b82f6', pointRadius:3, borderDash:[4,3], yAxisID:'y' },
+        { label:'{% trans "Yağıntı mm" %}',     data:precip,  backgroundColor:'rgba(59,130,246,.2)', borderColor:'rgba(59,130,246,.5)', borderWidth:1, type:'bar', yAxisID:'y1' }
+      ]
     },
-    options: {
-        responsive: true,
-        interaction: { mode:'index', intersect:false },
-        plugins: { legend:{ position:'top' } },
-        scales: {
-            y:  { position:'left',  grid:{ color:'#f0f0f0' }, title:{ display:true, text:'°C' } },
-            y1: { position:'right', grid:{ drawOnChartArea:false }, title:{ display:true, text:'mm' } }
-        }
+    options:{
+      ...commonOptions,
+      scales:{
+        ...commonOptions.scales,
+        y:  { position:'left',  grid:{ color:gridC }, ticks:{ color:textC, font:{size:11}, callback:v=>v+'°' }, title:{ display:true, text:'°C', color:textC } },
+        y1: { position:'right', grid:{ drawOnChartArea:false }, ticks:{ color:'#3b82f6', font:{size:11}, callback:v=>v+'mm' }, min:0, title:{ display:true, text:'mm', color:'#3b82f6' } }
+      }
     }
-});
+  });
+}
+
+/* ── MOBİL qrafik (yalnız temperatur — axis qarışıqlığı yox) ── */
+const mobEl = document.getElementById('chartMob');
+if (mobEl) {
+  new Chart(mobEl.getContext('2d'), {
+    type:'line',
+    data: {
+      labels,
+      datasets:[
+        { label:'{% trans "Ort. °C" %}',  data:tAvg,    borderColor:'#3d9970', backgroundColor:'rgba(61,153,112,.12)', fill:true, tension:.4, pointBackgroundColor:'#3d9970', pointRadius:4 },
+        { label:'{% trans "Rütubət %" %}', data:humidity, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.06)', fill:true, tension:.4, pointBackgroundColor:'#3b82f6', pointRadius:3, borderDash:[4,3] }
+      ]
+    },
+    options:{
+      ...commonOptions,
+      scales:{
+        ...commonOptions.scales,
+        y: { grid:{ color:gridC }, ticks:{ color:textC, font:{size:11} } }
+      }
+    }
+  });
+}
 {% endif %}
+
+/* ── Kompas animasiyası ── */
+const arr = document.getElementById('compassArrow');
+if (arr) {
+  const deg = {{ weather.wind_direction_degrees|default:0 }};
+  setTimeout(() => {
+    arr.style.transform = `translateX(-50%) translateY(-100%) rotate(${deg}deg)`;
+  }, 600);
+
+  /* İstiqaməti sözdə göstər */
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  const label = document.getElementById('windDirLabel');
+  if (label && deg !== null) {
+    const idx = Math.round(deg / 22.5) % 16;
+    label.textContent = dirs[idx] + ' (' + deg + '°)';
+  }
+}
 </script>
 {% endblock %}

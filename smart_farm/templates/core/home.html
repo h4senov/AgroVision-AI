@@ -5,312 +5,782 @@
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <style>
-.reveal { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease, transform 0.7s ease; }
-.reveal.active { opacity:1; transform:translateY(0); }
-.reveal-left  { opacity:0; transform:translateX(-40px); transition:opacity 0.7s ease, transform 0.7s ease; }
-.reveal-right { opacity:0; transform:translateX( 40px); transition:opacity 0.7s ease, transform 0.7s ease; }
-.reveal-left.active, .reveal-right.active { opacity:1; transform:translateX(0); }
-.delay-1{transition-delay:0.1s;} .delay-2{transition-delay:0.2s;} .delay-3{transition-delay:0.3s;}
+/* ════════════════════════════════════════════
+   ANİMASİYA
+════════════════════════════════════════════ */
+.reveal       { opacity:0; transform:translateY(40px);  transition:opacity .7s ease, transform .7s ease; }
+.reveal-left  { opacity:0; transform:translateX(-40px); transition:opacity .7s ease, transform .7s ease; }
+.reveal-right { opacity:0; transform:translateX( 40px); transition:opacity .7s ease, transform .7s ease; }
+.reveal.active, .reveal-left.active, .reveal-right.active { opacity:1; transform:translate(0); }
+.delay-1{transition-delay:.1s} .delay-2{transition-delay:.2s} .delay-3{transition-delay:.3s}
 
-.feature-card { transition:transform 0.3s ease,box-shadow 0.3s ease; border-radius:16px; border:1px solid #eee; }
-.feature-card:hover { transform:translateY(-6px); box-shadow:0 12px 30px rgba(0,0,0,0.1); }
-.icon-box { width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px; }
+/* ════════════════════════════════════════════
+   HERO  (qaranlıq overlay — dəyişməyə ehtiyac yox)
+════════════════════════════════════════════ */
+.hero-section {
+  min-height:100vh; display:flex; align-items:center; position:relative;
+  background:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
+}
+.hero-overlay { position:absolute; inset:0; background:rgba(0,0,0,.62); }
 
-.step-number { width:48px;height:48px;border-radius:50%;background:#198754;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;margin:0 auto 16px;box-shadow:0 4px 14px rgba(25,135,84,0.35); }
-.step-line { position:absolute;top:24px;left:calc(50% + 24px);width:calc(100% - 48px);height:2px;background:linear-gradient(90deg,#198754,#d1e7dd); }
+/* ════════════════════════════════════════════
+   COUNTER BAR
+════════════════════════════════════════════ */
+.counter-bar {
+  background:linear-gradient(135deg,#14532d,#198754);
+  padding:28px 0; color:#fff;
+}
+[data-theme="dark"] .counter-bar { background:linear-gradient(135deg,#052e16,#14532d); }
+.counter-bar .cnt-num  { font-size:2rem; font-weight:700; line-height:1; }
+.counter-bar .cnt-lbl  { font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,.7); margin-top:4px; }
 
-.counter-bar .counter-num { font-size:2rem;font-weight:700;color:#fff;line-height:1; }
-.counter-bar small { color:rgba(255,255,255,0.75);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px; }
+/* ════════════════════════════════════════════
+   SECTIONS (fon rəngi)
+════════════════════════════════════════════ */
+.sec-light  { background:#fff; }
+.sec-soft   { background:#f8faf9; }
+[data-theme="dark"] .sec-light { background:var(--bg); }
+[data-theme="dark"] .sec-soft  { background:var(--bg-secondary); }
 
-.testimonial-card { background:#f8f9fa;border-radius:16px;padding:28px;border:1px solid #eee;transition:transform 0.3s,box-shadow 0.3s; }
-.testimonial-card:hover { transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.08); }
-.avatar-circle { width:40px;height:40px;border-radius:50%;background:#198754;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem; }
+/* ════════════════════════════════════════════
+   FEATURE CARDS
+════════════════════════════════════════════ */
+.feature-card {
+  background:#fff; border:1px solid #eee; border-radius:18px;
+  padding:28px; height:100%;
+  transition:transform .3s, box-shadow .3s, border-color .3s;
+}
+.feature-card:hover { transform:translateY(-7px); box-shadow:0 14px 32px rgba(0,0,0,.09); border-color:#198754; }
+[data-theme="dark"] .feature-card { background:var(--bg-card); border-color:var(--border); }
+[data-theme="dark"] .feature-card:hover { border-color:var(--v2-accent); box-shadow:0 14px 32px rgba(0,0,0,.3); }
 
-.stat-card { transition:transform 0.3s ease,box-shadow 0.3s ease; }
-.stat-card:hover { transform:translateY(-5px);box-shadow:0 1rem 3rem rgba(0,0,0,.1); }
+.icon-box { width:54px; height:54px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:16px; }
+
+/* ════════════════════════════════════════════
+   STEPS
+════════════════════════════════════════════ */
+.step-number {
+  width:48px; height:48px; border-radius:50%; background:#198754; color:#fff;
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1rem;
+  margin:0 auto 16px; box-shadow:0 4px 14px rgba(25,135,84,.35);
+}
+[data-theme="dark"] .step-number { background:var(--v2-accent); box-shadow:0 4px 14px rgba(61,153,112,.35); }
+.step-line {
+  position:absolute; top:24px; left:calc(50% + 24px);
+  width:calc(100% - 48px); height:2px;
+  background:linear-gradient(90deg,#198754,#d1e7dd);
+}
+[data-theme="dark"] .step-line { background:linear-gradient(90deg,var(--v2-accent),rgba(61,153,112,.2)); }
+
+/* ════════════════════════════════════════════
+   SECTION HEADINGS & TEXT
+════════════════════════════════════════════ */
+.sec-title    { color:#111827; }
+[data-theme="dark"] .sec-title { color:var(--text); }
+.sec-subtitle { color:#6b7280; }
+[data-theme="dark"] .sec-subtitle { color:var(--text-muted); }
+
+/* ════════════════════════════════════════════
+   PROGRESS BARS (Niyə AI)
+════════════════════════════════════════════ */
+.ai-section { background:#fff; }
+[data-theme="dark"] .ai-section { background:var(--bg); }
+
+.stat-box {
+  background:#fff; border:1px solid #e5e7eb; border-radius:20px; padding:28px; text-align:center;
+  transition:transform .3s, box-shadow .3s;
+}
+.stat-box:hover { transform:translateY(-5px); box-shadow:0 14px 32px rgba(0,0,0,.08); }
+[data-theme="dark"] .stat-box { background:var(--bg-card); border-color:var(--border); }
+[data-theme="dark"] .stat-box:hover { box-shadow:0 14px 32px rgba(0,0,0,.3); }
+.stat-box h2 { color:#198754; }
+[data-theme="dark"] .stat-box h2 { color:var(--v2-accent); }
+.stat-box small { color:#6b7280; }
+[data-theme="dark"] .stat-box small { color:var(--text-muted); }
+
+.prog-label { color:#111827; }
+[data-theme="dark"] .prog-label { color:var(--text); }
+.prog-val { color:#198754; }
+[data-theme="dark"] .prog-val { color:var(--v2-accent); }
+.progress { background:#e5e7eb; }
+[data-theme="dark"] .progress { background:var(--border); }
+
+/* ════════════════════════════════════════════
+   TESTİMONİALS
+════════════════════════════════════════════ */
+.testi-section { background:#f8faf9; }
+[data-theme="dark"] .testi-section { background:var(--bg-secondary); }
+.testi-quote { color:#111827; }
+[data-theme="dark"] .testi-quote { color:var(--text); }
+.carousel-control-prev-icon,
+.carousel-control-next-icon { filter:invert(1); }
+[data-theme="dark"] .carousel-control-prev-icon,
+[data-theme="dark"] .carousel-control-next-icon { filter:none; background-color:rgba(255,255,255,.1); border-radius:50%; }
+
+/* ════════════════════════════════════════════
+   CTA SECTION
+════════════════════════════════════════════ */
+.cta-section {
+  background:linear-gradient(135deg,#14532d,#198754);
+  padding:72px 0; text-align:center;
+}
+[data-theme="dark"] .cta-section { background:linear-gradient(135deg,#052e16,#14532d); }
+
+/* ════════════════════════════════════════════
+   ── YENİ BÖLMƏLƏR ──
+════════════════════════════════════════════ */
+
+/* --- Platform uyğunluğu --- */
+.platform-section { background:#fff; }
+[data-theme="dark"] .platform-section { background:var(--bg); }
+
+.plat-card {
+  background:#f8faf9; border:1px solid #e5e7eb; border-radius:18px; padding:24px 22px;
+  display:flex; align-items:flex-start; gap:16px;
+  transition:transform .28s, box-shadow .28s;
+}
+.plat-card:hover { transform:translateY(-5px); box-shadow:0 12px 28px rgba(0,0,0,.08); }
+[data-theme="dark"] .plat-card { background:var(--bg-card); border-color:var(--border); }
+[data-theme="dark"] .plat-card:hover { box-shadow:0 12px 28px rgba(0,0,0,.3); }
+.plat-icon { width:50px; height:50px; border-radius:14px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
+.plat-name { font-weight:700; color:#111827; margin-bottom:4px; }
+[data-theme="dark"] .plat-name { color:var(--text); }
+.plat-desc { color:#6b7280; font-size:.85rem; }
+[data-theme="dark"] .plat-desc { color:var(--text-muted); }
+
+/* --- Tariflər --- */
+.price-section { background:#f8faf9; }
+[data-theme="dark"] .price-section { background:var(--bg-secondary); }
+
+.price-card {
+  background:#fff; border:1px solid #e5e7eb; border-radius:22px; padding:32px 28px;
+  height:100%; display:flex; flex-direction:column;
+  transition:transform .3s, box-shadow .3s;
+}
+.price-card:hover { transform:translateY(-7px); box-shadow:0 18px 40px rgba(0,0,0,.1); }
+.price-card.featured {
+  background:linear-gradient(135deg,#14532d,#198754); border-color:transparent; color:#fff;
+}
+[data-theme="dark"] .price-card { background:var(--bg-card); border-color:var(--border); }
+[data-theme="dark"] .price-card.featured { background:linear-gradient(135deg,#052e16,#166534); }
+[data-theme="dark"] .price-card:hover { box-shadow:0 18px 40px rgba(0,0,0,.3); }
+
+.price-val    { font-size:2.8rem; font-weight:800; line-height:1; }
+.price-period { font-size:.8rem; opacity:.7; }
+.price-feat   { list-style:none; padding:0; margin:0; }
+.price-feat li { padding:7px 0; border-bottom:1px solid rgba(0,0,0,.06); font-size:.875rem; display:flex; align-items:center; gap:8px; }
+[data-theme="dark"] .price-feat li { border-color:var(--border); color:var(--text); }
+.price-card.featured .price-feat li { border-color:rgba(255,255,255,.15); color:rgba(255,255,255,.9); }
+
+/* --- Sual & Cavab --- */
+.faq-section { background:#fff; }
+[data-theme="dark"] .faq-section { background:var(--bg); }
+
+.faq-item {
+  background:#f8faf9; border:1px solid #e5e7eb; border-radius:16px;
+  overflow:hidden; margin-bottom:12px; transition:border-color .2s;
+}
+.faq-item:hover { border-color:#198754; }
+[data-theme="dark"] .faq-item { background:var(--bg-card); border-color:var(--border); }
+[data-theme="dark"] .faq-item:hover { border-color:var(--v2-accent); }
+.faq-q {
+  padding:18px 22px; font-weight:700; font-size:.95rem; cursor:pointer;
+  display:flex; justify-content:space-between; align-items:center; color:#111827;
+  user-select:none;
+}
+[data-theme="dark"] .faq-q { color:var(--text); }
+.faq-q .faq-ico { transition:transform .3s; color:#198754; }
+[data-theme="dark"] .faq-q .faq-ico { color:var(--v2-accent); }
+.faq-item.open .faq-ico { transform:rotate(45deg); }
+.faq-a { max-height:0; overflow:hidden; transition:max-height .4s ease, padding .3s ease; }
+.faq-item.open .faq-a { max-height:300px; }
+.faq-a-inner { padding:0 22px 18px; color:#6b7280; font-size:.875rem; line-height:1.7; }
+[data-theme="dark"] .faq-a-inner { color:var(--text-muted); }
+
+/* --- Şərikli sahib kartı --- */
+.partner-logo {
+  background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:18px 28px;
+  display:flex; align-items:center; justify-content:center; transition:all .25s;
+  font-weight:700; font-size:1.1rem; color:#6b7280; min-height:70px;
+}
+.partner-logo:hover { border-color:#198754; color:#198754; transform:translateY(-3px); }
+[data-theme="dark"] .partner-logo { background:var(--bg-card); border-color:var(--border); color:var(--text-muted); }
+[data-theme="dark"] .partner-logo:hover { border-color:var(--v2-accent); color:var(--v2-accent); }
+
+/* --- Son xəbərlər --- */
+.news-section { background:#f8faf9; }
+[data-theme="dark"] .news-section { background:var(--bg-secondary); }
+
+.news-card {
+  background:#fff; border:1px solid #e5e7eb; border-radius:18px; overflow:hidden;
+  height:100%; display:flex; flex-direction:column; transition:transform .3s, box-shadow .3s;
+  text-decoration:none;
+}
+.news-card:hover { transform:translateY(-6px); box-shadow:0 14px 32px rgba(0,0,0,.09); }
+[data-theme="dark"] .news-card { background:var(--bg-card); border-color:var(--border); }
+.news-img { width:100%; height:170px; object-fit:cover; }
+.news-body { padding:18px 20px; flex:1; display:flex; flex-direction:column; }
+.news-tag { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#198754; margin-bottom:6px; }
+[data-theme="dark"] .news-tag { color:var(--v2-accent); }
+.news-title { font-weight:700; color:#111827; font-size:.95rem; margin-bottom:8px; line-height:1.45; }
+[data-theme="dark"] .news-title { color:var(--text); }
+.news-date { font-size:.72rem; color:#9ca3af; margin-top:auto; padding-top:10px; }
+[data-theme="dark"] .news-date { color:var(--text-muted); }
+
+/* ════════════════════════════════════════════
+   ÜMUMI UTILITY
+════════════════════════════════════════════ */
+.btn-green-outline {
+  border:2px solid #198754; color:#198754; border-radius:50px; padding:10px 28px;
+  font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:7px;
+  transition:all .2s;
+}
+.btn-green-outline:hover { background:#198754; color:#fff; }
+[data-theme="dark"] .btn-green-outline { border-color:var(--v2-accent); color:var(--v2-accent); }
+[data-theme="dark"] .btn-green-outline:hover { background:var(--v2-accent); color:#fff; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- HERO -->
-<div class="position-relative  d-flex align-items-center"
-     style="min-height:100vh;background:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;">
-    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);"></div>
-    <div class="container position-relative" style="z-index:2;">
-        <div class="col-lg-7 animate__animated animate__fadeInLeft">
-            <span class="badge bg-success bg-opacity-75 mb-3 px-3 py-2 rounded-pill" style="font-size:0.8rem;letter-spacing:1px;">
-                🌱 AI ilə İdarə Olunan Ferma Sistemi
-            </span>
-            <h1 class="display-1 fw-bolder mb-3">Agro<span class="text-success">Vision</span> AI</h1>
-            <p class="fs-4 fw-light mb-5" style="color:rgba(255,255,255,0.85);">
-                Datalarla böyüyən, zəka ilə idarə olunan gələcəyin ferması.
-            </p>
-            <div class="d-flex gap-3 flex-wrap">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'core:dashboard' %}" class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg animate__animated animate__pulse animate__infinite">
-                        <i class="fas fa-tachometer-alt me-2"></i>PANELƏ KEÇ
-                    </a>
-                {% else %}
-                    <a href="{% url 'users:user_register' %}" class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg animate__animated animate__pulse animate__infinite">
-                        <i class="fas fa-rocket me-2"></i>İNDİ QOŞUL
-                    </a>
-                    <a href="{% url 'users:user_login' %}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold">Giriş et</a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- COUNTER BAR -->
-<div class="counter-bar bg-success py-4">
-    <div class="container">
-        <div class="row text-center g-3">
-            <div class="col-6 col-md-3">
-                <div class="counter-num">+<span class="counter" data-target="15000">0</span>t</div>
-                <small>Qənaət Edilən Su</small>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="counter-num">+<span class="counter" data-target="4500">0</span>kq</div>
-                <small>Gübrə Effektivliyi</small>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="counter-num"><span class="counter" data-target="820">0</span></div>
-                <small>Aktiv IoT Sensor</small>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="counter-num"><span class="counter" data-target="85">0</span>%</div>
-                <small>AI Dəqiqliyi</small>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- FEATURES -->
-<section class="py-5  ">
-    <div class="container py-4">
-        <div class="text-center mb-5 reveal">
-            <h2 class="display-5 fw-bold">Nə Təklif Edirik?</h2>
-            <p class="text-muted">9 fərqli modul ilə fermerə tam nəzarət imkanı veririk.</p>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-4 reveal delay-1">
-                <div class="feature-card p-4 h-100  shadow-sm">
-                    <div class="icon-box" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-microchip"></i></div>
-                    <h5 class="fw-bold">IoT Sensor Şəbəkəsi</h5>
-                    <p class="text-muted small">PH, NPK, torpaq rütubəti və duzluluğunu saniyəlik izləyin. Real vaxt data axını.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 reveal delay-2">
-                <div class="feature-card p-4 h-100  shadow-sm">
-                    <div class="icon-box" style="background:#e3f2fd;color:#1565c0;"><i class="fas fa-brain"></i></div>
-                    <h5 class="fw-bold">AI Analitikası</h5>
-                    <p class="text-muted small">Peyk görüntüləri ilə dataları birləşdirərək bitki stresini əvvəlcədən müəyyən edir.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 reveal delay-3">
-                <div class="feature-card p-4 h-100  shadow-sm">
-                    <div class="icon-box" style="background:#fff3e0;color:#e65100;"><i class="fas fa-faucet"></i></div>
-                    <h5 class="fw-bold">Smart Suvarma</h5>
-                    <p class="text-muted small">Hava proqnozuna görə suvarma klapanlarını avtomatik idarə edir.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 reveal delay-1">
-                <div class="feature-card p-4 h-100  shadow-sm">
-                    <div class="icon-box" style="background:#fce4ec;color:#c62828;"><i class="fas fa-shield-virus"></i></div>
-                    <h5 class="fw-bold">Xəstəlik Diaqnozu</h5>
-                    <p class="text-muted small">Yarpaq rəngindəki dəyişiklikləri analiz edib xəstəlik riskini öncədən bildirir.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 reveal delay-2">
-                <div class="feature-card p-4 h-100  shadow-sm">
-                    <div class="icon-box" style="background:#f3e5f5;color:#6a1b9a;"><i class="fas fa-warehouse"></i></div>
-                    <h5 class="fw-bold">Anbar Menecmenti</h5>
-                    <p class="text-muted small">Gübrə və toxum azaldıqda avtomatik bildiriş göndərir.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4 reveal delay-3">
-                <div class="feature-card p-4 h-100  shadow-sm">
-                    <div class="icon-box" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-chart-pie"></i></div>
-                    <h5 class="fw-bold">Xərc Analizi</h5>
-                    <p class="text-muted small">Hər sahə üçün xərc və gözlənilən gəliri hesablayır.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section class="py-5 ">
-    <div class="container py-4">
-        <div class="text-center mb-5 reveal">
-            <h2 class="display-5 fw-bold">Necə İşləyir?</h2>
-            <p class="text-muted">3 sadə addımda ferməni rəqəmsal idarəetməyə qoşun.</p>
-        </div>
-        <div class="row text-center g-4">
-            <div class="col-md-4 reveal delay-1">
-                <div class="position-relative">
-                    <div class="step-number">1</div>
-                    <div class="d-none d-md-block step-line"></div>
-                </div>
-                <h5 class="fw-bold mt-3">Qeydiyyat & Sahə Əlavəsi</h5>
-                <p class="text-muted small px-3">Hesab yarat, sahələrini xəritəyə əlavə et. 2 dəqiqə çəkir.</p>
-            </div>
-            <div class="col-md-4 reveal delay-2">
-                <div class="position-relative">
-                    <div class="step-number">2</div>
-                    <div class="d-none d-md-block step-line"></div>
-                </div>
-                <h5 class="fw-bold mt-3">Sensorları Qoş</h5>
-                <p class="text-muted small px-3">IoT sensorlarını aktivləşdir. Sistem avtomatik data toplamağa başlayır.</p>
-            </div>
-            <div class="col-md-4 reveal delay-3">
-                <div class="step-number">3</div>
-                <h5 class="fw-bold mt-3">AI Tövsiyələrini Al</h5>
-                <p class="text-muted small px-3">Real vaxt analiz, suvarma planı, xəstəlik xəbərdarlıqları — hər şey dashboardda.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- NIYƏ AI -->
-<section class="py-5 ">
-    <div class="container py-4">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6 reveal-left">
-                <h2 class="display-5 fw-bold mb-4">Niyə Məhz <span class="text-success">AI?</span></h2>
-                <p class="text-muted mb-4">Kənd təsərrüfatı artıq sadəcə rəqəmlərlə yox, <strong>qərarlarla</strong> idarə olunur.</p>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><span class="small fw-semibold">Su qənaəti</span><span class="small text-success fw-bold">40%</span></div>
-                    <div class="progress" style="height:8px;border-radius:50px;"><div class="progress-bar bg-success" role="progressbar" style="width:0%" data-width="40%"></div></div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><span class="small fw-semibold">Məhsuldarlıq artımı</span><span class="small text-success fw-bold">65%</span></div>
-                    <div class="progress" style="height:8px;border-radius:50px;"><div class="progress-bar bg-success" role="progressbar" style="width:0%" data-width="65%"></div></div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1"><span class="small fw-semibold">AI Dəqiqliyi</span><span class="small text-success fw-bold">92%</span></div>
-                    <div class="progress" style="height:8px;border-radius:50px;"><div class="progress-bar bg-success" role="progressbar" style="width:0%" data-width="92%"></div></div>
-                </div>
-            </div>
-            <div class="col-lg-6 reveal-right">
-                <div class="row g-3">
-                    <div class="col-6"><div class="p-4 border rounded-4 text-center shadow-sm stat-card"><h2 class="fw-bold text-success mb-1">24/7</h2><small class="text-muted">Fasiləsiz Nəzarət</small></div></div>
-                    <div class="col-6"><div class="p-4 border rounded-4 text-center shadow-sm stat-card"><h2 class="fw-bold text-success mb-1">0%</h2><small class="text-muted">Məlumat İtkisi</small></div></div>
-                    <div class="col-6"><div class="p-4 border rounded-4 text-center shadow-sm stat-card"><h2 class="fw-bold text-success mb-1">+1200</h2><small class="text-muted">Aktiv Fermer</small></div></div>
-                    <div class="col-6"><div class="p-4 border rounded-4 text-center shadow-sm stat-card"><h2 class="fw-bold text-success mb-1">7x</h2><small class="text-muted">Məhsuldarlıq</small></div></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- TESTIMONIALS --><section class="py-5 ">
-    <div class="container py-4">
-        <div class="text-center mb-5 reveal">
-            <h2 class="display-5 fw-bold">Fermerlər Nə Deyir?</h2>
-        </div>
-
-        <div id="farmerCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner text-center">
-                
-                <div class="carousel-item active" data-bs-interval="3000">
-                    <p class="display-6 fst-italic mb-4">"AgroVision sayəsində bu il Lerikdəki kartof sahələrimdən ötən ilə nisbətən 2 dəfə az su işlətməklə daha çox məhsul aldım."</p>
-                    <h5 class="text-success mb-0">Elvin Kərimli</h5>
-                    <small class="text-muted">Fermer, Lerik</small>
-                </div>
-
-                <div class="carousel-item" data-bs-interval="3000">
-                    <p class="display-6 fst-italic mb-4">"Pambıq tarlalarımızda zərərvericiləri bizdən 3 gün əvvəl aşkar etdi. Məhsulumuzu xilas etdik."</p>
-                    <h5 class="text-success mb-0">Qorxmaz Fətizadə</h5>
-                    <small class="text-muted">Fermer, Cəlilabad</small>
-                </div>
-
-                <div class="carousel-item" data-bs-interval="3000">
-                    <p class="display-6 fst-italic mb-4">"İstixana şəraitində kofe yetişdirmək riskli sınaq idi. Lakin rütubət və temperaturu sistemlə tam nəzarətdə saxlayaraq, ilk məhsulumuzu uğurla topladıq."</p>
-                    <h5 class="text-success mb-0">Vüsal Şərifov</h5>
-                    <small class="text-muted">İnnovativ Fermer, Masallı</small>
-                </div>
-
-                <div class="carousel-item" data-bs-interval="3000">
-                    <p class="display-6 fst-italic mb-4">"Mandarinlərdə təhlükəni erkən gördük, məhsulumuz sağlam qaldı. Hər kəsə tövsiyə edirəm."</p>
-                    <h5 class="text-success mb-0">Şeyxbaba Babazadə</h5>
-                    <small class="text-muted">Aqronom, Astara</small>
-                </div>
-
-            </div>
-
-            <button class="carousel-control-prev" type="button" data-bs-target="#farmerCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
-                <span class="visually-hidden">Əvvəlki</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#farmerCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
-                <span class="visually-hidden">Növbəti</span>
-            </button>
-        </div>
-    </div>
-</section>
-
-<!-- CTA -->
-<section class="py-5 bg-successtext-center">
-    <div class="container py-4 reveal">
-        <h2 class="display-5 fw-bold mb-3">Sahənizi Bu Gündən İdarə Edin</h2>
-        <p class="lead mb-4" style="color:rgba(255,255,255,0.85);">Qeydiyyatdan keç, sahələrini əlavə et, real vaxt datalarını izlə.</p>
+<!-- ════════════════ HERO ════════════════ -->
+<div class="hero-section">
+  <div class="hero-overlay"></div>
+  <div class="container position-relative" style="z-index:2">
+    <div class="col-lg-7 animate__animated animate__fadeInLeft">
+      <span class="badge bg-success bg-opacity-75 mb-3 px-3 py-2 rounded-pill" style="font-size:.8rem;letter-spacing:1px">
+        🌱 {% trans "AI ilə İdarə Olunan Ferma Sistemi" %}
+      </span>
+      <h1 class="display-1 fw-bolder text-white mb-3">Agro<span class="text-success">Vision</span> AI</h1>
+      <p class="fs-4 fw-light mb-5" style="color:rgba(255,255,255,.85)">
+        {% trans "Datalarla böyüyən, zəka ilə idarə olunan gələcəyin ferması." %}
+      </p>
+      <div class="d-flex gap-3 flex-wrap">
         {% if user.is_authenticated %}
-            <a href="{% url 'core:dashboard' %}" class="btn btn-light btn-lg px-5 rounded-pill fw-bold text-success">
-                <i class="fas fa-tachometer-alt me-2"></i>Dashboarda keç
-            </a>
+        <a href="{% url 'core:dashboard' %}" class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg animate__animated animate__pulse animate__infinite">
+          <i class="fas fa-tachometer-alt me-2"></i>{% trans "PANELƏ KEÇ" %}
+        </a>
         {% else %}
-            <div class="d-flex justify-content-center gap-3 flex-wrap">
-                <a href="{% url 'users:user_register' %}" class="btn btn-light btn-lg px-5 rounded-pill fw-bold text-success">
-                    <i class="fas fa-rocket me-2"></i>Pulsuz Qeydiyyat
-                </a>
-                <a href="{% url 'users:user_login' %}" class="btn btn-outline-light btn-lg px-5 rounded-pill fw-bold">Giriş et</a>
-            </div>
+        <a href="{% url 'users:user_register' %}" class="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg animate__animated animate__pulse animate__infinite">
+          <i class="fas fa-rocket me-2"></i>{% trans "İNDİ QOŞUL" %}
+        </a>
+        <a href="{% url 'users:user_login' %}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold">{% trans "Giriş et" %}</a>
         {% endif %}
+      </div>
     </div>
+  </div>
+</div>
+
+<!-- ════════════════ COUNTER BAR ════════════════ -->
+<div class="counter-bar">
+  <div class="container">
+    <div class="row text-center g-3">
+      <div class="col-6 col-md-3">
+        <div class="cnt-num">+<span class="counter" data-target="15000">0</span>t</div>
+        <div class="cnt-lbl">{% trans "Qənaət Edilən Su" %}</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="cnt-num">+<span class="counter" data-target="4500">0</span>kq</div>
+        <div class="cnt-lbl">{% trans "Gübrə Effektivliyi" %}</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="cnt-num"><span class="counter" data-target="820">0</span></div>
+        <div class="cnt-lbl">{% trans "Aktiv IoT Sensor" %}</div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="cnt-num"><span class="counter" data-target="85">0</span>%</div>
+        <div class="cnt-lbl">{% trans "AI Dəqiqliyi" %}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ FEATURES ════════════════ -->
+<section class="sec-light py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5 reveal">
+      <h2 class="display-5 fw-bold sec-title">{% trans "Nə Təklif Edirik?" %}</h2>
+      <p class="sec-subtitle">{% trans "9 fərqli modul ilə fermerə tam nəzarət imkanı veririk." %}</p>
+    </div>
+    <div class="row g-4">
+      {% for feat in "123456"|make_list %}
+      {% endfor %}
+      <div class="col-md-6 col-lg-4 reveal delay-1">
+        <div class="feature-card">
+          <div class="icon-box" style="background:#e8f5e9;color:#2e7d32"><i class="fas fa-microchip"></i></div>
+          <h5 class="fw-bold sec-title">{% trans "IoT Sensor Şəbəkəsi" %}</h5>
+          <p class="sec-subtitle small">{% trans "PH, NPK, torpaq rütubəti və duzluluğunu saniyəlik izləyin. Real vaxt data axını." %}</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 reveal delay-2">
+        <div class="feature-card">
+          <div class="icon-box" style="background:#e3f2fd;color:#1565c0"><i class="fas fa-brain"></i></div>
+          <h5 class="fw-bold sec-title">{% trans "AI Analitikası" %}</h5>
+          <p class="sec-subtitle small">{% trans "Peyk görüntüləri ilə dataları birləşdirərək bitki stresini əvvəlcədən müəyyən edir." %}</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 reveal delay-3">
+        <div class="feature-card">
+          <div class="icon-box" style="background:#fff3e0;color:#e65100"><i class="fas fa-faucet"></i></div>
+          <h5 class="fw-bold sec-title">{% trans "Smart Suvarma" %}</h5>
+          <p class="sec-subtitle small">{% trans "Hava proqnozuna görə suvarma klapanlarını avtomatik idarə edir." %}</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 reveal delay-1">
+        <div class="feature-card">
+          <div class="icon-box" style="background:#fce4ec;color:#c62828"><i class="fas fa-shield-virus"></i></div>
+          <h5 class="fw-bold sec-title">{% trans "Xəstəlik Diaqnozu" %}</h5>
+          <p class="sec-subtitle small">{% trans "Yarpaq rəngindəki dəyişiklikləri analiz edib xəstəlik riskini öncədən bildirir." %}</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 reveal delay-2">
+        <div class="feature-card">
+          <div class="icon-box" style="background:#f3e5f5;color:#6a1b9a"><i class="fas fa-warehouse"></i></div>
+          <h5 class="fw-bold sec-title">{% trans "Anbar Menecmenti" %}</h5>
+          <p class="sec-subtitle small">{% trans "Gübrə və toxum azaldıqda avtomatik bildiriş göndərir." %}</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 reveal delay-3">
+        <div class="feature-card">
+          <div class="icon-box" style="background:#e8f5e9;color:#2e7d32"><i class="fas fa-chart-pie"></i></div>
+          <h5 class="fw-bold sec-title">{% trans "Xərc Analizi" %}</h5>
+          <p class="sec-subtitle small">{% trans "Hər sahə üçün xərc və gözlənilən gəliri hesablayır." %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ HOW IT WORKS ════════════════ -->
+<section class="sec-soft py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5 reveal">
+      <h2 class="display-5 fw-bold sec-title">{% trans "Necə İşləyir?" %}</h2>
+      <p class="sec-subtitle">{% trans "3 sadə addımda ferməni rəqəmsal idarəetməyə qoşun." %}</p>
+    </div>
+    <div class="row text-center g-4">
+      <div class="col-md-4 reveal delay-1">
+        <div class="position-relative">
+          <div class="step-number">1</div>
+          <div class="d-none d-md-block step-line"></div>
+        </div>
+        <h5 class="fw-bold mt-3 sec-title">{% trans "Qeydiyyat & Sahə Əlavəsi" %}</h5>
+        <p class="sec-subtitle small px-3">{% trans "Hesab yarat, sahələrini xəritəyə əlavə et. 2 dəqiqə çəkir." %}</p>
+      </div>
+      <div class="col-md-4 reveal delay-2">
+        <div class="position-relative">
+          <div class="step-number">2</div>
+          <div class="d-none d-md-block step-line"></div>
+        </div>
+        <h5 class="fw-bold mt-3 sec-title">{% trans "Sensorları Qoş" %}</h5>
+        <p class="sec-subtitle small px-3">{% trans "IoT sensorlarını aktivləşdir. Sistem avtomatik data toplamağa başlayır." %}</p>
+      </div>
+      <div class="col-md-4 reveal delay-3">
+        <div class="step-number">3</div>
+        <h5 class="fw-bold mt-3 sec-title">{% trans "AI Tövsiyələrini Al" %}</h5>
+        <p class="sec-subtitle small px-3">{% trans "Real vaxt analiz, suvarma planı, xəstəlik xəbərdarlıqları — hər şey dashboardda." %}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ NİYƏ AI ════════════════ -->
+<section class="ai-section py-5">
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 reveal-left">
+        <h2 class="display-5 fw-bold mb-4 sec-title">{% trans "Niyə Məhz" %} <span class="text-success">AI?</span></h2>
+        <p class="sec-subtitle mb-4">{% trans "Kənd təsərrüfatı artıq sadəcə rəqəmlərlə yox," %} <strong>{% trans "qərarlarla" %}</strong> {% trans "idarə olunur." %}</p>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="small fw-semibold prog-label">{% trans "Su qənaəti" %}</span>
+            <span class="small fw-bold prog-val">40%</span>
+          </div>
+          <div class="progress" style="height:8px;border-radius:50px">
+            <div class="progress-bar bg-success" style="width:0%" data-width="40%"></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="small fw-semibold prog-label">{% trans "Məhsuldarlıq artımı" %}</span>
+            <span class="small fw-bold prog-val">65%</span>
+          </div>
+          <div class="progress" style="height:8px;border-radius:50px">
+            <div class="progress-bar bg-success" style="width:0%" data-width="65%"></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="small fw-semibold prog-label">{% trans "AI Dəqiqliyi" %}</span>
+            <span class="small fw-bold prog-val">92%</span>
+          </div>
+          <div class="progress" style="height:8px;border-radius:50px">
+            <div class="progress-bar bg-success" style="width:0%" data-width="92%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal-right">
+        <div class="row g-3">
+          <div class="col-6"><div class="stat-box"><h2>24/7</h2><small>{% trans "Fasiləsiz Nəzarət" %}</small></div></div>
+          <div class="col-6"><div class="stat-box"><h2>0%</h2><small>{% trans "Məlumat İtkisi" %}</small></div></div>
+          <div class="col-6"><div class="stat-box"><h2>+1200</h2><small>{% trans "Aktiv Fermer" %}</small></div></div>
+          <div class="col-6"><div class="stat-box"><h2>7x</h2><small>{% trans "Məhsuldarlıq" %}</small></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ TESTİMONİALS ════════════════ -->
+<section class="testi-section py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5 reveal">
+      <h2 class="display-5 fw-bold sec-title">{% trans "Fermerlər Nə Deyir?" %}</h2>
+    </div>
+    <div id="farmerCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner text-center">
+        <div class="carousel-item active" data-bs-interval="3500">
+          <p class="display-6 fst-italic mb-4 testi-quote">"{% trans "AgroVision sayəsində bu il Lerikdəki kartof sahələrimdən ötən ilə nisbətən 2 dəfə az su işlətməklə daha çox məhsul aldım." %}"</p>
+          <h5 class="text-success mb-0">Elvin Kərimli</h5>
+          <small class="sec-subtitle">{% trans "Fermer, Lerik" %}</small>
+        </div>
+        <div class="carousel-item" data-bs-interval="3500">
+          <p class="display-6 fst-italic mb-4 testi-quote">"{% trans "Pambıq tarlalarımızda zərərvericiləri bizdən 3 gün əvvəl aşkar etdi. Məhsulumuzu xilas etdik." %}"</p>
+          <h5 class="text-success mb-0">Qorxmaz Fətizadə</h5>
+          <small class="sec-subtitle">{% trans "Fermer, Cəlilabad" %}</small>
+        </div>
+        <div class="carousel-item" data-bs-interval="3500">
+          <p class="display-6 fst-italic mb-4 testi-quote">"{% trans "İstixana şəraitində kofe yetişdirmək riskli idi. Lakin rütubət və temperaturu sistemlə nəzarətdə saxlayaraq ilk məhsulumuzu topladıq." %}"</p>
+          <h5 class="text-success mb-0">Vüsal Şərifov</h5>
+          <small class="sec-subtitle">{% trans "İnnovativ Fermer, Masallı" %}</small>
+        </div>
+        <div class="carousel-item" data-bs-interval="3500">
+          <p class="display-6 fst-italic mb-4 testi-quote">"{% trans "Mandarinlərdə təhlükəni erkən gördük, məhsulumuz sağlam qaldı. Hər kəsə tövsiyə edirəm." %}"</p>
+          <h5 class="text-success mb-0">Şeyxbaba Babazadə</h5>
+          <small class="sec-subtitle">{% trans "Aqronom, Astara" %}</small>
+        </div>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#farmerCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#farmerCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ ── YENİ: PLATFORM UYĞUNLUĞU ── ════════════════ -->
+<section class="platform-section py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5 reveal">
+      <h2 class="display-5 fw-bold sec-title">{% trans "Hər Cihazda İşləyir" %}</h2>
+      <p class="sec-subtitle">{% trans "Sahədə, ofisdə, istənilən cihazda tam funksionallıq." %}</p>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-6 col-lg-3 reveal delay-1">
+        <div class="plat-card">
+          <div class="plat-icon" style="background:#e8f5e9"><i class="fas fa-desktop" style="color:#198754;font-size:1.4rem"></i></div>
+          <div>
+            <div class="plat-name">{% trans "Web Tətbiq" %}</div>
+            <div class="plat-desc">{% trans "Bütün brauzerlər ilə uyğun. Tam funksionallıq." %}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 reveal delay-2">
+        <div class="plat-card">
+          <div class="plat-icon" style="background:#e3f2fd"><i class="fab fa-android" style="color:#1565c0;font-size:1.4rem"></i></div>
+          <div>
+            <div class="plat-name">Android</div>
+            <div class="plat-desc">{% trans "Android 9+ cihazlarda native tətbiq." %}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 reveal delay-3">
+        <div class="plat-card">
+          <div class="plat-icon" style="background:#fce4ec"><i class="fab fa-apple" style="color:#c62828;font-size:1.4rem"></i></div>
+          <div>
+            <div class="plat-name">iOS</div>
+            <div class="plat-desc">{% trans "iPhone & iPad üçün optimallaşdırılmış." %}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3 reveal delay-1">
+        <div class="plat-card">
+          <div class="plat-icon" style="background:#fff3e0"><i class="fas fa-microchip" style="color:#e65100;font-size:1.4rem"></i></div>
+          <div>
+            <div class="plat-name">IoT Gateway</div>
+            <div class="plat-desc">{% trans "Raspberry Pi, Arduino ilə birbaşa inteqrasiya." %}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ ── YENİ: TARİFLƏR ── ════════════════ -->
+<section class="price-section py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5 reveal">
+      <h2 class="display-5 fw-bold sec-title">{% trans "Tariflər" %}</h2>
+      <p class="sec-subtitle">{% trans "Fermanızın ölçüsünə uyğun plan seçin." %}</p>
+    </div>
+    <div class="row g-4 justify-content-center">
+
+      <!-- Starter -->
+      <div class="col-md-6 col-lg-4 reveal delay-1">
+        <div class="price-card">
+          <div class="mb-4">
+            <div class="fw-bold sec-subtitle small text-uppercase letter-spacing-1 mb-2">🌱 {% trans "Başlanğıc" %}</div>
+            <div class="price-val sec-title">0 <span style="font-size:1rem;font-weight:400" class="sec-subtitle">₼/ay</span></div>
+            <div class="price-period sec-subtitle mt-1">{% trans "Pulsuz — həmişəlik" %}</div>
+          </div>
+          <ul class="price-feat mb-4 flex-grow-1">
+            <li><i class="fas fa-check text-success"></i> {% trans "3 sahə" %}</li>
+            <li><i class="fas fa-check text-success"></i> {% trans "2 sensor" %}</li>
+            <li><i class="fas fa-check text-success"></i> {% trans "7 günlük hava" %}</li>
+            <li><i class="fas fa-check text-success"></i> {% trans "Əsas anbar" %}</li>
+            <li style="opacity:.4"><i class="fas fa-times text-muted"></i> {% trans "AI Tövsiyə" %}</li>
+            <li style="opacity:.4"><i class="fas fa-times text-muted"></i> {% trans "API Girişi" %}</li>
+          </ul>
+          {% if not user.is_authenticated %}
+          <a href="{% url 'users:user_register' %}" class="btn-green-outline d-block text-center">{% trans "Başla" %}</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Pro -->
+      <div class="col-md-6 col-lg-4 reveal delay-2">
+        <div class="price-card featured">
+          <div class="mb-2" style="text-align:right">
+            <span style="background:rgba(255,255,255,.25);border-radius:50px;padding:3px 12px;font-size:.72rem;font-weight:700">⭐ {% trans "Ən Populyar" %}</span>
+          </div>
+          <div class="mb-4">
+            <div class="fw-bold small text-uppercase mb-2" style="color:rgba(255,255,255,.65)">🚀 Pro</div>
+            <div class="price-val" style="color:#fff">49 <span style="font-size:1rem;font-weight:400;opacity:.7">₼/ay</span></div>
+            <div class="price-period" style="color:rgba(255,255,255,.6)">{% trans "İllik ödənişdə 20% endirim" %}</div>
+          </div>
+          <ul class="price-feat mb-4 flex-grow-1">
+            <li><i class="fas fa-check" style="color:#86efac"></i> {% trans "Limitsiz sahə" %}</li>
+            <li><i class="fas fa-check" style="color:#86efac"></i> {% trans "20 sensor" %}</li>
+            <li><i class="fas fa-check" style="color:#86efac"></i> {% trans "14 günlük hava" %}</li>
+            <li><i class="fas fa-check" style="color:#86efac"></i> {% trans "Tam anbar" %}</li>
+            <li><i class="fas fa-check" style="color:#86efac"></i> {% trans "AI Tövsiyə sistemi" %}</li>
+            <li style="opacity:.5"><i class="fas fa-times"></i> {% trans "API Girişi" %}</li>
+          </ul>
+          {% if not user.is_authenticated %}
+          <a href="{% url 'users:user_register' %}" class="btn btn-light fw-bold rounded-pill w-100" style="color:#198754">{% trans "Seç" %}</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="col-md-6 col-lg-4 reveal delay-3">
+        <div class="price-card">
+          <div class="mb-4">
+            <div class="fw-bold sec-subtitle small text-uppercase mb-2">🏢 {% trans "Müəssisə" %}</div>
+            <div class="price-val sec-title">{% trans "Fərdi" %}</div>
+            <div class="price-period sec-subtitle mt-1">{% trans "Müqavilə əsasında" %}</div>
+          </div>
+          <ul class="price-feat mb-4 flex-grow-1">
+            <li><i class="fas fa-check text-success"></i> {% trans "Limitsiz hər şey" %}</li>
+            <li><i class="fas fa-check text-success"></i> {% trans "API + Webhook" %}</li>
+            <li><i class="fas fa-check text-success"></i> {% trans "Xüsusi AI modeli" %}</li>
+            <li><i class="fas fa-check text-success"></i> {% trans "SLA zəmanəti" %}</li>
+            <li><i class="fas fa-check text-success"></i> {% trans "Fərdi dəstək" %}</li>
+            <li><i class="fas fa-check text-success"></i> {% trans "On-premise variant" %}</li>
+          </ul>
+          <a href="mailto:info@agrovision.az" class="btn-green-outline d-block text-center">{% trans "Əlaqə" %}</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ ── YENİ: TƏRƏFDAŞLİYIMIZ ── ════════════════ -->
+<section class="sec-light py-5">
+  <div class="container py-4">
+    <div class="text-center mb-5 reveal">
+      <h2 class="display-5 fw-bold sec-title">{% trans "Tərəfdaşlarımız" %}</h2>
+      <p class="sec-subtitle">{% trans "Etibarlı platforma və təşkilatlarla birlikdə işləyirik." %}</p>
+    </div>
+    <div class="row g-3 justify-content-center reveal">
+      <div class="col-6 col-md-3 col-lg-2"><div class="partner-logo">🌾 AgriTech</div></div>
+      <div class="col-6 col-md-3 col-lg-2"><div class="partner-logo">🤖 OpenFarm</div></div>
+      <div class="col-6 col-md-3 col-lg-2"><div class="partner-logo">☁️ Open-Meteo</div></div>
+      <div class="col-6 col-md-3 col-lg-2"><div class="partner-logo">📡 LoRaWAN</div></div>
+      <div class="col-6 col-md-3 col-lg-2"><div class="partner-logo">🗺️ MapBox</div></div>
+      <div class="col-6 col-md-3 col-lg-2"><div class="partner-logo">🔬 FAO</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ ── YENİ: SON XƏBƏRLƏR ── ════════════════ -->
+<section class="news-section py-5">
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3 reveal">
+      <div>
+        <h2 class="display-5 fw-bold sec-title mb-1">{% trans "Aqronom Bloqu" %}</h2>
+        <p class="sec-subtitle mb-0">{% trans "Kənd təsərrüfatında ən son tövsiyələr" %}</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4 reveal delay-1">
+        <div class="news-card">
+          <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=80" alt="suvarma" class="news-img">
+          <div class="news-body">
+            <div class="news-tag">💧 {% trans "Suvarma" %}</div>
+            <div class="news-title">{% trans "Damcı Suvarma ilə 40% Su Qənaəti: Əməli Bələdçi" %}</div>
+            <div class="news-date">📅 02 Mart 2026</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 reveal delay-2">
+        <div class="news-card">
+          <img src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=600&q=80" alt="bitki" class="news-img">
+          <div class="news-body">
+            <div class="news-tag">🌱 {% trans "Bitki Sağlamlığı" %}</div>
+            <div class="news-title">{% trans "Yaz Mövsümü Üçün Gübrələmə Cədvəli: AI Tövsiyəsi" %}</div>
+            <div class="news-date">📅 28 Fevral 2026</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 reveal delay-3">
+        <div class="news-card">
+          <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&q=80" alt="texnologiya" class="news-img">
+          <div class="news-body">
+            <div class="news-tag">🤖 {% trans "Texnologiya" %}</div>
+            <div class="news-title">{% trans "IoT Sensoru Nədir? Fermerçilikdə Necə İstifadə Edirsiniz?" %}</div>
+            <div class="news-date">📅 20 Fevral 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ ── YENİ: SUAL & CAVAB ── ════════════════ -->
+<section class="faq-section py-5">
+  <div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="text-center mb-5 reveal">
+          <h2 class="display-5 fw-bold sec-title">{% trans "Tez-tez Verilən Suallar" %}</h2>
+          <p class="sec-subtitle">{% trans "Cavab tapmadınızsa əlaqə saxlayın." %}</p>
+        </div>
+        <div class="reveal">
+          {% for faq in faq_list %}
+          <!-- dinamik faq varsa template tag-lər buraya -->
+          {% endfor %}
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>{% trans "Sensorlar olmadan sistem işləyirmi?" %}</span>
+              <i class="fas fa-plus faq-ico"></i>
+            </div>
+            <div class="faq-a"><div class="faq-a-inner">{% trans "Bəli. Sensorlarsız da hava datası, sahə, bitki və anbar idarəetməsini istifadə edə bilərsiniz. Sensorlar əlavə real-vaxt məlumat əlavə edir." %}</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>{% trans "Hansı brauzerləri dəstəkləyirsiniz?" %}</span>
+              <i class="fas fa-plus faq-ico"></i>
+            </div>
+            <div class="faq-a"><div class="faq-a-inner">{% trans "Chrome, Firefox, Edge, Safari — bütün müasir brauzerlər tam dəstəklənir. Mobil brauzerlər də optimal işləyir." %}</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>{% trans "Məlumatlarım təhlükəsizmi?" %}</span>
+              <i class="fas fa-plus faq-ico"></i>
+            </div>
+            <div class="faq-a"><div class="faq-a-inner">{% trans "Bütün məlumatlar SSL/TLS ilə şifrələnmiş serverlərə göndərilir. İstifadəçi datası heç bir üçüncü tərəflə paylaşılmır. GDPR uyğunluğumuz var." %}</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>{% trans "Pulsuz planın limiti bitəndə nə olur?" %}</span>
+              <i class="fas fa-plus faq-ico"></i>
+            </div>
+            <div class="faq-a"><div class="faq-a-inner">{% trans "Datalarınız saxlanılır. Yalnız yeni sahə / sensor əlavəsi mümkün olmur. İstənilən vaxt Pro plana keçid edə bilərsiniz." %}</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+              <span>{% trans "API inteqrasiyası mümkündürmü?" %}</span>
+              <i class="fas fa-plus faq-ico"></i>
+            </div>
+            <div class="faq-a"><div class="faq-a-inner">{% trans "Pro+ planında tam REST API təmin edilir. Webhook, webhook imzası, rate limiting ilə sənədləşdirilmiş API dəstəyi var." %}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ CTA ════════════════ -->
+<section class="cta-section">
+  <div class="container reveal">
+    <h2 class="display-5 fw-bold text-white mb-3">{% trans "Sahənizi Bu Gündən İdarə Edin" %}</h2>
+    <p class="lead text-white mb-4" style="opacity:.85">{% trans "Qeydiyyatdan keç, sahələrini əlavə et, real vaxt datalarını izlə." %}</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'core:dashboard' %}" class="btn btn-light btn-lg px-5 rounded-pill fw-bold text-success">
+      <i class="fas fa-tachometer-alt me-2"></i>{% trans "Dashboarda keç" %}
+    </a>
+    {% else %}
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+      <a href="{% url 'users:user_register' %}" class="btn btn-light btn-lg px-5 rounded-pill fw-bold text-success">
+        <i class="fas fa-rocket me-2"></i>{% trans "Pulsuz Qeydiyyat" %}
+      </a>
+      <a href="{% url 'users:user_login' %}" class="btn btn-outline-light btn-lg px-5 rounded-pill fw-bold">{% trans "Giriş et" %}</a>
+    </div>
+    {% endif %}
+  </div>
 </section>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Scroll Reveal
+/* ── Scroll Reveal ── */
 const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); obs.unobserve(e.target); } });
-}, { threshold: 0.15 });
+  entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('active'); obs.unobserve(e.target); } });
+}, { threshold:.15 });
 document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => obs.observe(el));
 
-// Counter
+/* ── Counter ── */
 const cObs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-        if (!e.isIntersecting) return;
-        e.target.querySelectorAll('.counter').forEach(el => {
-            const target = +el.dataset.target;
-            let cur = 0, step = target / 80;
-            const t = setInterval(() => {
-                cur += step;
-                if (cur >= target) { el.textContent = target.toLocaleString(); clearInterval(t); }
-                else el.textContent = Math.floor(cur).toLocaleString();
-            }, 20);
-        });
-        cObs.unobserve(e.target);
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.querySelectorAll('.counter').forEach(el => {
+      const target = +el.dataset.target, step = target / 80;
+      let cur = 0;
+      const t = setInterval(() => {
+        cur += step;
+        if (cur >= target){ el.textContent = target.toLocaleString(); clearInterval(t); }
+        else el.textContent = Math.floor(cur).toLocaleString();
+      }, 20);
     });
-}, { threshold: 0.3 });
+    cObs.unobserve(e.target);
+  });
+}, { threshold:.3 });
 const bar = document.querySelector('.counter-bar');
 if (bar) cObs.observe(bar);
 
-// Progress bars
+/* ── Progress bars ── */
 const pObs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-        if (!e.isIntersecting) return;
-        e.target.querySelectorAll('.progress-bar[data-width]').forEach(b => {
-            setTimeout(() => { b.style.transition = 'width 1.2s ease'; b.style.width = b.dataset.width; }, 200);
-        });
-        pObs.unobserve(e.target);
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.querySelectorAll('.progress-bar[data-width]').forEach(b => {
+      setTimeout(() => { b.style.transition = 'width 1.2s ease'; b.style.width = b.dataset.width; }, 200);
     });
-}, { threshold: 0.3 });
+    pObs.unobserve(e.target);
+  });
+}, { threshold:.3 });
 document.querySelectorAll('section').forEach(s => pObs.observe(s));
+
+/* ── FAQ accordion ── */
+function toggleFaq(el) {
+  const item = el.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
 </script>
 {% endblock %}

@@ -1,68 +1,185 @@
-<!-- templates/weather/weather_delete.html -->
 {% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Hava Məlumatını Sil" %} - AgroVision{% endblock %}
 
-{% block title %}Hava Məlumatını Sil - Ağıllı Ferma{% endblock %}
+{% block extra_css %}
+<style>
+:root { --v2-from:#182f4c; --v2-to:#2e8e63; --v2-accent:#3d9970; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── Konteyner ── */
+.del-wrap {
+  min-height: 70vh; display:flex; align-items:center; justify-content:center;
+  padding: 32px 16px;
+}
+.del-card {
+  width:100%; max-width:480px;
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:24px; overflow:hidden;
+  box-shadow:0 20px 48px rgba(0,0,0,.1);
+  animation:fadeUp .45s ease backwards;
+}
+
+/* ── Başlıq şeridi ── */
+.del-head {
+  background:linear-gradient(135deg,#7f1d1d,#ef4444);
+  padding:24px 28px; text-align:center;
+}
+[data-theme="dark"] .del-head { background:linear-gradient(135deg,#450a0a,#b91c1c); }
+.del-head-icon {
+  width:64px; height:64px; border-radius:50%;
+  background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.25);
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 14px; font-size:1.6rem;
+}
+
+/* ── Info kart ── */
+.info-strip {
+  background:var(--bg-secondary) !important; border:1px solid var(--border) !important;
+  border-radius:16px; padding:16px 18px; margin:20px 0;
+}
+.info-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:6px 0; border-bottom:1px solid var(--border); font-size:.875rem;
+}
+.info-row:last-child { border-bottom:none; padding-bottom:0; }
+.info-row .ik { color:var(--text-muted); display:flex; align-items:center; gap:7px; }
+.info-row .iv { font-weight:700; color:var(--text); }
+
+/* ── Xəbərdarlıq banner ── */
+.warn-banner {
+  background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.25);
+  border-left:4px solid #f59e0b; border-radius:12px; padding:12px 16px;
+  font-size:.83rem; color:var(--text-muted); display:flex; align-items:center; gap:10px;
+}
+[data-theme="dark"] .warn-banner { background:rgba(245,158,11,.15); }
+
+/* ── Düymələr ── */
+.del-actions { display:flex; gap:10px; }
+.btn-cancel {
+  flex:1; padding:12px; border-radius:13px; border:1.5px solid var(--border);
+  background:transparent; color:var(--text-muted); font-weight:600; font-size:.9rem;
+  text-decoration:none; display:flex; align-items:center; justify-content:center; gap:7px;
+  transition:all .2s;
+}
+.btn-cancel:hover { border-color:var(--border); background:var(--bg-secondary); color:var(--text); }
+.btn-confirm {
+  flex:1; padding:12px; border-radius:13px; border:none;
+  background:linear-gradient(135deg,#b91c1c,#ef4444);
+  color:#fff; font-weight:600; font-size:.9rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:7px; transition:all .2s;
+}
+.btn-confirm:hover { opacity:.9; transform:translateY(-1px); box-shadow:0 6px 18px rgba(239,68,68,.35); }
+.btn-confirm:active { transform:translateY(0); }
+
+/* ── Breadcrumb ── */
+.bc-link { color:var(--text-muted); text-decoration:none; font-size:.8rem; font-weight:600; }
+.bc-link:hover { color:var(--v2-accent); }
+.bc-sep { color:var(--text-muted); margin:0 6px; font-size:.75rem; }
+
+/* ── Footer notu ── */
+.del-footer {
+  padding:14px 28px; text-align:center;
+  border-top:1px solid var(--border);
+  font-size:.75rem; color:var(--text-muted);
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'weather:weather_list' %}">Hava Məlumatları</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'weather:weather_detail' weather.pk %}">{{ weather.field.name }} - {{ weather.weather_date|date:"d.m.Y" }}</a></li>
-                    <li class="breadcrumb-item active">Sil</li>
-                </ol>
-            </nav>
+<div class="del-wrap">
+  <div class="w-100" style="max-width:520px">
 
-            <div class="card border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Hava Məlumatını Sil</h4>
-                </div>
-                <div class="card-body text-center">
-                    <div class="mb-4">
-                        <i class="fas fa-trash-alt fa-4x text-danger mb-3"></i>
-                        <h5>Silmək istədiyinizə əminsiniz?</h5>
-                        
-                        <div class="alert alert-warning mt-3">
-                            <p class="mb-0">
-                                <strong>{{ weather.field.name }}</strong> sahəsi üçün 
-                                <strong>{{ weather.weather_date|date:"d.m.Y" }}</strong> tarixli 
-                                hava məlumatı silinəcək.
-                            </p>
-                        </div>
-
-                        <!-- Weather Info Card -->
-                        <div class="card mt-3">
-                            <div class="card-body">
-                                <h6 class="card-title">Silinəcək məlumat:</h6>
-                                <p class="mb-1">
-                                    <strong>Tarix:</strong> {{ weather.weather_date|date:"d.m.Y" }}<br>
-                                    <strong>Sahə:</strong> {{ weather.field.name }}<br>
-                                    <strong>Hava:</strong> {{ weather.get_weather_condition_display }}<br>
-                                    <strong>Temperatur:</strong> {{ weather.temperature_avg|default:"-" }}°C
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="d-flex justify-content-center gap-3">
-                            <a href="{% url 'weather:weather_detail' weather.pk %}" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Ləğv et
-                            </a>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash"></i> Bəli, Sil
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="card-footer text-muted text-center">
-                    <small>Bu əməliyyat geri qaytarıla bilməz</small>
-                </div>
-            </div>
-        </div>
+    <!-- Breadcrumb -->
+    <div class="mb-3 d-flex align-items-center" style="flex-wrap:wrap;gap:4px">
+      <a href="{% url 'weather:weather_list' %}" class="bc-link">
+        <i class="fas fa-cloud-sun me-1"></i>{% trans "Hava Məlumatları" %}
+      </a>
+      <span class="bc-sep">›</span>
+      <a href="{% url 'weather:weather_detail' weather.pk %}" class="bc-link">
+        {{ weather.field.name }} — {{ weather.weather_date|date:"d.m.Y" }}
+      </a>
+      <span class="bc-sep">›</span>
+      <span style="font-size:.8rem;color:var(--text-muted)">{% trans "Sil" %}</span>
     </div>
+
+    <!-- Əsas kart -->
+    <div class="del-card">
+
+      <!-- Qırmızı başlıq -->
+      <div class="del-head">
+        <div class="del-head-icon">🗑️</div>
+        <h4 class="fw-bold text-white mb-1">{% trans "Hava Məlumatını Sil" %}</h4>
+        <p class="mb-0 small" style="color:rgba(255,255,255,.65)">
+          {% trans "Bu əməliyyat geri qaytarıla bilməz" %}
+        </p>
+      </div>
+
+      <!-- Kart body -->
+      <div class="p-4 p-md-5">
+
+        <!-- Xəbərdarlıq -->
+        <div class="warn-banner mb-4">
+          <i class="fas fa-exclamation-triangle" style="color:#f59e0b;flex-shrink:0"></i>
+          <span>
+            {% trans "Aşağıdakı hava məlumatı qalıcı olaraq silinəcək." %}
+          </span>
+        </div>
+
+        <!-- Silinəcək məlumat -->
+        <div class="info-strip">
+          <div class="info-row">
+            <span class="ik"><i class="fas fa-map-marker-alt" style="color:var(--v2-accent)"></i>{% trans "Sahə" %}</span>
+            <span class="iv">{{ weather.field.name }}</span>
+          </div>
+          <div class="info-row">
+            <span class="ik"><i class="fas fa-calendar" style="color:#3b82f6"></i>{% trans "Tarix" %}</span>
+            <span class="iv">{{ weather.weather_date|date:"d F Y" }}</span>
+          </div>
+          <div class="info-row">
+            <span class="ik"><i class="fas fa-cloud-sun" style="color:#f59e0b"></i>{% trans "Hava" %}</span>
+            <span class="iv">{{ weather.get_smart_condition_display }}</span>
+          </div>
+          <div class="info-row">
+            <span class="ik"><i class="fas fa-thermometer-half" style="color:#ef4444"></i>{% trans "Temperatur" %}</span>
+            <span class="iv">{{ weather.temperature_avg|default:"—" }}°C ({{ weather.get_temperature_range }})</span>
+          </div>
+          {% if weather.humidity_avg %}
+          <div class="info-row">
+            <span class="ik"><i class="fas fa-tint" style="color:#06b6d4"></i>{% trans "Rütubət" %}</span>
+            <span class="iv">{{ weather.humidity_avg }}%</span>
+          </div>
+          {% endif %}
+          {% if weather.precipitation_mm %}
+          <div class="info-row">
+            <span class="ik"><i class="fas fa-cloud-rain" style="color:#3b82f6"></i>{% trans "Yağıntı" %}</span>
+            <span class="iv">{{ weather.precipitation_mm }} mm</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Düymələr -->
+        <form method="post">
+          {% csrf_token %}
+          <div class="del-actions">
+            <a href="{% url 'weather:weather_detail' weather.pk %}" class="btn-cancel">
+              <i class="fas fa-times"></i>{% trans "Ləğv et" %}
+            </a>
+            <button type="submit" class="btn-confirm">
+              <i class="fas fa-trash"></i>{% trans "Bəli, Sil" %}
+            </button>
+          </div>
+        </form>
+
+      </div><!-- /p-4 -->
+
+      <div class="del-footer">
+        <i class="fas fa-info-circle me-1" style="color:var(--text-muted)"></i>
+        {% trans "Silinən məlumat Open-Meteo-dan yenidən çəkilə bilər." %}
+      </div>
+    </div><!-- /del-card -->
+
+  </div>
 </div>
 {% endblock %}

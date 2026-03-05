@@ -28,7 +28,7 @@ def farm_stats(request):
     
     # Aşağı stokda olan məhsullar
     user_inventory = Inventory.objects.filter(user=request.user)
-    low_stock_count = len([item for item in user_inventory if item.stock_status() == 'low'])
+    low_stock_count = len([item for item in user_inventory if item.stock_status == 'low'])
     
     # Context qaytar
     return {

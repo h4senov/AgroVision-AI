@@ -1,100 +1,328 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}Məhsul — {{ item.item_name }}{% endblock %}
+{% load i18n %}
+{% block title %}{{ item.item_name }} - {% trans "Anbar" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+:root { --v2-from:#182f4c; --v2-to:#2e8e63; --v2-accent:#3d9970; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+.au  { animation:fadeUp .5s ease backwards; }
+.d1{animation-delay:.05s}.d2{animation-delay:.10s}.d3{animation-delay:.15s}.d4{animation-delay:.20s}
+
+/* ── Breadcrumb ── */
+.bc-link { color:var(--text-muted); text-decoration:none; font-size:.8rem; font-weight:600; }
+.bc-link:hover { color:var(--v2-accent); }
+.bc-sep  { color:var(--text-muted); margin:0 5px; font-size:.75rem; }
+
+/* ── Hero şerit ── */
+.item-hero {
+  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
+  border-radius:22px; padding:28px; color:#fff; position:relative; overflow:hidden;
+}
+[data-theme="dark"] .item-hero { background:linear-gradient(135deg,#09203c,#09482d); }
+.item-hero::before {
+  content:''; position:absolute; top:-60px; right:-60px;
+  width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.05);
+}
+
+/* ── Sol panel (şəkil + stok) ── */
+.sec-card {
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:20px; padding:22px;
+}
+
+/* ── Şəkil ── */
+.img-frame {
+  background:var(--bg-secondary); border:1px solid var(--border);
+  border-radius:16px; overflow:hidden; height:240px;
+  display:flex; align-items:center; justify-content:center; margin-bottom:18px;
+}
+.img-frame img { max-height:100%; object-fit:contain; transition:transform .4s; }
+.img-frame:hover img { transform:scale(1.06); }
+.img-placeholder { font-size:4rem; opacity:.2; }
+
+/* ── Stok göstərici ── */
+.stock-meter { height:10px; border-radius:5px; background:var(--border); overflow:hidden; margin:6px 0; }
+.stock-fill  { height:100%; border-radius:5px; transition:width 1.2s ease; }
+.fill-low    { background:linear-gradient(90deg,#ef4444,#f87171); }
+.fill-ok     { background:linear-gradient(90deg,var(--v2-accent),#6ee7b7); }
+.fill-high   { background:linear-gradient(90deg,#f59e0b,#fcd34d); }
+
+/* ── Status badge ── */
+.sb { display:inline-flex; align-items:center; gap:5px; padding:5px 14px; border-radius:50px; font-weight:700; font-size:.78rem; }
+.sb-low  { background:rgba(239,68,68,.1); color:#ef4444; }
+.sb-ok   { background:rgba(61,153,112,.1); color:var(--v2-accent); }
+.sb-high { background:rgba(245,158,11,.1); color:#f59e0b; }
+[data-theme="dark"] .sb-low  { background:rgba(239,68,68,.2); }
+[data-theme="dark"] .sb-ok   { background:rgba(61,153,112,.2); }
+[data-theme="dark"] .sb-high { background:rgba(245,158,11,.2); }
+
+/* ── Stat pillər ── */
+.qty-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; }
+.qty-cell {
+  background:var(--bg-secondary) !important; border:1px solid var(--border) !important;
+  border-radius:14px; padding:14px 10px; text-align:center;
+}
+.qty-val { font-size:1.4rem; font-weight:800; color:var(--text); line-height:1; }
+.qty-lbl { font-size:.65rem; text-transform:uppercase; letter-spacing:.4px; color:var(--text-muted); margin-top:4px; }
+
+/* ── Meta sıra ── */
+.meta-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 0; border-bottom:1px solid var(--border); font-size:.875rem;
+}
+.meta-row:last-child { border-bottom:none; padding-bottom:0; }
+.meta-key { color:var(--text-muted); display:flex; align-items:center; gap:8px; }
+.meta-val { font-weight:600; color:var(--text); text-align:right; max-width:55%; }
+
+/* ── Notes ── */
+.notes-box {
+  background:var(--bg-secondary) !important; border:1px solid var(--border) !important;
+  border-radius:12px; padding:14px; font-size:.875rem; color:var(--text); line-height:1.6;
+}
+
+/* ── Action düymələri ── */
+.act-btn {
+  display:flex; align-items:center; gap:8px; padding:11px 18px;
+  border-radius:13px; text-decoration:none; font-weight:600; font-size:.85rem;
+  border:1.5px solid var(--border); color:var(--text-muted); background:transparent; transition:all .22s;
+}
+.act-btn:hover        { border-color:var(--v2-accent); color:var(--v2-accent); background:rgba(61,153,112,.05); }
+.act-btn.prim         { background:linear-gradient(135deg,var(--v2-from),var(--v2-to)); color:#fff; border:none; }
+.act-btn.prim:hover   { opacity:.9; color:#fff; }
+.act-btn.danger:hover { border-color:#ef4444; color:#ef4444; background:rgba(239,68,68,.06); }
+
+/* ── Exp badge ── */
+.exp-gone { background:rgba(239,68,68,.1); color:#ef4444; padding:2px 8px; border-radius:50px; font-size:.68rem; font-weight:700; }
+.exp-soon { background:rgba(245,158,11,.1); color:#f59e0b; padding:2px 8px; border-radius:50px; font-size:.68rem; font-weight:700; }
+
+@media(max-width:575px) { .item-hero { padding:18px; } }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="app-container py-4">
-  <div class="d-flex justify-content-between align-items-start mb-3">
-    <div>
-      <h1 class="h5 mb-0">{{ item.item_name }}</h1>
-      <div class="text-muted small">{{ item.item_code|default:"KOD yoxdur" }}</div>
-    </div>
-    <div class="d-flex gap-2">
-      <a href="{% url 'inventory:edit_inventory' item.pk %}" class="btn btn-outline-primary btn-sm">
-        <i class="fas fa-edit me-1"></i>Redaktə
-      </a>
-      <a href="{% url 'inventory:delete_inventory' item.pk %}" class="btn btn-outline-danger btn-sm">
-        <i class="fas fa-trash me-1"></i>Sil
-      </a>
-    </div>
+<div class="container-fluid py-4 px-3 px-md-4">
+
+  <!-- Breadcrumb -->
+  <div class="mb-3 d-flex align-items-center flex-wrap gap-1 au">
+    <a href="{% url 'inventory:inventory_list' %}" class="bc-link"><i class="fas fa-box me-1"></i>{% trans "Anbar" %}</a>
+    <span class="bc-sep">›</span>
+    <span style="font-size:.8rem;color:var(--text)">{{ item.item_name }}</span>
   </div>
 
-  <div class="row g-3">
-    <div class="col-lg-4">
-      <div class="card shadow-sm mb-3">
-        <div class="card-body text-center">
-          <img src="{{ item.get_image_url }}" class="img-fluid rounded mb-3" style="max-height: 300px; object-fit: cover;">
-          
-          <div class="mb-3">
-            {% with status=item.stock_status %}
-              {% if status == 'low' %}
-                <span class="badge bg-danger fs-6">🔴 Aşağı Stok</span>
-              {% elif status == 'normal' %}
-                <span class="badge bg-success fs-6">🟢 Normal</span>
-              {% else %}
-                <span class="badge bg-warning fs-6">🟡 Yüksək Stok</span>
-              {% endif %}
-            {% endwith %}
-          </div>
-
-          <div class="row text-center">
-            <div class="col-6">
-              <div class="small text-muted">Miqdar</div>
-              <div class="h5 fw-bold text-primary">{{ item.quantity }}</div>
-              <div class="small text-muted">{{ item.get_unit_display }}</div>
-            </div>
-            <div class="col-6">
-              <div class="small text-muted">Ümumi Dəyər</div>
-              <div class="h5 fw-bold text-success">{{ item.total_value|default:"0" }} ₼</div>
-            </div>
-          </div>
-        </div>
+  <!-- Hero -->
+  <div class="item-hero mb-4 au d1">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3" style="position:relative;z-index:1">
+      <div>
+        <p class="mb-1 small" style="opacity:.6;text-transform:uppercase;letter-spacing:1px">
+          {{ item.get_category_display }}
+          {% if item.item_code %} · <span style="opacity:.7">{{ item.item_code }}</span>{% endif %}
+        </p>
+        <h2 class="fw-bold text-white mb-2">{{ item.item_name }}</h2>
+        {% with s=item.stock_status %}
+        <span class="sb {% if s == 'low' %}sb-low{% elif s == 'high' %}sb-high{% else %}sb-ok{% endif %}">
+          {% if s == 'low' %}🔴 {% trans "Aşağı Stok" %}
+          {% elif s == 'high' %}🟡 {% trans "Yüksək Stok" %}
+          {% else %}🟢 {% trans "Normal" %}{% endif %}
+        </span>
+        {% endwith %}
       </div>
-      
-      <div class="d-grid gap-2">
-        <a href="{% url 'inventory:track_inventory_usage' item.id %}" class="btn btn-success btn-sm">
-          <i class="fas fa-history me-1"></i>İstifadə Qeydi
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'inventory:edit_inventory' item.pk %}" class="act-btn prim">
+          <i class="fas fa-edit"></i>{% trans "Redaktə" %}
+        </a>
+        <a href="{% url 'inventory:delete_inventory' item.pk %}" class="act-btn danger" style="border-color:rgba(255,255,255,.3);color:#fff">
+          <i class="fas fa-trash-alt"></i>{% trans "Sil" %}
         </a>
       </div>
     </div>
+  </div>
 
-    <div class="col-lg-8">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h6 class="card-title mb-3">Məhsul Məlumatları</h6>
-          <div class="row gy-3">
-            <div class="col-md-6">
-              <div class="text-muted small">Təchizatçı</div>
-              <div class="fw-semibold">{{ item.supplier_name|default:"Qeyd edilməyib" }}</div>
-            </div>
-            <div class="col-md-6">
-              <div class="text-muted small">Kateqoriya</div>
-              <div class="fw-semibold">{{ item.get_category_display }}</div>
-            </div>
-            <div class="col-md-6">
-              <div class="text-muted small">Vahid Qiyməti</div>
-              <div class="fw-semibold">{{ item.unit_price|default:"0" }} ₼</div>
-            </div>
-            <div class="col-md-6">
-              <div class="text-muted small">Saxlama Yeri</div>
-              <div class="fw-semibold">{{ item.get_storage_location_display|default:"Qeyd edilməyib" }}</div>
-            </div>
-            <div class="col-md-6">
-              <div class="text-muted small">Son İstifadə Tarixi</div>
-              <div class="fw-semibold {% if item.is_expired %}text-danger{% endif %}">
-                {{ item.expiration_date|default:"Qeyd edilməyib" }}
-              </div>
-            </div>
-            <div class="col-12">
-              <div class="text-muted small">Qeydlər</div>
-              <div class="border rounded p-3 bg-light">
-                {{ item.notes|default:"Qeyd yoxdur"|linebreaks }}
-              </div>
-            </div>
+  <div class="row g-4">
+
+    <!-- ── SOL PANEL ── -->
+    <div class="col-lg-4 d-flex flex-column gap-4">
+
+      <!-- Şəkil + stok -->
+      <div class="sec-card au d1">
+        <div class="img-frame">
+          {% if item.image %}
+          <img src="{{ item.image.url }}" alt="{{ item.item_name }}">
+          {% else %}
+          <span class="img-placeholder">
+            {% if item.category == 'seeds' %}🌱{% elif item.category == 'fertilizers' %}🧪
+            {% elif item.category == 'pesticides' %}🐛{% elif item.category == 'equipment' %}🔧
+            {% elif item.category == 'fuel' %}⛽{% else %}📦{% endif %}
+          </span>
+          {% endif %}
+        </div>
+
+        <!-- Stok metr -->
+        {% if item.min_stock_level and item.max_stock_level %}
+        <div class="mb-3">
+          <div class="d-flex justify-content-between small mb-1">
+            <span style="color:var(--text-muted)">{% trans "Stok Səviyyəsi" %}</span>
+            <span class="fw-bold" style="color:var(--text)">{{ item.quantity }} / {{ item.max_stock_level }}</span>
+          </div>
+          <div class="stock-meter">
+            {% with pct=item.quantity|floatformat:0 %}
+            <div class="stock-fill {% if item.stock_status == 'low' %}fill-low{% elif item.stock_status == 'high' %}fill-high{% else %}fill-ok{% endif %}"
+                 id="stockBar"
+                 data-pct="{% if item.max_stock_level %}{{ item.quantity|floatformat:0 }}{% else %}50{% endif %}"
+                 data-max="{% if item.max_stock_level %}{{ item.max_stock_level|floatformat:0 }}{% else %}100{% endif %}"
+                 style="width:0%"></div>
+            {% endwith %}
+          </div>
+          <div class="d-flex justify-content-between mt-1" style="font-size:.65rem;color:var(--text-muted)">
+            <span>{% trans "Min:" %} {{ item.min_stock_level }}</span>
+            <span>{% trans "Maks:" %} {{ item.max_stock_level }}</span>
           </div>
         </div>
+        {% endif %}
+
+        <!-- Miqdar + dəyər -->
+        <div class="qty-row">
+          <div class="qty-cell">
+            <div class="qty-val">{{ item.quantity|floatformat:"-2" }}</div>
+            <div class="qty-lbl">{{ item.get_unit_display }}</div>
+          </div>
+          <div class="qty-cell">
+            <div class="qty-val" style="color:#10b981">{{ item.total_value|default:"0"|floatformat:2 }}</div>
+            <div class="qty-lbl">{% trans "₼ Dəyər" %}</div>
+          </div>
+        </div>
+
+        <!-- İstifadə et -->
+        <a href="{% url 'inventory:track_inventory_usage' item.id %}" class="act-btn prim" style="justify-content:center;margin-top:4px">
+          <i class="fas fa-minus-circle"></i>{% trans "Məhsul İstifadə Et" %}
+        </a>
       </div>
+
+      <!-- Saxlama məlumatı -->
+      {% if item.storage_location or item.expiration_date %}
+      <div class="sec-card au d2">
+        <div style="font-weight:700;color:var(--text);font-size:.88rem;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+          <i class="fas fa-warehouse" style="color:var(--v2-accent)"></i>{% trans "Saxlama" %}
+        </div>
+        {% if item.storage_location %}
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-map-marker-alt" style="color:var(--v2-accent)"></i>{% trans "Yer" %}</span>
+          <span class="meta-val">{{ item.get_storage_location_display }}</span>
+        </div>
+        {% endif %}
+        {% if item.expiration_date %}
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-calendar-alt" style="color:{% if item.is_expired %}#ef4444{% else %}var(--text-muted){% endif %}"></i>{% trans "Son tarix" %}</span>
+          <span class="meta-val">
+            {{ item.expiration_date|date:"d.m.Y" }}
+            {% if item.is_expired %}
+              <span class="exp-gone d-block mt-1">{% trans "Keçib!" %}</span>
+            {% elif item.days_until_expiration <= 30 %}
+              <span class="exp-soon d-block mt-1">{{ item.days_until_expiration }} {% trans "gün qalıb" %}</span>
+            {% endif %}
+          </span>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- ── SAĞ PANEL ── -->
+    <div class="col-lg-8 d-flex flex-column gap-4">
+
+      <!-- Məhsul detalları -->
+      <div class="sec-card au d2">
+        <div style="font-weight:700;color:var(--text);font-size:.88rem;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+          <i class="fas fa-info-circle" style="color:#3b82f6"></i>{% trans "Məhsul Məlumatları" %}
+        </div>
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-tag" style="color:var(--v2-accent)"></i>{% trans "Kateqoriya" %}</span>
+          <span class="meta-val">{{ item.get_category_display }}</span>
+        </div>
+        {% if item.item_code %}
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-barcode" style="color:var(--text-muted)"></i>{% trans "Məhsul Kodu" %}</span>
+          <span class="meta-val" style="font-family:monospace">{{ item.item_code }}</span>
+        </div>
+        {% endif %}
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-truck" style="color:#f59e0b"></i>{% trans "Təchizatçı" %}</span>
+          <span class="meta-val">{{ item.supplier_name|default:"—" }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-money-bill-wave" style="color:#10b981"></i>{% trans "Vahid Qiyməti" %}</span>
+          <span class="meta-val">{{ item.unit_price|default:"—" }} {% if item.unit_price %}₼ / {{ item.get_unit_display }}{% endif %}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-coins" style="color:#f59e0b"></i>{% trans "Ümumi Dəyər" %}</span>
+          <span class="meta-val" style="color:#10b981;font-weight:700">{{ item.total_value|default:"0"|floatformat:2 }} ₼</span>
+        </div>
+        {% if item.min_stock_level %}
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-arrow-down" style="color:#ef4444"></i>{% trans "Min. Stok" %}</span>
+          <span class="meta-val">{{ item.min_stock_level }} {{ item.get_unit_display }}</span>
+        </div>
+        {% endif %}
+        {% if item.max_stock_level %}
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-arrow-up" style="color:#3b82f6"></i>{% trans "Maks. Stok" %}</span>
+          <span class="meta-val">{{ item.max_stock_level }} {{ item.get_unit_display }}</span>
+        </div>
+        {% endif %}
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-clock" style="color:var(--text-muted)"></i>{% trans "Əlavə edildi" %}</span>
+          <span class="meta-val">{{ item.created_at|date:"d.m.Y H:i" }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key"><i class="fas fa-sync-alt" style="color:var(--text-muted)"></i>{% trans "Yeniləndi" %}</span>
+          <span class="meta-val">{{ item.updated_at|date:"d.m.Y H:i" }}</span>
+        </div>
+      </div>
+
+      <!-- Qeydlər -->
+      <div class="sec-card au d3">
+        <div style="font-weight:700;color:var(--text);font-size:.88rem;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+          <i class="fas fa-sticky-note" style="color:#f59e0b"></i>{% trans "Qeydlər" %}
+        </div>
+        <div class="notes-box">
+          {% if item.notes %}{{ item.notes|linebreaks }}
+          {% else %}<span style="color:var(--text-muted);font-style:italic">{% trans "Qeyd yoxdur." %}</span>{% endif %}
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="d-flex gap-2 flex-wrap au d4">
+        <a href="{% url 'inventory:track_inventory_usage' item.id %}" class="act-btn prim">
+          <i class="fas fa-minus-circle"></i>{% trans "İstifadə Et" %}
+        </a>
+        <a href="{% url 'inventory:edit_inventory' item.pk %}" class="act-btn">
+          <i class="fas fa-edit" style="color:var(--v2-accent)"></i>{% trans "Redaktə" %}
+        </a>
+        <a href="{% url 'inventory:inventory_list' %}" class="act-btn" style="margin-left:auto">
+          <i class="fas fa-arrow-left"></i>{% trans "Siyahıya qayıt" %}
+        </a>
+        <a href="{% url 'inventory:delete_inventory' item.pk %}" class="act-btn danger">
+          <i class="fas fa-trash-alt"></i>{% trans "Sil" %}
+        </a>
+      </div>
+
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const bar = document.getElementById('stockBar');
+    if (bar) {
+      const qty = parseFloat(bar.dataset.pct) || 0;
+      const max = parseFloat(bar.dataset.max) || 100;
+      bar.style.width = Math.min((qty / max) * 100, 100) + '%';
+    }
+  }, 400);
+});
+</script>
 {% endblock %}

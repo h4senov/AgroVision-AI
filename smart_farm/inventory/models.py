@@ -102,7 +102,8 @@ class Inventory(models.Model):
     )
     def __str__(self):
         return f"{self.item_name} ({self.quantity} {self.unit})"
-        
+    
+    @property
     def stock_status(self):
         if self.min_stock_level and self.quantity <= self.min_stock_level:
             return 'low'

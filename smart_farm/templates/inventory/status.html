@@ -1,98 +1,199 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/inventory_theme.css' %}">{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Anbar Statistikası" %} - AgroVision{% endblock %}
+
+{% block extra_css %}
+<style>
+:root { --v2-from:#182f4c; --v2-to:#2e8e63; --v2-accent:#3d9970; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.au { animation:fadeUp .45s ease backwards; }
+.d1{animation-delay:.05s}.d2{animation-delay:.10s}.d3{animation-delay:.15s}.d4{animation-delay:.20s}
+
+/* ── Hero ── */
+.st-hero {
+  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
+  border-radius:22px; padding:24px 28px; color:#fff; margin-bottom:24px;
+  position:relative; overflow:hidden;
+}
+[data-theme="dark"] .st-hero { background:linear-gradient(135deg,#09203c,#09482d); }
+.st-hero::before { content:''; position:absolute; top:-60px; right:-60px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.05); }
+
+/* ── Stat kartlar ── */
+.stat-card {
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:20px; padding:22px; display:flex; align-items:center; gap:16px;
+  transition:transform .25s, box-shadow .25s;
+}
+.stat-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,.08); }
+.stat-icon {
+  width:54px; height:54px; border-radius:16px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+}
+.stat-val { font-size:1.8rem; font-weight:800; color:var(--text); line-height:1; }
+.stat-lbl { font-size:.72rem; text-transform:uppercase; letter-spacing:.4px; color:var(--text-muted); margin-top:3px; }
+
+/* ── Cədvəl ── */
+.sec-card { background:var(--bg-card) !important; border:1px solid var(--border) !important; border-radius:20px; overflow:hidden; }
+.sec-head { padding:18px 22px; border-bottom:1px solid var(--border); font-weight:700; color:var(--text); font-size:.9rem; display:flex; align-items:center; gap:8px; }
+.inv-table { width:100%; border-collapse:collapse; }
+.inv-table th { padding:12px 18px; font-size:.72rem; text-transform:uppercase; letter-spacing:.4px; color:var(--text-muted); font-weight:700; background:var(--bg-secondary); border-bottom:1px solid var(--border); white-space:nowrap; }
+.inv-table td { padding:13px 18px; border-bottom:1px solid var(--border); font-size:.875rem; color:var(--text); }
+.inv-table tr:last-child td { border-bottom:none; }
+.inv-table tr:hover td { background:rgba(61,153,112,.04); }
+[data-theme="dark"] .inv-table tr:hover td { background:rgba(61,153,112,.08); }
+.tbl-name { font-weight:600; color:var(--text); text-decoration:none; }
+.tbl-name:hover { color:var(--v2-accent); }
+.sb { display:inline-block; padding:3px 9px; border-radius:50px; font-size:.7rem; font-weight:700; }
+.sb-l { background:rgba(239,68,68,.1); color:#ef4444; }
+.sb-n { background:rgba(61,153,112,.1); color:var(--v2-accent); }
+.sb-h { background:rgba(245,158,11,.1); color:#f59e0b; }
+[data-theme="dark"] .sb-l { background:rgba(239,68,68,.2); }
+[data-theme="dark"] .sb-n { background:rgba(61,153,112,.2); }
+[data-theme="dark"] .sb-h { background:rgba(245,158,11,.2); }
+
+/* ── Kritik badge ── */
+.crit-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.2);
+  color:#ef4444; border-radius:12px; padding:8px 14px; font-weight:700; font-size:.82rem; text-decoration:none;
+  transition:all .2s;
+}
+.crit-badge:hover { background:#ef4444; color:#fff; }
+[data-theme="dark"] .crit-badge { background:rgba(239,68,68,.2); }
+
+.bc-link { color:var(--text-muted); text-decoration:none; font-size:.8rem; font-weight:600; }
+.bc-link:hover { color:var(--v2-accent); }
+.bc-sep  { color:var(--text-muted); margin:0 5px; }
+
+@media(max-width:575px) {
+  .stat-val { font-size:1.4rem; }
+  .inv-table th:nth-child(3),
+  .inv-table td:nth-child(3) { display:none; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex align-items-center mb-4">
-        <a href="{% url 'inventory:inventory_list' %}" class="btn btn-light btn-sm me-3 rounded-circle shadow-sm" style="width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <h2 class="fw-bold mb-0">📊 Anbar Statistikası</h2>
-    </div>
+<div class="container-fluid py-4 px-3 px-md-4">
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="stat-widget">
-                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-                    <i class="fas fa-cubes"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ total_items }}</div>
-                    <div class="stat-label">Ümumi Məhsul Növü</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="stat-widget">
-                <div class="stat-icon bg-success bg-opacity-10 text-success">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <div>
-                    <div class="stat-value">{{ total_value|floatformat:2 }} ₺</div>
-                    <div class="stat-label">Təxmini Dəyər</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="stat-widget border border-danger border-opacity-25" style="background: #fffbfb;">
-                <div class="stat-icon bg-danger bg-opacity-10 text-danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div>
-                    <div class="stat-value text-danger">{{ low_stock_count }}</div>
-                    <div class="stat-label">Kritik Stok</div>
-                    <a href="{% url 'inventory:low_stock' %}" class="btn btn-sm btn-outline-danger mt-2" style="font-size: 0.8rem;">
-                        Siyahıya Bax <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+  <!-- Breadcrumb -->
+  <div class="mb-3 d-flex align-items-center flex-wrap gap-1">
+    <a href="{% url 'inventory:inventory_list' %}" class="bc-link"><i class="fas fa-box me-1"></i>{% trans "Anbar" %}</a>
+    <span class="bc-sep">›</span>
+    <span style="font-size:.8rem;color:var(--text)">{% trans "Statistika" %}</span>
+  </div>
 
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-        <div class="card-header bg-white border-0 p-4">
-            <h5 class="fw-bold mb-0">Bütün Məhsul Siyahısı</h5>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4">Məhsul Adı</th>
-                        <th>Kateqoriya</th>
-                        <th>Stok</th>
-                        <th>Vəziyyət</th>
-                        <th class="text-end pe-4">Əməliyyat</th> </tr>
-                </thead>
-                <tbody>
-                    {% for item in inventory_items %}
-                    <tr>
-                        <td class="ps-4 fw-bold">
-                            <a href="{% url 'inventory:inventory_detail' item.pk %}" class="text-decoration-none text-dark">
-                                {{ item.item_name }}
-                            </a>
-                        </td>
-                        <td>{{ item.get_category_display }}</td>
-                        <td>{{ item.quantity }} {{ item.unit }}</td>
-                        <td>
-                            {% if item.quantity <= item.min_stock_level %}
-                                <span class="badge bg-danger bg-opacity-10 text-danger px-3 rounded-pill">Az</span>
-                            {% else %}
-                                <span class="badge bg-success bg-opacity-10 text-success px-3 rounded-pill">Normal</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end pe-4">
-                            <a href="{% url 'inventory:inventory_detail' item.pk %}" class="btn btn-sm btn-light text-primary" title="Ətraflı Bax">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+  <!-- Başlıq -->
+  <div class="st-hero au d1" style="position:relative;z-index:1">
+    <div style="position:relative;z-index:1">
+      <p class="mb-1 small" style="opacity:.6;text-transform:uppercase;letter-spacing:1px">
+        <i class="fas fa-chart-bar me-2"></i>{% trans "Anbar" %}
+      </p>
+      <h3 class="fw-bold text-white mb-1">{% trans "Anbar Statistikası" %}</h3>
+      <p class="mb-0 small" style="opacity:.7">{% trans "Stok vəziyyəti və ümumi dəyər icmalı" %}</p>
     </div>
+  </div>
+
+  <!-- Stat kartları -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3 au d1">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(61,153,112,.1)"><i class="fas fa-cubes" style="color:var(--v2-accent)"></i></div>
+        <div>
+          <div class="stat-val">{{ total_items }}</div>
+          <div class="stat-lbl">{% trans "Məhsul Növü" %}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3 au d2">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(16,185,129,.1)"><i class="fas fa-wallet" style="color:#10b981"></i></div>
+        <div>
+          <div class="stat-val" style="font-size:1.4rem">{{ total_value|floatformat:2 }} ₼</div>
+          <div class="stat-lbl">{% trans "Ümumi Dəyər" %}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3 au d2">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(239,68,68,.1)"><i class="fas fa-exclamation-triangle" style="color:#ef4444"></i></div>
+        <div>
+          <div class="stat-val" style="color:#ef4444">{{ low_stock_count }}</div>
+          <div class="stat-lbl">{% trans "Kritik Stok" %}</div>
+          {% if low_stock_count > 0 %}
+          <a href="{% url 'inventory:low_stock' %}" class="crit-badge mt-2 d-inline-flex">
+            <i class="fas fa-arrow-right"></i>{% trans "Bax" %}
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3 au d3">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(59,130,246,.1)"><i class="fas fa-check-circle" style="color:#3b82f6"></i></div>
+        <div>
+          <div class="stat-val" style="color:#3b82f6">{{ total_items|add:"-"|add:low_stock_count }}</div>
+          <div class="stat-lbl">{% trans "Normal Stok" %}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cədvəl -->
+  <div class="sec-card au d4">
+    <div class="sec-head">
+      <i class="fas fa-list" style="color:var(--v2-accent)"></i>{% trans "Bütün Məhsullar" %}
+      <a href="{% url 'inventory:add_inventory' %}" class="ms-auto" style="background:linear-gradient(135deg,var(--v2-from),var(--v2-to));color:#fff;border-radius:10px;padding:6px 14px;font-size:.78rem;font-weight:600;text-decoration:none">
+        <i class="fas fa-plus me-1"></i>{% trans "Əlavə Et" %}
+      </a>
+    </div>
+    <div class="table-responsive">
+      <table class="inv-table">
+        <thead>
+          <tr>
+            <th>{% trans "Məhsul" %}</th>
+            <th>{% trans "Kateqoriya" %}</th>
+            <th>{% trans "Stok" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th class="text-end">{% trans "Əməliyyat" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in inventory_items %}
+          <tr>
+            <td>
+              <a href="{% url 'inventory:inventory_detail' item.pk %}" class="tbl-name">{{ item.item_name }}</a>
+              {% if item.item_code %}<div style="font-size:.68rem;color:var(--text-muted);font-family:monospace">{{ item.item_code }}</div>{% endif %}
+            </td>
+            <td style="color:var(--text-muted)">{{ item.get_category_display }}</td>
+            <td>{{ item.quantity }} <span style="color:var(--text-muted);font-size:.75rem">{{ item.get_unit_display }}</span></td>
+            <td>
+              {% with s=item.stock_status %}
+              <span class="sb {% if s == 'low' %}sb-l{% elif s == 'high' %}sb-h{% else %}sb-n{% endif %}">
+                {% if s == 'low' %}🔴 {% trans "Az" %}
+                {% elif s == 'high' %}🟡 {% trans "Çox" %}
+                {% else %}🟢 {% trans "Normal" %}{% endif %}
+              </span>
+              {% endwith %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'inventory:inventory_detail' item.pk %}"
+                 style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text-muted);text-decoration:none;font-size:.78rem;display:inline-flex;align-items:center;gap:5px">
+                <i class="fas fa-eye"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-5" style="color:var(--text-muted)">
+              {% trans "Məhsul tapılmadı" %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
