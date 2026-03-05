@@ -100,7 +100,6 @@
 .auth-footer a { color:#198754;font-weight:600;text-decoration:none; }
 .auth-footer a:hover { text-decoration:underline; }
 
-/* Mobile */
 @media(max-width:767px){
     .auth-left { display:none; }
     .auth-right { padding:36px 24px; }
@@ -145,11 +144,7 @@
       <div class="auth-title">Hesabınıza daxil olun</div>
       <div class="auth-sub">Zəhmət olmasa məlumatlarınızı daxil edin</div>
 
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} rounded-3 border-0 small mb-4 py-2">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
+      {# messages artıq base.html-də toast kimi göstərilir — burada təkrar lazım deyil #}
 
       <form method="post" novalidate>
         {% csrf_token %}
@@ -172,7 +167,7 @@
 
         <div class="auth-options">
           <label>
-            <input type="checkbox" style="accent-color:#198754;margin-right:6px;">
+            <input type="checkbox" name="remember" style="accent-color:#198754;margin-right:6px;">
             Məni xatırla
           </label>
           <a href="#">Şifrəni unutmusunuz?</a>

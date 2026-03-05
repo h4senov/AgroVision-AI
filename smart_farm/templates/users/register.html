@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 {% block title %}Qeydiyyat - AgroVision AI{% endblock %}
 
 {% block extra_css %}
@@ -36,7 +37,7 @@
 
 .auth-right {
     flex: 1;
-    padding: 44px 44px;
+    padding: 44px;
     overflow-y: auto;
 }
 
@@ -62,6 +63,7 @@
     box-shadow:0 0 0 3px rgba(25,135,84,0.1);
     background:#fff;
 }
+.field-wrap.has-error { border-color:#ef4444 !important; }
 .field-icon { padding:0 13px;color:#aaa;font-size:0.88rem; }
 .field-wrap input {
     flex:1; border:none; background:transparent;
@@ -70,7 +72,23 @@
     outline:none;
 }
 .field-wrap input::placeholder { color:#bbb; }
-.field-error { font-size:0.78rem;color:#dc3545;margin-top:5px;display:block; }
+.field-error { font-size:0.78rem;color:#ef4444;margin-top:5px;display:block;padding-left:2px; }
+
+/* Form xətaları bloku — səhifədə qalır (form validation) */
+.form-err-box {
+    background: rgba(239,68,68,.06);
+    border: 1px solid rgba(239,68,68,.2);
+    border-left: 4px solid #ef4444;
+    border-radius: 12px;
+    padding: 13px 16px;
+    margin-bottom: 20px;
+}
+.form-err-box .err-title {
+    font-size: .82rem; font-weight: 700; color: #ef4444; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 7px;
+}
+.form-err-box ul { margin: 0; padding-left: 20px; font-size: .82rem; color: #ef4444; }
+.form-err-box ul li { margin-bottom: 3px; }
 
 .terms-row { display:flex;align-items:flex-start;gap:10px;margin-bottom:24px; }
 .terms-row input[type=checkbox] { margin-top:3px;accent-color:#198754;width:16px;height:16px;flex-shrink:0; }
@@ -143,14 +161,16 @@
       <div class="auth-title">Yeni hesab yarat</div>
       <div class="auth-sub">Məlumatları daxil edərək sistemə qoşulun</div>
 
+      {# Form validation xətaları — bunlar səhifədə qalmalıdır (toast deyil) #}
       {% if form.errors %}
-        <div class="alert alert-danger border-0 rounded-3 small mb-4 py-2">
-          <ul class="mb-0 ps-3">
-            {% for field, errors in form.errors.items %}
-              {% for error in errors %}<li>{{ error }}</li>{% endfor %}
-            {% endfor %}
-          </ul>
-        </div>
+      <div class="form-err-box">
+        <div class="err-title"><i class="fas fa-exclamation-circle"></i>Zəhmət olmasa xətaları düzəldin:</div>
+        <ul>
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
       {% endif %}
 
       <form method="post" novalidate>
@@ -159,7 +179,7 @@
         <div class="two-col">
           <div class="field-group">
             <label class="field-label">İstifadəçi adı</label>
-            <div class="field-wrap">
+            <div class="field-wrap {% if form.username.errors %}has-error{% endif %}">
               <span class="field-icon"><i class="fas fa-user"></i></span>
               {{ form.username }}
             </div>
@@ -167,7 +187,7 @@
           </div>
           <div class="field-group">
             <label class="field-label">Email</label>
-            <div class="field-wrap">
+            <div class="field-wrap {% if form.email.errors %}has-error{% endif %}">
               <span class="field-icon"><i class="fas fa-envelope"></i></span>
               {{ form.email }}
             </div>
@@ -186,7 +206,7 @@
         <div class="two-col">
           <div class="field-group">
             <label class="field-label">Şifrə</label>
-            <div class="field-wrap">
+            <div class="field-wrap {% if form.password1.errors %}has-error{% endif %}">
               <span class="field-icon"><i class="fas fa-lock"></i></span>
               {{ form.password1 }}
             </div>
@@ -194,10 +214,11 @@
           </div>
           <div class="field-group">
             <label class="field-label">Şifrə (Təkrar)</label>
-            <div class="field-wrap">
+            <div class="field-wrap {% if form.password2.errors %}has-error{% endif %}">
               <span class="field-icon"><i class="fas fa-lock"></i></span>
               {{ form.password2 }}
             </div>
+            {% if form.password2.errors %}<span class="field-error">{{ form.password2.errors.0 }}</span>{% endif %}
           </div>
         </div>
 

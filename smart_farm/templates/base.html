@@ -5,33 +5,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Smart Farm{% endblock %}</title>
+    <title>{% block title %}AgroVision AI{% endblock %}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="{% static 'css/site.css' %}">
     <link rel="stylesheet" href="{% static 'css/components/components.css' %}">
 
     <style>
-    /* ===== THEME VARIABLES ===== */
+    /* ══════════════════════════════════════════
+       THEME VARIABLES
+    ══════════════════════════════════════════ */
     :root {
-    --bg: #FAF9F6;
-    --bg-secondary: #f8f9fa;
-    --bg-card: #ffffff;
-    --text: #1f2937;
-    --text-muted: #6b7280;
-    --border: #e5e7eb;
-    --navbar-bg: #ffffff;
-    --offcanvas-bg: #ffffff;
-    --input-bg: #ffffff;
-    --brand-success: #10b981;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
+        --bg:           #FAF9F6;
+        --bg-secondary: #f0f4f0;
+        --bg-card:      #ffffff;
+        --text:         #1f2937;
+        --text-muted:   #6b7280;
+        --border:       #e5e7eb;
+        --navbar-bg:    #ffffff;
+        --offcanvas-bg: #ffffff;
+        --input-bg:     #ffffff;
+        --v2-from:      #182f4c;
+        --v2-to:        #2e8e63;
+        --v2-accent:    #3d9970;
+        --shadow-sm:    0 1px 3px rgba(0,0,0,.06);
+        --shadow-md:    0 4px 16px rgba(0,0,0,.08);
+    }
     [data-theme="dark"] {
-        --bg:           #101829; /* Gecə mavisi fon */
+        --bg:           #101829;
         --bg-secondary: #1f2937;
         --bg-card:      #1f2937;
         --text:         #f3f4f6;
@@ -42,253 +44,672 @@
         --input-bg:     #1f2937;
     }
 
-    body { background: var(--bg) !important; color: var(--text); transition: all .3s; }
+    /* ══════════════════════════════════════════
+       RESET & BODY
+    ══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+        background: var(--bg) !important;
+        color: var(--text);
+        transition: background .3s, color .3s;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
 
-    /* NAVBAR & MENU */
-    .navbar { background: var(--navbar-bg) !important; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
-    .navbar-brand, .nav-link { color: var(--text) !important; }
+    /* ══════════════════════════════════════════
+       DESKTOP NAVBAR  (pill stili)
+    ══════════════════════════════════════════ */
+    .site-nav {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+        background: var(--navbar-bg);
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        transition: background .3s;
+    }
+    .site-nav-inner {
+        display: flex; align-items: center; gap: 12px;
+        padding: 8px 20px; max-width: 1400px; margin: 0 auto; height: 60px;
+    }
+
+    /* Brand */
+    .nav-brand {
+        display: flex; align-items: center; gap: 9px;
+        text-decoration: none; color: var(--text); font-weight: 700;
+        font-size: 1rem; flex-shrink: 0; transition: color .2s;
+    }
+    .nav-brand:hover { color: var(--v2-accent); }
+    .brand-icon {
+        width: 34px; height: 34px; border-radius: 10px;
+        background: linear-gradient(135deg, var(--v2-from), var(--v2-to));
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: .9rem; flex-shrink: 0;
+    }
+
+    /* ── Pill nav container ── */
+    .pill-nav-wrap {
+        flex: 1; display: flex; align-items: center;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 14px; padding: 4px;
+        overflow-x: auto; scrollbar-width: none; gap: 2px;
+    }
+    .pill-nav-wrap::-webkit-scrollbar { display: none; }
+
+    .plink {
+        display: flex; align-items: center; gap: 6px;
+        padding: 7px 13px; border-radius: 10px;
+        text-decoration: none; font-weight: 600; font-size: .8rem;
+        color: var(--text-muted); white-space: nowrap;
+        transition: all .22s ease; border: none; background: transparent; cursor: pointer;
+    }
+    .plink i { font-size: .78rem; }
+    .plink:hover { background: var(--bg-card); color: var(--text); }
+    .plink.active {
+        background: linear-gradient(135deg, var(--v2-from), var(--v2-to)) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(46,142,99,.3);
+    }
+    [data-theme="dark"] .plink.active {
+        box-shadow: 0 4px 12px rgba(9,32,60,.5);
+    }
+
+    /* ── Pub nav (unauthenticated) ── */
+    .pub-wrap {
+        flex: 1; display: flex; align-items: center; gap: 2px;
+    }
+    .pub-link {
+        padding: 8px 13px; border-radius: 10px; font-weight: 600; font-size: .82rem;
+        text-decoration: none; color: var(--text-muted); transition: all .2s;
+    }
+    .pub-link:hover { background: var(--bg-secondary); color: var(--text); }
+    .pub-link.active { color: var(--v2-accent); background: rgba(61,153,112,.08); }
+
+    /* ── Right controls ── */
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .ctrl-btn {
+        width: 34px; height: 34px; border-radius: 9px;
+        border: 1px solid var(--border); background: var(--bg-secondary);
+        color: var(--text-muted); display: flex; align-items: center;
+        justify-content: center; cursor: pointer; font-size: .82rem; transition: all .2s;
+    }
+    .ctrl-btn:hover { background: var(--v2-accent); color: #fff; border-color: var(--v2-accent); }
+
+    /* ── User dropdown button ── */
+    .user-btn {
+        display: flex; align-items: center; gap: 8px;
+        background: var(--bg-secondary); border: 1px solid var(--border);
+        border-radius: 50px; padding: 4px 12px 4px 4px;
+        cursor: pointer; color: var(--text); transition: all .2s;
+        font-size: .83rem; font-weight: 600; text-decoration: none;
+    }
+    .user-avatar {
+        width: 26px; height: 26px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--v2-from), var(--v2-to));
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: .7rem; font-weight: 700;
+    }
+    .user-btn:hover { border-color: var(--v2-accent); color: var(--text); }
+
+    /* Auth buttons */
+    .btn-login {
+        padding: 7px 16px; border-radius: 9px; font-weight: 600; font-size: .83rem;
+        border: 1.5px solid var(--border); background: transparent;
+        color: var(--text); text-decoration: none; transition: all .2s;
+    }
+    .btn-login:hover { border-color: var(--v2-accent); color: var(--v2-accent); }
+    .btn-register {
+        padding: 7px 16px; border-radius: 9px; font-weight: 600; font-size: .83rem;
+        background: linear-gradient(135deg, var(--v2-from), var(--v2-to));
+        color: #fff; text-decoration: none; border: none; transition: all .2s;
+    }
+    .btn-register:hover { opacity: .9; color: #fff; transform: translateY(-1px); }
+
+    /* ── Custom dropdown ── */
+    .cdd { position: relative; }
+    .cdd-menu {
+        position: absolute; top: calc(100% + 8px); right: 0;
+        min-width: 210px; background: var(--bg-card);
+        border: 1px solid var(--border); border-radius: 14px;
+        padding: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
+        display: none; z-index: 2000;
+        animation: ddFade .2s ease;
+    }
+    @keyframes ddFade { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    .cdd.open .cdd-menu { display: block; }
+    .cdd-item {
+        display: flex; align-items: center; gap: 9px;
+        padding: 8px 11px; border-radius: 9px;
+        text-decoration: none; color: var(--text); font-size: .84rem;
+        transition: background .15s; cursor: pointer;
+        border: none; background: transparent; width: 100%; text-align: left;
+    }
+    .cdd-item:hover { background: var(--bg-secondary); color: var(--text); }
+    .cdd-item.danger { color: #ef4444; }
+    .cdd-item.danger:hover { background: rgba(239,68,68,.08); }
+    .cdd-sep { height: 1px; background: var(--border); margin: 4px 5px; }
+    .cdd-lbl {
+        font-size: .68rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .5px; color: var(--text-muted); padding: 6px 11px 2px;
+    }
+
+    /* ══════════════════════════════════════════
+       MOBILE TOP BAR  (hamburger → offcanvas)
+    ══════════════════════════════════════════ */
+    .mob-top {
+        display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+        background: var(--navbar-bg); border-bottom: 1px solid var(--border);
+        padding: 10px 16px; align-items: center; justify-content: space-between;
+        box-shadow: var(--shadow-sm); height: 56px;
+    }
+    .mob-right-actions { display: flex; gap: 8px; align-items: center; }
+
+    /* ══════════════════════════════════════════
+       MOBILE BOTTOM NAV  (Instagram stili)
+      — Yalnız authenticated user üçün —
+    ══════════════════════════════════════════ */
+    .mob-bottom {
+        display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+        background: var(--navbar-bg); border-top: 1px solid var(--border);
+        box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+        padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    }
+    .mob-bottom-inner {
+        display: flex; justify-content: space-around; align-items: center;
+        max-width: 500px; margin: 0 auto;
+    }
+    .mbnav-item {
+        display: flex; flex-direction: column; align-items: center; gap: 3px;
+        padding: 6px 10px; border-radius: 12px; text-decoration: none;
+        color: var(--text-muted); font-size: .58rem; font-weight: 600;
+        transition: all .2s; flex: 1; border: none; background: transparent; cursor: pointer;
+        letter-spacing: .2px;
+    }
+    .mbnav-item i { font-size: 1.25rem; transition: transform .2s; }
+    .mbnav-item.active { color: var(--v2-accent); }
+    .mbnav-item.active i { transform: translateY(-2px); }
+
+    /* Center FAB */
+    .mbnav-fab {
+        width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
+        background: linear-gradient(135deg, var(--v2-from), var(--v2-to));
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 1.35rem; text-decoration: none;
+        box-shadow: 0 4px 16px rgba(46,142,99,.45);
+        transition: transform .2s, box-shadow .2s; margin-top: -14px;
+    }
+    .mbnav-fab:hover { transform: scale(1.08); color: #fff; box-shadow: 0 6px 20px rgba(46,142,99,.55); }
+
+    /* ══════════════════════════════════════════
+       BOTTOM SHEET  ("Daha çox" — mobil)
+    ══════════════════════════════════════════ */
+    .bsheet-backdrop {
+        position: fixed; inset: 0; z-index: 1998;
+        background: rgba(0,0,0,.4); backdrop-filter: blur(3px);
+        opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .bsheet-backdrop.open { opacity: 1; pointer-events: all; }
+    .bsheet {
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 1999;
+        background: var(--bg-card); border-radius: 22px 22px 0 0;
+        padding: 0 16px calc(20px + env(safe-area-inset-bottom));
+        box-shadow: 0 -8px 32px rgba(0,0,0,.15);
+        border-top: 1px solid var(--border);
+        transform: translateY(100%); transition: transform .35s cubic-bezier(.25,.8,.25,1);
+    }
+    .bsheet.open { transform: translateY(0); }
+    .bsheet-handle { width: 38px; height: 4px; border-radius: 2px; background: var(--border); margin: 12px auto 16px; }
+    .bsheet-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin-bottom: 14px; }
+    .bsheet-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .bsheet-item {
+        display: flex; flex-direction: column; align-items: center; gap: 7px;
+        padding: 14px 6px; border-radius: 14px; text-decoration: none;
+        background: var(--bg-secondary); color: var(--text-muted); font-size: .68rem;
+        font-weight: 600; transition: all .2s; border: none; cursor: pointer;
+    }
+    .bsheet-item i { font-size: 1.2rem; color: var(--v2-accent); }
+    .bsheet-item:hover { border: 1px solid var(--v2-accent); color: var(--text); }
+
+    /* ══════════════════════════════════════════
+       OFFCANVAS  (unauthenticated mobile)
+    ══════════════════════════════════════════ */
     .offcanvas { background: var(--offcanvas-bg) !important; }
 
-    /* 🛡️ AĞLIQLARI QIRAN ƏSAS HİSSƏ */
-    [data-theme="dark"] .card, 
-    [data-theme="dark"] .bg-white, 
+    /* ══════════════════════════════════════════
+       TOAST MESSAGES
+    ══════════════════════════════════════════ */
+    .toast-stack {
+        position: fixed; top: 68px; right: 16px; z-index: 3000;
+        display: flex; flex-direction: column; gap: 8px;
+        max-width: 350px; width: calc(100vw - 32px);
+        pointer-events: none;
+    }
+    @media(max-width:991px) { .toast-stack { top: 64px; } }
+
+    .toast-item {
+        background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: 14px; padding: 13px 14px;
+        display: flex; align-items: flex-start; gap: 11px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.1);
+        animation: tIn .3s ease backwards;
+        position: relative; overflow: hidden; pointer-events: all;
+    }
+    .toast-item::after {
+        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    }
+    .toast-item.success::after { background: var(--v2-accent); }
+    .toast-item.error::after,
+    .toast-item.danger::after  { background: #ef4444; }
+    .toast-item.warning::after { background: #f59e0b; }
+    .toast-item.info::after    { background: #3b82f6; }
+
+    .t-icon { font-size: 1rem; margin-top: 1px; flex-shrink: 0; }
+    .toast-item.success .t-icon { color: var(--v2-accent); }
+    .toast-item.error   .t-icon,
+    .toast-item.danger  .t-icon { color: #ef4444; }
+    .toast-item.warning .t-icon { color: #f59e0b; }
+    .toast-item.info    .t-icon { color: #3b82f6; }
+    .t-body { flex: 1; font-size: .86rem; color: var(--text); line-height: 1.4; }
+    .t-close {
+        width: 22px; height: 22px; border-radius: 6px; border: none;
+        background: var(--bg-secondary); color: var(--text-muted);
+        font-size: .65rem; cursor: pointer; display: flex;
+        align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .t-close:hover { background: var(--border); }
+    .t-prog {
+        position: absolute; bottom: 0; left: 4px; height: 2px; border-radius: 2px;
+        animation: tProg 4.5s linear forwards;
+    }
+    .toast-item.success .t-prog { background: var(--v2-accent); }
+    .toast-item.error   .t-prog,
+    .toast-item.danger  .t-prog { background: #ef4444; }
+    .toast-item.warning .t-prog { background: #f59e0b; }
+    .toast-item.info    .t-prog { background: #3b82f6; }
+
+    @keyframes tIn   { from{opacity:0;transform:translateX(18px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes tOut  { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(18px)} }
+    @keyframes tProg { from{width:calc(100% - 4px)} to{width:0} }
+
+    /* ══════════════════════════════════════════
+       LAYOUT OFFSETS
+    ══════════════════════════════════════════ */
+    main { padding-top: 60px; }
+
+    @media(max-width:991px) {
+        .site-nav  { display: none !important; }
+        .mob-top   { display: flex; }
+        {% if user.is_authenticated %}
+        main { padding-top: 56px; padding-bottom: 76px; }
+        .mob-bottom { display: block; }
+        {% else %}
+        main { padding-top: 56px; }
+        {% endif %}
+    }
+
+    /* ══════════════════════════════════════════
+       DARK MODE — BOOTSTRAP OVERRIDES
+    ══════════════════════════════════════════ */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .bg-white,
     [data-theme="dark"] .bg-light,
-    [data-theme="dark"] .list-group-item,
-    [data-theme="dark"] .container-fluid {
-        background-color: var(--bg-card) !important;
-        color: var(--text) !important;
-        border-color: var(--border) !important;
-    }
-
-    /* 🦓 ZEBRA EFFEKTİNİ SİLƏN HİSSƏ */
-    [data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
-        background-color: transparent !important;
-        box-shadow: none !important;
-        color: var(--text) !important;
-    }
-
-    [data-theme="dark"] .table, 
-    [data-theme="dark"] .table td, 
-    [data-theme="dark"] .table th {
-        background-color: transparent !important;
-        border-color: var(--border) !important;
-        color: var(--text) !important;
-    }
-
-    /* FORMS */
-    .form-control, .form-select { 
-        background: var(--input-bg) !important; 
-        border-color: var(--border) !important; 
-        color: var(--text) !important; 
-    }
-
-    /* HELPERS */
+    [data-theme="dark"] .list-group-item { background-color: var(--bg-card) !important; color: var(--text) !important; border-color: var(--border) !important; }
+    [data-theme="dark"] .table,
+    [data-theme="dark"] .table td,
+    [data-theme="dark"] .table th { background-color: transparent !important; border-color: var(--border) !important; color: var(--text) !important; }
+    [data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * { background-color: transparent !important; color: var(--text) !important; }
+    [data-theme="dark"] .dropdown-menu { background: var(--bg-card) !important; border-color: var(--border) !important; }
+    [data-theme="dark"] .dropdown-item { color: var(--text) !important; }
+    [data-theme="dark"] .dropdown-item:hover { background: var(--bg-secondary) !important; }
+    .form-control, .form-select { background: var(--input-bg) !important; border-color: var(--border) !important; color: var(--text) !important; }
     .text-muted { color: var(--text-muted) !important; }
-    .theme-btn {
-        width: 36px; height: 36px; border-radius: 50%;
-        border: 1.5px solid var(--border); background: var(--bg-secondary);
-        color: var(--text); display: flex; align-items: center; justify-content: center;
-        cursor: pointer;
-    }
-    
+
+    /* ══════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════ */
     .site-footer { background: #111827 !important; border-top: 1px solid var(--border); }
-</style>
+    {% if user.is_authenticated %}
+    @media(max-width:991px) { .site-footer { margin-bottom: 70px; } }
+    {% endif %}
+    </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-<!-- ===== NAVBAR ===== -->
-<nav class="navbar navbar-expand-lg fixed-top py-2" aria-label="Main navigation">
-    <div class="container">
+<!-- ═══════════════════════════════════════════════
+     DESKTOP NAVBAR
+═══════════════════════════════════════════════ -->
+<nav class="site-nav">
+    <div class="site-nav-inner">
 
-        <a class="navbar-brand fw-bold d-flex align-items-center" href="{% if user.is_authenticated %}{% url 'core:dashboard' %}{% else %}/{% endif %}">
-            <i class="fas fa-tractor text-success me-2"></i>
-            <span>{% if user.is_authenticated %}{{ user_farm_name|default:"Smart Farm" }}{% else %}Agrovision AI{% endif %}</span>
+        <a class="nav-brand" href="{% if user.is_authenticated %}{% url 'core:dashboard' %}{% else %}/{% endif %}">
+            <div class="brand-icon"><i class="fas fa-tractor"></i></div>
+            <span>{% if user.is_authenticated %}{{ user_farm_name|default:"Smart Farm" }}{% else %}AgroVision AI{% endif %}</span>
         </a>
 
-        <!-- Mobile: theme + burger (offcanvas trigger) -->
-        <div class="d-flex d-lg-none align-items-center gap-2 ms-auto">
-            <button class="theme-btn" id="themeBtnMob"><i class="fas fa-moon" id="themeIconMob"></i></button>
-            <button class="btn border-0 p-1" type="button"
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#mobileNav"
-                    aria-controls="mobileNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+        {% if user.is_authenticated %}
+        <!-- ── Authenticated: pill links ── -->
+        <div class="pill-nav-wrap">
+            <a class="plink {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+               href="{% url 'core:dashboard' %}">
+                <i class="fas fa-home"></i>{% trans "Panel" %}
+            </a>
+            <a class="plink {% if request.resolver_match.app_name == 'fields' %}active{% endif %}"
+               href="{% url 'fields:field_list' %}">
+                <i class="fas fa-map"></i>{% trans "Sahələr" %}
+            </a>
+            <a class="plink {% if request.resolver_match.app_name == 'plants' %}active{% endif %}"
+               href="{% url 'plants:plant_list' %}">
+                <i class="fas fa-seedling"></i>{% trans "Bitkilər" %}
+            </a>
+            <a class="plink {% if 'irrigation' in request.path %}active{% endif %}"
+               href="{% url 'irrigation:irrigation_list' %}">
+                <i class="fas fa-tint"></i>{% trans "Suvarma" %}
+            </a>
+            <a class="plink {% if request.resolver_match.app_name == 'sensors' %}active{% endif %}"
+               href="{% url 'sensors:sensor_list' %}">
+                <i class="fas fa-satellite-dish"></i>{% trans "Sensorlar" %}
+            </a>
+            <a class="plink {% if request.resolver_match.app_name == 'inventory' %}active{% endif %}"
+               href="{% url 'inventory:inventory_list' %}">
+                <i class="fas fa-box"></i>{% trans "Anbar" %}
+            </a>
+            <a class="plink {% if request.resolver_match.app_name == 'weather' %}active{% endif %}"
+               href="{% url 'weather:weather_list' %}">
+                <i class="fas fa-cloud-sun"></i>{% trans "Hava" %}
+            </a>
         </div>
 
-        <!-- Desktop menyu -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
-                {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'core:dashboard' %}"><i class="fas fa-home me-1"></i>{% trans "Dashboard" %}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'fields:field_list' %}"><i class="fas fa-map me-1"></i>{% trans "Sahələr" %}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'plants:plant_list' %}"><i class="fas fa-seedling me-1"></i>{% trans "Bitkilər" %}</a></li>
-                    <li class="nav-item"><a class="nav-link {% if 'irrigation' in request.path %}active{% endif %}" href="{% url 'irrigation:irrigation_list' %}"><i class="fas fa-tint me-1"></i>{% trans "Suvarma" %}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'sensors:sensor_list' %}"><i class="fas fa-satellite-dish me-1"></i>{% trans "Sensorlar" %}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'inventory:inventory_list' %}"><i class="fas fa-box me-1"></i>{% trans "Anbar" %}</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'weather' %}active{% endif %}" href="{% url 'weather:weather_list' %}"><i class="fas fa-cloud-sun me-1"></i>{% trans "Hava" %}</a></li>
-                {% else %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="fas fa-info-circle me-1"></i>{% trans "HAQQIMIZDA" %}</a>
-                        <ul class="dropdown-menu shadow-sm border-0">
-                            <li><a class="dropdown-item" href="{% url 'pages:about_general' %}">{% trans "Ümumi Məlumatlar" %}</a></li>
-                            <li><a class="dropdown-item" href="{% url 'pages:about_goals' %}">{% trans "Məqsədlərimiz" %}</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'careers' %}active{% endif %}" href="{% url 'careers:career_list' %}"><i class="fas fa-briefcase me-1"></i>{% trans "KARYERA" %}</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'news' %}active{% endif %}" href="{% url 'news:news_list' %}"><i class="fas fa-newspaper me-1"></i>{% trans "MEDIA" %}</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'contact_index' %}active{% endif %}" href="{% url 'pages:contact_index' %}"><i class="fas fa-phone-alt me-1"></i>{% trans "ƏLAQƏ" %}</a></li>
-                {% endif %}
-            </ul>
-
-            <div class="d-flex align-items-center gap-3">
-                <!-- Dil -->
-                <div class="dropdown">
-                    <a class="nav-link dropdown-toggle fw-bold p-0" href="#" data-bs-toggle="dropdown">
-                        <i class="fas fa-globe me-1"></i>{{ LANGUAGE_CODE|upper }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                        {% get_current_language as CURRENT_LANG %}
-                        {% get_available_languages as ALL_LANGS %}
-                        {% get_language_info_list for ALL_LANGS as languages %}
-                        {% for lang in languages %}
-                        <li>
-                            <form action="{% url 'set_language' %}" method="post" class="m-0">
-                                {% csrf_token %}
-                                <input name="next" type="hidden" value="{{ request.path }}">
-                                <input name="language" type="hidden" value="{{ lang.code }}">
-                                <button type="submit" class="dropdown-item d-flex justify-content-between align-items-center {% if lang.code == CURRENT_LANG %}active bg-success text-white{% endif %}">
-                                    <span>{{ lang.name_local }}</span>
-                                    <small class="text-uppercase ms-2 opacity-50">{{ lang.code }}</small>
-                                </button>
-                            </form>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <!-- Theme toggle -->
-                <button class="theme-btn" id="themeBtnDesk"><i class="fas fa-moon" id="themeIconDesk"></i></button>
-                <!-- User -->
-                {% if user.is_authenticated %}
-                <div class="dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle fa-lg me-1"></i>{{ user.username }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                        <li><a class="dropdown-item" href="{% url 'users:user_profile' %}">{% trans "Profil" %}</a></li>
-                        {% if user.is_staff %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li class="px-2"><small class="text-muted ms-1">Admin</small></li>
-                        <li><a class="dropdown-item" href="{% url 'products:product_create' %}"><i class="fas fa-plus-circle me-2"></i>{% trans "Yeni Product" %}</a></li>
-                        <li><a class="dropdown-item" href="{% url 'products:product_list' %}?admin=1"><i class="fas fa-list me-2"></i>{% trans "Bütün Produktlər" %}</a></li>
-                        <li><a class="dropdown-item" href="{% url 'news:news_create' %}"><i class="fas fa-newspaper me-2"></i>{% trans "Yeni Xəbər" %}</a></li>
-                        <li><a class="dropdown-item" href="{% url 'news:news_list' %}?admin=1"><i class="fas fa-edit me-2"></i>{% trans "Xəbərlər (İdarə)" %}</a></li>
-                        <li><a class="dropdown-item" href="{% url 'careers:career_list' %}?admin=1"><i class="fas fa-edit me-2"></i>{% trans "Vakansiyalar (İdarə)" %}</a></li>
-                        {% endif %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form method="post" action="{% url 'users:user_logout' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="dropdown-item text-danger">{% trans "Çıxış" %}</button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
-                {% else %}
-                <div class="d-flex gap-2">
-                    <a class="btn btn-outline-success btn-sm px-3" href="{% url 'users:user_login' %}"><i class="fas fa-sign-in-alt me-1"></i>{% trans "Giriş" %}</a>
-                    <a class="btn btn-success btn-sm px-3 shadow-sm" href="{% url 'users:user_register' %}"><i class="fas fa-user-plus me-1"></i>{% trans "Qeydiyyat" %}</a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</nav>
-
-<!-- ===== OFFCANVAS — Mobile (kənardan açılır) ===== -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
-    <div class="offcanvas-header">
-        <div class="d-flex align-items-center gap-2">
-            <i class="fas fa-tractor text-success"></i>
-            <span class="offcanvas-title" id="mobileNavLabel">
-                {% if user.is_authenticated %}{{ user_farm_name|default:"Smart Farm" }}{% else %}Agrovision AI{% endif %}
-            </span>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Bağla"></button>
-    </div>
-
-    <div class="offcanvas-body d-flex flex-column p-3">
-         
-        <ul class="navbar-nav flex-column flex-grow-1">
-    {% if user.is_authenticated %}
-        <li class="nav-item"><a class="nav-link" href="{% url 'core:dashboard' %}"><i class="fas fa-home me-2 text-success"></i>{% trans "Dashboard" %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'fields:field_list' %}"><i class="fas fa-map me-2 text-success"></i>{% trans "Sahələr" %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'plants:plant_list' %}"><i class="fas fa-seedling me-2 text-success"></i>{% trans "Bitkilər" %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'irrigation:irrigation_list' %}"><i class="fas fa-tint me-2 text-success"></i>{% trans "Suvarma" %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'sensors:sensor_list' %}"><i class="fas fa-satellite-dish me-2 text-success"></i>{% trans "Sensorlar" %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'inventory:inventory_list' %}"><i class="fas fa-box me-2 text-success"></i>{% trans "Anbar" %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'weather:weather_list' %}"><i class="fas fa-cloud-sun me-2 text-success"></i>{% trans "Hava" %}</a></li>
-        <hr class="offcanvas-divider">
-        <li class="nav-item"><a class="nav-link" href="{% url 'users:user_profile' %}"><i class="fas fa-user me-2"></i>{% trans "Profil" %}</a></li>
-        <li class="nav-item">
-            <form method="post" action="{% url 'users:user_logout' %}">
-                {% csrf_token %}
-                <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
-                    <i class="fas fa-sign-out-alt me-2"></i>{% trans "Çıxış" %}
-                </button>
-            </form>
-        </li>
-    {% else %}
-        <li class="nav-item"><a class="nav-link" href="{% url 'pages:about_general' %}"><i class="fas fa-info-circle me-2 text-success"></i>{% trans "Haqqımızda" %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'careers:career_list' %}"><i class="fas fa-briefcase me-2 text-success"></i>{% trans "Karyera" %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'news:news_list' %}"><i class="fas fa-newspaper me-2 text-success"></i>{% trans "Media" %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'pages:contact_index' %}"><i class="fas fa-phone-alt me-2 text-success"></i>{% trans "Əlaqə" %}</a></li>
-        <hr class="offcanvas-divider">
-        <li class="nav-item"><a class="nav-link" href="{% url 'users:user_login' %}"><i class="fas fa-sign-in-alt me-2"></i>{% trans "Giriş" %}</a></li>
-        <li class="nav-item"><a class="nav-link text-success fw-bold" href="{% url 'users:user_register' %}"><i class="fas fa-user-plus me-2"></i>{% trans "Qeydiyyat" %}</a></li>
-    {% endif %}
-</ul>
-        <!-- Offcanvas altı: dil + theme -->
-        <div class="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
-            <div class="dropdown">
-                <a class="nav-link dropdown-toggle fw-bold p-0 small" href="#" data-bs-toggle="dropdown">
-                    <i class="fas fa-globe me-1"></i>{{ LANGUAGE_CODE|upper }}
-                </a>
-                <ul class="dropdown-menu shadow border-0">
+        <div class="nav-right">
+            <!-- Dil -->
+            <div class="cdd" id="dd-lang">
+                <button class="ctrl-btn" onclick="toggleCDD('dd-lang')"><i class="fas fa-globe"></i></button>
+                <div class="cdd-menu" style="min-width:170px">
+                    {% load i18n %}
                     {% get_current_language as CURRENT_LANG %}
                     {% get_available_languages as ALL_LANGS %}
                     {% get_language_info_list for ALL_LANGS as languages %}
                     {% for lang in languages %}
-                    <li>
-                        <form action="{% url 'set_language' %}" method="post" class="m-0">
-                            {% csrf_token %}
-                            <input name="next" type="hidden" value="{{ request.path }}">
-                            <input name="language" type="hidden" value="{{ lang.code }}">
-                            <button type="submit" class="dropdown-item {% if lang.code == CURRENT_LANG %}active bg-success text-white{% endif %}">
-                                {{ lang.name_local }}
-                            </button>
-                        </form>
-                    </li>
+                    <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.path }}">
+                        <input name="language" type="hidden" value="{{ lang.code }}">
+                        <button type="submit" class="cdd-item">
+                            <i class="fas fa-check fa-xs" style="color:var(--v2-accent);{% if lang.code != CURRENT_LANG %}opacity:0{% endif %}"></i>
+                            {{ lang.name_local }}
+                            <small class="ms-auto" style="opacity:.45">{{ lang.code|upper }}</small>
+                        </button>
+                    </form>
                     {% endfor %}
-                </ul>
+                </div>
             </div>
-            <button class="theme-btn" id="themeBtnOff"><i class="fas fa-moon" id="themeIconOff"></i></button>
+
+            <!-- Tema -->
+            <button class="ctrl-btn" id="themeBtn"><i class="fas fa-moon" id="themeIcon"></i></button>
+
+            <!-- İstifadəçi -->
+            <div class="cdd" id="dd-user">
+                <div class="user-btn" onclick="toggleCDD('dd-user')">
+                    <div class="user-avatar">{{ user.username|first|upper }}</div>
+                    <span style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ user.username }}</span>
+                    <i class="fas fa-chevron-down fa-xs" style="color:var(--text-muted);margin-left:2px"></i>
+                </div>
+                <div class="cdd-menu">
+                    <a class="cdd-item" href="{% url 'users:user_profile' %}">
+                        <i class="fas fa-user" style="color:var(--v2-accent)"></i>{% trans "Profil" %}
+                    </a>
+                    {% if user.is_staff %}
+                    <div class="cdd-sep"></div>
+                    <div class="cdd-lbl">Admin</div>
+                    <a class="cdd-item" href="{% url 'products:product_create' %}"><i class="fas fa-plus-circle" style="color:#f59e0b"></i>{% trans "Yeni Produkt" %}</a>
+                    <a class="cdd-item" href="{% url 'products:product_list' %}?admin=1"><i class="fas fa-list" style="color:#f59e0b"></i>{% trans "Bütün Produktlər" %}</a>
+                    <a class="cdd-item" href="{% url 'news:news_create' %}"><i class="fas fa-newspaper" style="color:#3b82f6"></i>{% trans "Yeni Xəbər" %}</a>
+                    <a class="cdd-item" href="{% url 'news:news_list' %}?admin=1"><i class="fas fa-edit" style="color:#3b82f6"></i>{% trans "Xəbərlər (İdarə)" %}</a>
+                    <a class="cdd-item" href="{% url 'careers:career_list' %}?admin=1"><i class="fas fa-briefcase" style="color:#8b5cf6"></i>{% trans "Vakansiyalar" %}</a>
+                    {% endif %}
+                    <div class="cdd-sep"></div>
+                    <form method="post" action="{% url 'users:user_logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="cdd-item danger">
+                            <i class="fas fa-sign-out-alt"></i>{% trans "Çıxış" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
+
+        {% else %}
+        <!-- ── Unauthenticated: pub links ── -->
+        <div class="pub-wrap">
+            <div class="cdd" id="dd-about">
+                <button class="pub-link" onclick="toggleCDD('dd-about')"><i class="fas fa-info-circle me-1"></i>{% trans "Haqqımızda" %} <i class="fas fa-chevron-down fa-xs ms-1"></i></button>
+                <div class="cdd-menu">
+                    <a class="cdd-item" href="{% url 'pages:about_general' %}">{% trans "Ümumi Məlumatlar" %}</a>
+                    <a class="cdd-item" href="{% url 'pages:about_goals' %}">{% trans "Məqsədlərimiz" %}</a>
+                </div>
+            </div>
+            <a class="pub-link {% if request.resolver_match.app_name == 'careers' %}active{% endif %}" href="{% url 'careers:career_list' %}"><i class="fas fa-briefcase me-1"></i>{% trans "Karyera" %}</a>
+            <a class="pub-link {% if request.resolver_match.app_name == 'news' %}active{% endif %}" href="{% url 'news:news_list' %}"><i class="fas fa-newspaper me-1"></i>{% trans "Media" %}</a>
+            <a class="pub-link {% if request.resolver_match.url_name == 'contact_index' %}active{% endif %}" href="{% url 'pages:contact_index' %}"><i class="fas fa-phone-alt me-1"></i>{% trans "Əlaqə" %}</a>
+        </div>
+
+        <div class="nav-right">
+            <!-- Dil -->
+            <div class="cdd" id="dd-lang-pub">
+                <button class="ctrl-btn" onclick="toggleCDD('dd-lang-pub')"><i class="fas fa-globe"></i></button>
+                <div class="cdd-menu" style="min-width:160px">
+                    {% get_current_language as CURRENT_LANG %}
+                    {% get_available_languages as ALL_LANGS %}
+                    {% get_language_info_list for ALL_LANGS as languages %}
+                    {% for lang in languages %}
+                    <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.path }}">
+                        <input name="language" type="hidden" value="{{ lang.code }}">
+                        <button type="submit" class="cdd-item">
+                            <i class="fas fa-check fa-xs" style="color:var(--v2-accent);{% if lang.code != CURRENT_LANG %}opacity:0{% endif %}"></i>
+                            {{ lang.name_local }}
+                        </button>
+                    </form>
+                    {% endfor %}
+                </div>
+            </div>
+            <button class="ctrl-btn" id="themeBtn"><i class="fas fa-moon" id="themeIcon"></i></button>
+            <a class="btn-login" href="{% url 'users:user_login' %}"><i class="fas fa-sign-in-alt me-1"></i>{% trans "Giriş" %}</a>
+            <a class="btn-register" href="{% url 'users:user_register' %}"><i class="fas fa-user-plus me-1"></i>{% trans "Qeydiyyat" %}</a>
+        </div>
+        {% endif %}
+
+    </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     MOBILE TOP BAR
+═══════════════════════════════════════════════ -->
+<div class="mob-top">
+    <a class="nav-brand" href="{% if user.is_authenticated %}{% url 'core:dashboard' %}{% else %}/{% endif %}">
+        <div class="brand-icon" style="width:30px;height:30px;font-size:.8rem"><i class="fas fa-tractor"></i></div>
+        <span style="font-size:.92rem">{% if user.is_authenticated %}{{ user_farm_name|default:"Smart Farm" }}{% else %}AgroVision AI{% endif %}</span>
+    </a>
+    <div class="mob-right-actions">
+        <button class="ctrl-btn" id="themeBtnMob"><i class="fas fa-moon" id="themeIconMob"></i></button>
+        {% if user.is_authenticated %}
+        <div class="cdd" id="dd-mob-user">
+            <div class="user-btn" onclick="toggleCDD('dd-mob-user')" style="padding:4px 10px 4px 4px">
+                <div class="user-avatar">{{ user.username|first|upper }}</div>
+            </div>
+            <div class="cdd-menu">
+                <a class="cdd-item" href="{% url 'users:user_profile' %}"><i class="fas fa-user" style="color:var(--v2-accent)"></i>{% trans "Profil" %}</a>
+                <div class="cdd-sep"></div>
+                <form method="post" action="{% url 'users:user_logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="cdd-item danger"><i class="fas fa-sign-out-alt"></i>{% trans "Çıxış" %}</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <a href="{% url 'users:user_register' %}" class="btn-register" style="padding:7px 13px;font-size:.8rem">{% trans "Qeydiyyat" %}</a>
+        <!-- Unauthenticated mobile: hamburger for offcanvas -->
+        <button class="ctrl-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobOffcanvas">
+            <i class="fas fa-bars"></i>
+        </button>
+        {% endif %}
     </div>
 </div>
 
-<!-- ===== MAIN ===== -->
-<main class="mt-5 pt-3">
-    {% block content %}{% endblock %}
-</main>
+<!-- Unauthenticated offcanvas -->
+{% if not user.is_authenticated %}
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobOffcanvas">
+    <div class="offcanvas-header">
+        <span class="fw-bold"><i class="fas fa-tractor text-success me-2"></i>AgroVision AI</span>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+        <ul class="navbar-nav flex-column flex-grow-1 gap-1">
+            <li><a class="nav-link" href="{% url 'pages:about_general' %}"><i class="fas fa-info-circle me-2 text-success"></i>{% trans "Haqqımızda" %}</a></li>
+            <li><a class="nav-link" href="{% url 'careers:career_list' %}"><i class="fas fa-briefcase me-2 text-success"></i>{% trans "Karyera" %}</a></li>
+            <li><a class="nav-link" href="{% url 'news:news_list' %}"><i class="fas fa-newspaper me-2 text-success"></i>{% trans "Media" %}</a></li>
+            <li><a class="nav-link" href="{% url 'pages:contact_index' %}"><i class="fas fa-phone-alt me-2 text-success"></i>{% trans "Əlaqə" %}</a></li>
+        </ul>
+        <div class="d-flex gap-2 mt-3">
+            <a href="{% url 'users:user_login' %}" class="btn-login flex-fill text-center">{% trans "Giriş" %}</a>
+            <a href="{% url 'users:user_register' %}" class="btn-register flex-fill text-center">{% trans "Qeydiyyat" %}</a>
+        </div>
+    </div>
+</div>
+{% endif %}
 
-<!-- ===== FOOTER ===== -->
+<!-- ═══════════════════════════════════════════════
+     MOBILE BOTTOM NAV  (authenticated only)
+═══════════════════════════════════════════════ -->
+{% if user.is_authenticated %}
+<nav class="mob-bottom">
+    <div class="mob-bottom-inner">
+        <a class="mbnav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+           href="{% url 'core:dashboard' %}">
+            <i class="fas fa-home"></i><span>{% trans "Panel" %}</span>
+        </a>
+        <a class="mbnav-item {% if request.resolver_match.app_name == 'fields' %}active{% endif %}"
+           href="{% url 'fields:field_list' %}">
+            <i class="fas fa-map"></i><span>{% trans "Sahə" %}</span>
+        </a>
+
+        <!-- Mərkəz FAB — sürətli əlavə -->
+        
+        
+        <a class="mbnav-item {% if request.resolver_match.app_name == 'irrigation' %}active{% endif %}"
+           href="{% url 'irrigation:irrigation_list' %}">
+            <i class="fas fa-tint"></i><span>{% trans "Suvarma" %}</span>
+        </a>
+
+
+
+        <a class="mbnav-item {% if request.resolver_match.app_name == 'plants' %}active{% endif %}"
+           href="{% url 'plants:plant_list' %}">
+            <i class="fas fa-seedling"></i><span>{% trans "Bitki" %}</span>
+        </a>
+        <button class="mbnav-item" onclick="openBSheet()">
+            <i class="fas fa-grid-2"></i><span>{% trans "Daha çox" %}</span>
+        </button>
+    </div>
+</nav>
+<div class="bsheet-backdrop" id="bsheetBg" onclick="closeBSheet()"></div>
+
+<div class="bsheet" id="bsheet">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-title">{% trans "Bütün modullar" %}</div>
+    
+    <div class="bsheet-grid">
+         
+
+        <a class="bsheet-item" href="{% url 'sensors:sensor_list' %}">
+            <i class="fas fa-satellite-dish"></i>
+            <span>{% trans "Sensorlar" %}</span>
+        </a>
+
+        <a class="bsheet-item" href="{% url 'inventory:inventory_list' %}">
+            <i class="fas fa-box"></i>
+            <span>{% trans "Anbar" %}</span>
+        </a>
+
+        <a class="bsheet-item" href="{% url 'weather:weather_list' %}">
+            <i class="fas fa-cloud-sun"></i>
+            <span>{% trans "Hava" %}</span>
+        </a>
+
+        <a class="bsheet-item" href="{% url 'users:user_profile' %}">
+            <i class="fas fa-user"></i>
+            <span>{% trans "Profil" %}</span>
+        </a>
+
+        <div class="cdd" id="dd-bsheet-lang" style="position: relative; width: 100%; height: 100%;">
+            <button class="bsheet-item" style="width: 100%; height: 100%; background: none; border: none; cursor: pointer; padding: 0;" onclick="toggleCDD('dd-bsheet-lang');event.stopPropagation()">
+                <i class="fas fa-globe"></i>
+                <span>{{ LANGUAGE_CODE|upper }}</span>
+            </button>
+            
+            <div class="cdd-menu" style="bottom: calc(100% + 8px); top: auto; right: 0;">
+                {% get_current_language as CURRENT_LANG %}
+                {% get_available_languages as ALL_LANGS %}
+                {% get_language_info_list for ALL_LANGS as languages %}
+                
+                {% for lang in languages %}
+                <form action="{% url 'set_language' %}" method="post" style="margin: 0;">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.path }}">
+                    <input name="language" type="hidden" value="{{ lang.code }}">
+                    <button type="submit" class="cdd-item" style="background: none; border: none; cursor: pointer; width: 100%; text-align: left;">
+                        <i class="fas fa-check fa-xs" style="color: var(--v2-accent); {% if lang.code != CURRENT_LANG %}opacity: 0;{% endif %}"></i>
+                        {{ lang.name_local }}
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'users:user_logout' %}" style="display: contents;">
+            {% csrf_token %}
+            <button type="submit" class="bsheet-item" style="background: none; border: none; cursor: pointer; color: #ef4444; width: 100%; padding: 0;">
+                <i class="fas fa-sign-out-alt" style="color: #ef4444;"></i>
+                <span>{% trans "Çıxış" %}</span>
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════
+     TOAST MESSAGES  (auto-dismiss)
+═══════════════════════════════════════════════ -->
+{% if messages %}
+<div class="toast-stack" id="toastStack">
+    {% for message in messages %}
+    <div class="toast-item {{ message.tags }}" id="t{{ forloop.counter }}">
+        <span class="t-icon">
+            {% if 'success' in message.tags %}✅
+            {% elif 'error' in message.tags or 'danger' in message.tags %}❌
+            {% elif 'warning' in message.tags %}⚠️
+            {% else %}ℹ️{% endif %}
+        </span>
+        <div class="t-body">{{ message }}</div>
+        <button class="t-close" onclick="closeToast('t{{ forloop.counter }}')">✕</button>
+        <div class="t-prog"></div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════
+     MAIN
+═══════════════════════════════════════════════ -->
+<main>{% block content %}{% endblock %}</main>
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════ -->
 <footer class="site-footer py-4 mt-5">
     <div class="container d-flex align-items-center justify-content-between flex-column flex-md-row">
-        <p class="mb-0 small text-light">&copy; 2026 Smart Farm. {% trans "Bütün hüquqlar qorunur." %}</p>
-        <div class="social-icons mt-2 mt-md-0">
+        <p class="mb-0 small text-light">&copy; 2026 AgroVision AI. {% trans "Bütün hüquqlar qorunur." %}</p>
+        <div class="mt-2 mt-md-0">
             <a class="text-light" href="https://www.instagram.com/agrovision_ai/" target="_blank"><i class="fab fa-instagram"></i></a>
             <a class="text-light ms-3" href="mailto:agrovision.ai.az@gmail.com"><i class="fas fa-envelope"></i></a>
         </div>
@@ -299,27 +720,80 @@
 {% block extra_js %}{% endblock %}
 
 <script>
-// ===== DARK MODE =====
+/* ────────────────────────────────────────
+   DARK MODE
+──────────────────────────────────────── */
 const html = document.documentElement;
-
 function applyTheme(t) {
     html.setAttribute('data-theme', t);
     localStorage.setItem('theme', t);
-    const icon = t === 'dark' ? 'fa-sun' : 'fa-moon';
-    ['themeIconDesk','themeIconMob','themeIconOff'].forEach(id => {
+    const ico = t === 'dark' ? 'fa-sun' : 'fa-moon';
+    ['themeIcon','themeIconMob'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.className = 'fas ' + icon;
+        if (el) el.className = 'fas ' + ico;
     });
 }
-function toggle() { applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark'); }
-
 applyTheme(localStorage.getItem('theme') || 'light');
+document.getElementById('themeBtn')?.addEventListener('click', () => applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark'));
+document.getElementById('themeBtnMob')?.addEventListener('click', () => applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark'));
 
-document.getElementById('themeBtnDesk')?.addEventListener('click', toggle);
-document.getElementById('themeBtnMob')?.addEventListener('click', toggle);
-document.getElementById('themeBtnOff')?.addEventListener('click', toggle);
+/* ────────────────────────────────────────
+   CUSTOM DROPDOWN
+──────────────────────────────────────── */
+function toggleCDD(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const wasOpen = el.classList.contains('open');
+    document.querySelectorAll('.cdd.open').forEach(d => d.classList.remove('open'));
+    if (!wasOpen) el.classList.add('open');
+}
+document.addEventListener('click', e => {
+    if (!e.target.closest('.cdd')) document.querySelectorAll('.cdd.open').forEach(d => d.classList.remove('open'));
+});
+
+/* ────────────────────────────────────────
+   TOAST AUTO-DISMISS
+──────────────────────────────────────── */
+function closeToast(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.animation = 'tOut .3s ease forwards';
+    setTimeout(() => el.remove(), 300);
+}
+document.querySelectorAll('.toast-item').forEach((t, i) => {
+    setTimeout(() => closeToast(t.id), 4500 + i * 400);
+});
+
+/* ────────────────────────────────────────
+   BOTTOM SHEET
+──────────────────────────────────────── */
+function openBSheet() {
+    document.getElementById('bsheet')?.classList.add('open');
+    document.getElementById('bsheetBg')?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeBSheet() {
+    document.getElementById('bsheet')?.classList.remove('open');
+    document.getElementById('bsheetBg')?.classList.remove('open');
+    document.body.style.overflow = '';
+}
+// Swipe down to close
+let _sy = 0;
+document.getElementById('bsheet')?.addEventListener('touchstart', e => _sy = e.touches[0].clientY);
+document.getElementById('bsheet')?.addEventListener('touchend',   e => { if (e.changedTouches[0].clientY - _sy > 55) closeBSheet(); });
+
+/* ────────────────────────────────────────
+   ACTIVE NAV HIGHLIGHT  (JS fallback)
+──────────────────────────────────────── */
+const path = window.location.pathname;
+document.querySelectorAll('.plink, .pub-link, .mbnav-item').forEach(a => {
+    if (!a.href) return;
+    try {
+        const lp = new URL(a.href).pathname;
+        if (lp !== '/' && path.startsWith(lp)) a.classList.add('active');
+    } catch(e) {}
+});
 </script>
-
 <script src="{% static 'js/site.js' %}"></script>
 </body>
 </html>

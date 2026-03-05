@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum, F, Q, Count
+from django.db.models import  Sum, F, Q, Count
 from django.utils import timezone
 from datetime import timedelta
 
@@ -9,6 +9,10 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from irrigation.models import IrrigationSchedule
+from plants.models import Plant
+from sensors.models import Sensor
+from fields.models import Field
+from weather.models import WeatherData
 
 def home(request):
     context = {}
@@ -130,6 +134,10 @@ def dashboard(request):
         'chart_temp_values': chart_temp_values,
         'ph_dist': [ph_optimal, ph_acidic, ph_alkaline],
         'recent_activities': recent_activities,
+        'fields':       Field.objects.filter(user=request.user),
+        'plants':       Plant.objects.filter(field__user=request.user, status='active'),
+        'sensors':      Sensor.objects.filter(field__user=request.user),
+        'weather_list': WeatherData.objects.filter(field__user=request.user).order_by('-created_at')[:9],
         
     }
     return render(request, 'core/dashboard.html', context)
