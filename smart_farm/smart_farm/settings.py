@@ -179,8 +179,7 @@ LOGIN_URL = '/users/login/'
 
 import os
 from dotenv import load_dotenv
-load_dotenv()  # lokal üçün işləyir
-
+load_dotenv(BASE_DIR / '.env') 
 EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST          = 'smtp.gmail.com'
 EMAIL_PORT          = 587
