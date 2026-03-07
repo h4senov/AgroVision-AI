@@ -4,228 +4,103 @@
 {% block title %}{% trans "İdarə Paneli" %} - AgroVision{% endblock %}
 
 {% block extra_css %}
+{# ══ FOUC FİX: gece/gündüz tema dərhal tətbiq olsun ══ #}
+<script>
+(function(){
+  var t = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+
 <style>
-/* ═══════════════════════════════════════════════════════
-   V2 DUMAN THEME VARIABLES (fallback if base.html missing)
-═══════════════════════════════════════════════════════ */
+/* ── Theme variables ── */
 :root {
   --v2-from:#182f4c; --v2-to:#2e8e63; --v2-accent:#3d9970;
-  --v2-dark-from:#09203c; --v2-dark-to:#09482d;
+  --df:#09203c; --dt:#09482d;
 }
 
-/* ═══════════════════════════════════════════════════════
-   KEYFRAMES
-═══════════════════════════════════════════════════════ */
-@keyframes fadeUp    { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
-@keyframes fadeLeft  { from{opacity:0;transform:translateX(-32px)} to{opacity:1;transform:translateX(0)} }
-@keyframes fadeRight { from{opacity:0;transform:translateX( 32px)} to{opacity:1;transform:translateX(0)} }
-@keyframes scaleIn   { from{opacity:0;transform:scale(.88)} to{opacity:1;transform:scale(1)} }
-@keyframes floatUp   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-@keyframes glowPulse { 0%,100%{box-shadow:0 0 0 0 rgba(61,153,112,.45)} 50%{box-shadow:0 0 0 10px rgba(61,153,112,0)} }
-@keyframes shimmer   { 0%{background-position:-600px 0} 100%{background-position:600px 0} }
-@keyframes countUp   { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-@keyframes slideTrack{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
-@keyframes dotPulse  { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:.6} }
+/* ── Smooth theme transition (zebra problemi YOX) ── */
+html { transition: background-color .3s ease, color .3s ease; }
+*, *::before, *::after {
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease, box-shadow .3s ease;
+}
 
-/* ── Utility ── */
-.au  { animation:fadeUp   .65s ease backwards; }
-.al  { animation:fadeLeft .65s ease backwards; }
-.ar  { animation:fadeRight .65s ease backwards; }
-.as  { animation:scaleIn  .55s ease backwards; }
-.d1{animation-delay:.06s} .d2{animation-delay:.12s} .d3{animation-delay:.18s}
-.d4{animation-delay:.24s} .d5{animation-delay:.30s} .d6{animation-delay:.36s}
-.d7{animation-delay:.42s} .d8{animation-delay:.48s}
+/* ── KEYFRAMES ── */
+@keyframes fadeUp   { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeLeft { from{opacity:0;transform:translateX(-28px)} to{opacity:1;transform:translateX(0)} }
+@keyframes floatY   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+@keyframes glowRing { 0%,100%{box-shadow:0 0 0 0 rgba(61,153,112,.45)} 60%{box-shadow:0 0 0 10px rgba(61,153,112,0)} }
+@keyframes dotBeat  { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.6);opacity:.55} }
+@keyframes barFill  { from{width:0%} }
+@keyframes shimmer  { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
 
-/* ═══════════════════════════════════════════════════════
-   HEADER STRIP
-═══════════════════════════════════════════════════════ */
+/* ── Stagger helpers ── */
+.au { opacity:0; animation:fadeUp  .6s cubic-bezier(.22,1,.36,1) forwards; }
+.al { opacity:0; animation:fadeLeft .6s cubic-bezier(.22,1,.36,1) forwards; }
+.d1{animation-delay:.05s} .d2{animation-delay:.12s} .d3{animation-delay:.19s}
+.d4{animation-delay:.26s} .d5{animation-delay:.33s} .d6{animation-delay:.40s}
+
+/* ── HERO strip ── */
 .dash-hero {
-  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
+  background: linear-gradient(135deg, var(--v2-from), var(--v2-to));
   border-radius:24px; padding:28px 32px; color:#fff;
   position:relative; overflow:hidden; margin-bottom:28px;
 }
-[data-theme="dark"] .dash-hero { background:linear-gradient(135deg,var(--v2-dark-from),var(--v2-dark-to)); }
-.dash-hero::before {
-  content:''; position:absolute; top:-80px; right:-80px;
-  width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,.05);
-}
-.dash-hero::after {
-  content:''; position:absolute; bottom:-60px; left:40%;
-  width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.04);
-}
-.sys-pill {
-  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.2);
-  border-radius:50px; padding:8px 20px; display:inline-flex; align-items:center; gap:8px;
-}
-.green-dot { width:9px; height:9px; border-radius:50%; background:#4ade80; animation:dotPulse 1.8s infinite; flex-shrink:0; }
+[data-theme="dark"] .dash-hero { background: linear-gradient(135deg, var(--df), var(--dt)); }
+.dash-hero::before { content:''; position:absolute; top:-80px; right:-80px; width:260px; height:260px; border-radius:50%; background:rgba(255,255,255,.05); pointer-events:none; }
+.dash-hero::after  { content:''; position:absolute; bottom:-60px; left:38%; width:190px; height:190px; border-radius:50%; background:rgba(255,255,255,.04); pointer-events:none; }
 
-/* ═══════════════════════════════════════════════════════
-   STAT CARDS
-═══════════════════════════════════════════════════════ */
+.sys-pill {
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.2);
+  border-radius:50px; padding:7px 18px; display:inline-flex; align-items:center; gap:8px;
+}
+.green-dot { width:9px; height:9px; border-radius:50%; background:#4ade80; flex-shrink:0; animation:dotBeat 1.8s infinite; }
+
+/* ── STAT CARDS ── */
 .stat-card {
   background:var(--bg-card) !important; border:1px solid var(--border) !important;
   border-radius:22px; padding:22px 20px; text-decoration:none; display:block;
-  transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease;
   position:relative; overflow:hidden;
+  transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s, border-color .3s;
 }
 .stat-card::before {
   content:''; position:absolute; top:0; left:0; right:0; height:3px;
   background:linear-gradient(90deg,var(--v2-from),var(--v2-accent));
   transform:scaleX(0); transform-origin:left; transition:transform .35s ease;
 }
-.stat-card:hover { transform:translateY(-8px); box-shadow:0 20px 40px rgba(0,0,0,.12); border-color:var(--v2-accent) !important; }
+.stat-card:hover { transform:translateY(-9px); box-shadow:0 22px 44px rgba(0,0,0,.12); border-color:var(--v2-accent) !important; }
 .stat-card:hover::before { transform:scaleX(1); }
-.stat-icon { width:54px; height:54px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:1.35rem; margin-bottom:16px; }
-.stat-value { font-size:2.2rem; font-weight:800; color:var(--text); line-height:1.1; }
-.stat-label { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--text-muted); margin-top:5px; }
-.stat-trend { font-size:.75rem; margin-top:10px; display:flex; align-items:center; gap:5px; color:var(--text-muted); }
+.stat-icon  { width:52px; height:52px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:14px; }
+.stat-value { font-size:2.1rem; font-weight:800; color:var(--text); line-height:1.1; }
+.stat-label { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:var(--text-muted); margin-top:5px; }
+.stat-trend { font-size:.74rem; margin-top:10px; display:flex; align-items:center; gap:5px; color:var(--text-muted); }
 
-/* ═══════════════════════════════════════════════════════
-   TAB NAVIGATION
-═══════════════════════════════════════════════════════ */
-.dash-tabs {
-  display:flex; gap:4px; background:var(--bg-secondary); border:1px solid var(--border);
-  border-radius:18px; padding:6px; margin-bottom:28px; flex-wrap:wrap;
-}
-.dtab {
-  flex:1; min-width:90px; padding:10px 14px; border:none; border-radius:13px;
-  background:transparent; color:var(--text-muted); font-weight:600; font-size:.8rem;
-  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;
-  transition:all .25s ease; white-space:nowrap;
-}
-.dtab i { font-size:.85rem; }
-.dtab:hover { background:var(--bg-card); color:var(--text); }
-.dtab.on {
-  background:linear-gradient(135deg,var(--v2-from),var(--v2-to)) !important;
-  color:#fff !important; box-shadow:0 5px 18px rgba(46,142,99,.4);
-}
-[data-theme="dark"] .dtab.on { background:linear-gradient(135deg,var(--v2-dark-from),var(--v2-dark-to)) !important; }
-.dtab .tbadge {
-  background:rgba(255,255,255,.25); color:#fff; font-size:.6rem; padding:1px 7px;
-  border-radius:50px; font-weight:700; min-width:18px; text-align:center;
-}
-.dtab:not(.on) .tbadge { background:rgba(61,153,112,.15); color:var(--v2-accent); }
-
-.tpane { display:none; animation:fadeUp .4s ease backwards; }
-.tpane.on { display:block; }
-
-/* ═══════════════════════════════════════════════════════
-   SECTION HEADER
-═══════════════════════════════════════════════════════ */
-.sh { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+/* ── SECTION HEADER ── */
+.sh { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
 .sh h6 { font-weight:700; margin:0; color:var(--text); display:flex; align-items:center; gap:8px; font-size:.95rem; }
 .sh a { font-size:.8rem; color:var(--v2-accent); text-decoration:none; font-weight:600; }
-.sh a:hover { text-decoration:underline; }
 
-/* ═══════════════════════════════════════════════════════
-   DATA CARD (fields, plants…)
-═══════════════════════════════════════════════════════ */
-.dcard {
-  background:var(--bg-card) !important; border:1px solid var(--border) !important;
-  border-radius:22px; overflow:hidden; text-decoration:none; color:var(--text);
-  display:flex; flex-direction:column; height:100%;
-  transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
-}
-.dcard:hover { transform:translateY(-9px); box-shadow:0 22px 44px rgba(0,0,0,.13); border-color:var(--v2-accent) !important; color:var(--text); }
-.dcard-head {
-  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
-  padding:18px 20px; position:relative; overflow:hidden; flex-shrink:0;
-}
-[data-theme="dark"] .dcard-head { background:linear-gradient(135deg,var(--v2-dark-from),var(--v2-dark-to)); }
-.dcard-head::after { content:''; position:absolute; top:-25px; right:-25px; width:90px; height:90px; border-radius:50%; background:rgba(255,255,255,.07); }
-.dcard-body { padding:18px 20px; flex:1; display:flex; flex-direction:column; }
+/* ── SEC WRAP ── */
+.sec-wrap { background:var(--bg-card) !important; border:1px solid var(--border) !important; border-radius:22px; padding:22px; }
 
-/* Pills row */
-.pill-row { display:flex; gap:8px; margin-bottom:14px; }
-.pill { flex:1; background:var(--bg-secondary) !important; border:1px solid var(--border) !important; border-radius:12px; padding:10px 8px; text-align:center; }
-.pill-v { font-weight:700; font-size:.9rem; color:var(--text); }
-.pill-l { font-size:.58rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:.4px; }
-
-/* ═══════════════════════════════════════════════════════
-   CAROUSEL / SLIDER
-═══════════════════════════════════════════════════════ */
-.car-wrap { position:relative; }
-.car-viewport { overflow:hidden; }
-.car-track { display:flex; gap:16px; transition:transform .45s cubic-bezier(.25,.8,.25,1); }
-.car-track .car-item { flex:0 0 calc(33.333% - 11px); min-width:0; }
-@media(max-width:991px){ .car-track .car-item { flex:0 0 calc(50% - 8px); } }
-@media(max-width:575px){ .car-track .car-item { flex:0 0 90%; } }
-
-.car-controls { display:flex; justify-content:center; gap:10px; align-items:center; margin-top:18px; }
-.car-btn {
-  width:38px; height:38px; border-radius:50%; background:var(--bg-card);
-  border:1px solid var(--border); color:var(--text-muted); cursor:pointer;
-  display:flex; align-items:center; justify-content:center; transition:all .22s; font-size:.85rem;
-}
-.car-btn:hover { background:var(--v2-accent); color:#fff; border-color:var(--v2-accent); }
-.car-dot { width:8px; height:8px; border-radius:50%; background:var(--border); cursor:pointer; border:none; transition:all .22s; padding:0; }
-.car-dot.on { width:22px; border-radius:4px; background:var(--v2-accent); }
-
-/* ═══════════════════════════════════════════════════════
-   ROW LINK (irrigation, alerts)
-═══════════════════════════════════════════════════════ */
+/* ── ROW LINK ── */
 .rlink {
   background:var(--bg-card) !important; border:1px solid var(--border) !important;
-  border-radius:15px; padding:14px 18px; display:flex; align-items:center; gap:14px;
-  text-decoration:none; color:var(--text); transition:all .22s; margin-bottom:10px;
+  border-radius:15px; padding:13px 17px; display:flex; align-items:center; gap:13px;
+  text-decoration:none; color:var(--text); margin-bottom:9px;
+  transition: transform .25s cubic-bezier(.22,1,.36,1), border-color .25s;
 }
-.rlink:hover { border-color:var(--v2-accent) !important; transform:translateX(5px); color:var(--text); }
-.rlink-icon { width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.1rem; }
+.rlink:hover { transform:translateX(6px); border-color:var(--v2-accent) !important; color:var(--text); }
+.rlink-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1rem; }
 
-/* ═══════════════════════════════════════════════════════
-   WEATHER
-═══════════════════════════════════════════════════════ */
-.weather-hero {
-  background:linear-gradient(135deg,var(--v2-from),#1e3a5f,var(--v2-to));
-  border-radius:22px; padding:28px; color:#fff; position:relative; overflow:hidden;
-  text-decoration:none; display:block; transition:transform .3s;
-}
-.weather-hero:hover { transform:translateY(-5px); color:#fff; }
-.weather-hero::before { content:''; position:absolute; top:-70px; right:-70px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.06); }
-.weather-hero::after  { content:''; position:absolute; bottom:-50px; left:-50px; width:170px; height:170px; border-radius:50%; background:rgba(255,255,255,.04); }
-.weather-mini {
-  background:var(--bg-card) !important; border:1px solid var(--border) !important;
-  border-radius:18px; padding:18px; text-decoration:none; color:var(--text); display:block; transition:all .25s;
-}
-.weather-mini:hover { border-color:var(--v2-accent) !important; transform:translateY(-4px); color:var(--text); }
-.weather-icon { font-size:3rem; animation:floatUp 3s ease-in-out infinite; display:inline-block; }
-
-/* ═══════════════════════════════════════════════════════
-   AI BANNER
-═══════════════════════════════════════════════════════ */
-.ai-banner {
-  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
-  border-radius:22px; padding:24px 28px; color:#fff; display:flex; align-items:center; gap:20px;
-  text-decoration:none; transition:transform .3s, box-shadow .3s; margin-bottom:22px;
-}
-.ai-banner:hover { transform:translateY(-4px); box-shadow:0 16px 32px rgba(9,32,60,.25); color:#fff; }
-.ai-orb { width:58px; height:58px; border-radius:16px; background:rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0; animation:glowPulse 2.5s infinite; }
-
-/* ═══════════════════════════════════════════════════════
-   HARVEST CARD
-═══════════════════════════════════════════════════════ */
-.hcard {
-  background:var(--bg-card) !important; border:1px solid var(--border) !important;
-  border-radius:17px; padding:16px 18px; text-decoration:none; color:var(--text);
-  display:block; transition:all .25s; margin-bottom:11px;
-}
-.hcard:hover { border-color:var(--v2-accent) !important; transform:translateY(-3px); color:var(--text); }
-.hdays { width:52px; height:52px; border-radius:14px; background:linear-gradient(135deg,var(--v2-from),var(--v2-to)); display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; }
-.hdays .hn { font-size:1.1rem; font-weight:800; color:#fff; line-height:1; }
-.hdays .hl { font-size:.48rem; color:rgba(255,255,255,.7); text-transform:uppercase; letter-spacing:.5px; }
-
-/* ═══════════════════════════════════════════════════════
-   PROGRESS BAR
-═══════════════════════════════════════════════════════ */
+/* ── PROGRESS BAR ── */
 .pbar-bg { height:7px; border-radius:10px; background:var(--border); overflow:hidden; }
-.pbar    { height:100%; border-radius:10px; transition:width 1.3s cubic-bezier(.25,.8,.25,1); width:0%; background:linear-gradient(90deg,var(--v2-from),var(--v2-accent)); }
-.pbar.blue { background:linear-gradient(90deg,#1e3a5f,#3b82f6); }
-.pbar.amber{ background:linear-gradient(90deg,#92400e,#f59e0b); }
+.pbar    { height:100%; border-radius:10px; width:0%; background:linear-gradient(90deg,var(--v2-from),var(--v2-accent)); transition:width 1.3s cubic-bezier(.22,1,.36,1); }
+.pbar.blue  { background:linear-gradient(90deg,#1e3a5f,#3b82f6); }
+.pbar.amber { background:linear-gradient(90deg,#92400e,#f59e0b); }
 
-/* ═══════════════════════════════════════════════════════
-   STATUS BADGES
-═══════════════════════════════════════════════════════ */
-.sb { padding:4px 12px; border-radius:50px; font-size:.72rem; font-weight:700; }
+/* ── STATUS BADGE ── */
+.sb { padding:4px 11px; border-radius:50px; font-size:.7rem; font-weight:700; }
 .sb-ok   { background:rgba(6,95,70,.12);  color:#059669; }
 .sb-warn { background:rgba(146,64,14,.1); color:#d97706; }
 .sb-info { background:rgba(30,64,175,.1); color:#3b82f6; }
@@ -235,33 +110,132 @@
 [data-theme="dark"] .sb-info { background:rgba(30,64,175,.28); color:#60a5fa; }
 [data-theme="dark"] .sb-err  { background:rgba(153,27,27,.28); color:#f87171; }
 
-/* ═══════════════════════════════════════════════════════
-   SENSOR
-═══════════════════════════════════════════════════════ */
-.sdot { width:10px; height:10px; border-radius:50%; animation:dotPulse 1.8s infinite; display:inline-block; }
+/* ── DATA CARD (carousel) ── */
+.dcard {
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:22px; overflow:hidden; text-decoration:none; color:var(--text);
+  display:flex; flex-direction:column; height:100%;
+  transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s, border-color .3s;
+}
+.dcard:hover { transform:translateY(-9px); box-shadow:0 22px 44px rgba(0,0,0,.13); border-color:var(--v2-accent) !important; color:var(--text); }
+.dcard-head {
+  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
+  padding:18px 20px; position:relative; overflow:hidden; flex-shrink:0;
+}
+[data-theme="dark"] .dcard-head { background:linear-gradient(135deg,var(--df),var(--dt)); }
+.dcard-head::after { content:''; position:absolute; top:-28px; right:-28px; width:90px; height:90px; border-radius:50%; background:rgba(255,255,255,.08); }
+.dcard-body { padding:18px 20px; flex:1; display:flex; flex-direction:column; }
+.pill-row { display:flex; gap:7px; margin-bottom:14px; }
+.pill { flex:1; background:var(--bg-secondary) !important; border:1px solid var(--border) !important; border-radius:11px; padding:9px 6px; text-align:center; }
+.pill-v { font-weight:700; font-size:.88rem; color:var(--text); }
+.pill-l { font-size:.56rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:.3px; }
+
+/* ── CAROUSEL ── */
+.car-wrap { position:relative; }
+.car-viewport { overflow:hidden; }
+.car-track { display:flex; gap:16px; transition:transform .45s cubic-bezier(.25,.8,.25,1); }
+.car-track .car-item { flex:0 0 calc(33.333% - 11px); min-width:0; }
+@media(max-width:991px){ .car-track .car-item { flex:0 0 calc(50% - 8px); } }
+@media(max-width:575px){ .car-track .car-item { flex:0 0 90%; } }
+.car-controls { display:flex; justify-content:center; gap:9px; align-items:center; margin-top:16px; }
+.car-btn { width:36px; height:36px; border-radius:50%; background:var(--bg-card); border:1px solid var(--border); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .22s; font-size:.82rem; }
+.car-btn:hover { background:var(--v2-accent); color:#fff; border-color:var(--v2-accent); }
+.car-dot { width:8px; height:8px; border-radius:50%; background:var(--border); cursor:pointer; border:none; transition:all .22s; padding:0; }
+.car-dot.on { width:22px; border-radius:4px; background:var(--v2-accent); }
+
+/* ── WEATHER CARD ── */
+.weather-hero {
+  background:linear-gradient(135deg,var(--v2-from),#1e3a5f,var(--v2-to));
+  border-radius:22px; padding:26px; color:#fff; position:relative; overflow:hidden;
+  text-decoration:none; display:block; transition:transform .3s;
+}
+.weather-hero:hover { transform:translateY(-5px); color:#fff; }
+.weather-hero::before { content:''; position:absolute; top:-60px; right:-60px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.06); }
+.weather-mini {
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:18px; padding:18px; text-decoration:none; color:var(--text); display:block; height:100%;
+  transition: transform .28s cubic-bezier(.22,1,.36,1), border-color .28s;
+}
+.weather-mini:hover { border-color:var(--v2-accent) !important; transform:translateY(-4px); color:var(--text); }
+.weather-icon { font-size:2.8rem; animation:floatY 3s ease-in-out infinite; display:inline-block; }
+
+/* ── AI BANNER ── */
+.ai-banner {
+  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
+  border-radius:22px; padding:22px 26px; color:#fff; display:flex; align-items:center; gap:18px;
+  text-decoration:none; transition:transform .3s, box-shadow .3s; margin-bottom:22px;
+}
+.ai-banner:hover { transform:translateY(-4px); box-shadow:0 18px 36px rgba(9,32,60,.25); color:#fff; }
+.ai-orb { width:56px; height:56px; border-radius:16px; background:rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; animation:glowRing 2.8s infinite; }
+[data-theme="dark"] .ai-banner { background:linear-gradient(135deg,var(--df),var(--dt)); }
+
+/* ── HARVEST CARD ── */
+.hcard {
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:16px; padding:15px 17px; text-decoration:none; color:var(--text);
+  display:block; margin-bottom:10px;
+  transition: transform .28s cubic-bezier(.22,1,.36,1), border-color .28s;
+}
+.hcard:hover { border-color:var(--v2-accent) !important; transform:translateY(-3px); color:var(--text); }
+.hdays { width:50px; height:50px; border-radius:13px; background:linear-gradient(135deg,var(--v2-from),var(--v2-to)); display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; }
+.hdays .hn { font-size:1.05rem; font-weight:800; color:#fff; line-height:1; }
+.hdays .hl { font-size:.46rem; color:rgba(255,255,255,.7); text-transform:uppercase; letter-spacing:.5px; }
+
+/* ── SENSOR CARD ── */
 .sensor-card {
   background:var(--bg-card) !important; border:1px solid var(--border) !important;
-  border-radius:18px; padding:18px; text-decoration:none; color:var(--text); display:block; transition:all .25s;
+  border-radius:18px; padding:18px; text-decoration:none; color:var(--text); display:block;
+  transition: transform .28s cubic-bezier(.22,1,.36,1), border-color .28s;
 }
 .sensor-card:hover { border-color:var(--v2-accent) !important; transform:translateY(-4px); color:var(--text); }
+.sdot { width:10px; height:10px; border-radius:50%; display:inline-block; animation:dotBeat 1.8s infinite; }
 
-/* ═══════════════════════════════════════════════════════
-   CARD SECTION WRAP
-═══════════════════════════════════════════════════════ */
-.sec-wrap { background:var(--bg-card) !important; border:1px solid var(--border) !important; border-radius:22px; padding:24px; }
+/* ── EMPTY STATE ── */
+.empty { text-align:center; padding:42px 20px; color:var(--text-muted); }
+.empty i { font-size:2.8rem; opacity:.22; margin-bottom:12px; }
 
-/* ═══════════════════════════════════════════════════════
-   EMPTY STATE
-═══════════════════════════════════════════════════════ */
-.empty { text-align:center; padding:44px 20px; color:var(--text-muted); }
-.empty i { font-size:3rem; opacity:.22; margin-bottom:14px; }
+/* ════════════════════════════════════════
+   FLOATING LIVE WIDGET (köşe)
+════════════════════════════════════════ */
+.live-widget {
+  position:fixed; bottom:28px; right:22px; z-index:1050;
+  display:flex; flex-direction:column; align-items:flex-end; gap:10px;
+  opacity:0; transform:translateY(20px);
+  transition:opacity .4s, transform .4s;
+  pointer-events:none;
+}
+.live-widget.show { opacity:1; transform:translateY(0); pointer-events:auto; }
 
-/* ═══════════════════════════════════════════════════════
-   RESPONSIVE TAB LABELS
-═══════════════════════════════════════════════════════ */
-@media(max-width:600px){
-  .dtab .tlbl { display:none; }
-  .dtab { min-width:auto; flex:none; padding:10px 14px; }
+.lw-btn {
+  width:50px; height:50px; border-radius:50%; border:none; cursor:pointer;
+  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
+  color:#fff; font-size:1.05rem;
+  box-shadow:0 6px 22px rgba(46,142,99,.5);
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .3s, box-shadow .3s;
+  animation:glowRing 3s infinite;
+}
+.lw-btn:hover { transform:scale(1.12); box-shadow:0 10px 32px rgba(46,142,99,.65); }
+
+.lw-card {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:16px; padding:14px 16px; width:210px;
+  box-shadow:0 12px 34px rgba(0,0,0,.14);
+  transform:scale(.85) translateY(10px); opacity:0; pointer-events:none;
+  transition:transform .32s cubic-bezier(.22,1,.36,1), opacity .3s;
+  transform-origin:bottom right;
+}
+.lw-card.open { transform:scale(1) translateY(0); opacity:1; pointer-events:auto; }
+.lw-title { font-weight:700; font-size:.78rem; color:var(--text); margin-bottom:10px; display:flex; align-items:center; gap:7px; }
+.lw-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:.78rem; }
+.lw-row:last-child { border:none; }
+.lw-lbl { color:var(--text-muted); }
+.lw-val { font-weight:700; color:var(--v2-accent); }
+.lw-live { display:inline-block; width:6px; height:6px; border-radius:50%; background:#4ade80; animation:dotBeat 1.5s infinite; }
+
+@media(max-width:576px){
+  .live-widget { bottom:80px; right:14px; }
+  .lw-card { width:186px; }
 }
 </style>
 {% endblock %}
@@ -269,33 +243,33 @@
 {% block content %}
 <div class="container-fluid py-4 px-3 px-md-4">
 
-  <!-- ═══════════ HERO STRIP ═══════════ -->
+  <!-- ══════════ HERO ══════════ -->
   <div class="dash-hero al d1">
-    <div class="row align-items-center" style="position:relative;z-index:1">
-      <div class="col-md-8 mb-3 mb-md-0">
-        <p class="mb-1 small" style="opacity:.65;text-transform:uppercase;letter-spacing:1px">
+    <div class="row align-items-center g-3" style="position:relative;z-index:1">
+      <div class="col-md-8">
+        <p class="mb-1 small" style="opacity:.6;text-transform:uppercase;letter-spacing:1px">
           <i class="fas fa-tachometer-alt me-2"></i>{% trans "İdarə Paneli" %}
         </p>
-        <h2 class="fw-bold mb-2 text-white" style="font-size:1.9rem">
+        <h2 class="fw-bold mb-1 text-white" style="font-size:1.85rem">
           {% trans "Xoş gördük" %}, {{ user.first_name|default:user.username }}! 🚜
         </h2>
-        <p class="mb-0 small" style="opacity:.75">{% trans "Fermadakı real zamanlı göstəricilər" %}</p>
+        <p class="mb-0 small" style="opacity:.7">{% trans "Fermadakı real zamanlı göstəricilər" %}</p>
       </div>
       <div class="col-md-4 text-md-end">
-        <div class="sys-pill d-inline-flex">
+        <div class="sys-pill">
           <span class="green-dot"></span>
-          <small class="fw-bold text-uppercase" style="font-size:.7rem;color:rgba(255,255,255,.75)">{% trans "Sistem Aktivdir" %}</small>
-          <span style="opacity:.4;margin:0 8px">|</span>
+          <small class="fw-bold text-uppercase" style="font-size:.68rem;color:rgba(255,255,255,.75)">{% trans "Sistem Aktiv" %}</small>
+          <span style="opacity:.35;margin:0 7px">|</span>
           <small class="fw-bold text-white">{% now "d F Y" %}</small>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════ AI ALERT ═══════════ -->
+  <!-- ══════════ AI ALERT ══════════ -->
   {% if ai_msg %}
-  <div class="alert border-0 rounded-4 shadow-sm mb-4 au d1"
-       style="background:var(--bg-card);border-left:5px solid {% if ai_msg.type == 'danger' %}#ef4444{% elif ai_msg.type == 'warning' %}#f59e0b{% else %}var(--v2-accent){% endif %} !important">
+  <div class="alert border-0 rounded-4 mb-4 au d1"
+       style="background:var(--bg-card);border-left:4px solid {% if ai_msg.type == 'danger' %}#ef4444{% elif ai_msg.type == 'warning' %}#f59e0b{% else %}var(--v2-accent){% endif %} !important">
     <div class="d-flex align-items-center gap-3">
       <i class="fas {{ ai_msg.icon }} fa-lg {% if ai_msg.type == 'danger' %}text-danger{% elif ai_msg.type == 'warning' %}text-warning{% else %}text-success{% endif %}"></i>
       <div>
@@ -307,7 +281,7 @@
   </div>
   {% endif %}
 
-  <!-- ═══════════ STAT CARDS ═══════════ -->
+  <!-- ══════════ STAT CARDS ══════════ -->
   <div class="row g-3 mb-4">
     <div class="col-6 col-xl-3 au d1">
       <a href="{% url 'fields:field_list' %}" class="stat-card">
@@ -334,7 +308,7 @@
         <div class="stat-icon" style="background:rgba(59,130,246,.12)">
           <i class="fas fa-tint" style="color:#3b82f6"></i>
         </div>
-        <div class="stat-value" style="font-size:1.65rem">{{ water_usage|floatformat:0|default:"0" }}<span style="font-size:1rem;font-weight:600;margin-left:4px">L</span></div>
+        <div class="stat-value" style="font-size:1.6rem">{{ water_usage|floatformat:0|default:"0" }}<span style="font-size:.95rem;font-weight:600;margin-left:3px">L</span></div>
         <div class="stat-label">{% trans "Bugünkü Su" %}</div>
         <div class="stat-trend"><i class="fas fa-water fa-xs" style="color:#3b82f6"></i> {% trans "bu gün" %}</div>
       </a>
@@ -351,171 +325,128 @@
     </div>
   </div>
 
-  <!-- ═══════════ TAB NAVİGASİYA ═══════════ -->
-  <div class="dash-tabs au d3" id="dtabs">
-    <button class="dtab on" data-t="overview">
-      <i class="fas fa-home"></i><span class="tlbl">{% trans "Baxış" %}</span>
-    </button>
-    <button class="dtab" data-t="fields">
-      <i class="fas fa-map-marked-alt"></i><span class="tlbl">{% trans "Sahələr" %}</span>
-      {% if fields %}<span class="tbadge">{{ fields|length }}</span>{% endif %}
-    </button>
-    <button class="dtab" data-t="plants">
-      <i class="fas fa-seedling"></i><span class="tlbl">{% trans "Bitkilər" %}</span>
-      {% if plants %}<span class="tbadge">{{ plants|length }}</span>{% endif %}
-    </button>
-    <button class="dtab" data-t="irrigation">
-      <i class="fas fa-tint"></i><span class="tlbl">{% trans "Suvarma" %}</span>
-    </button>
-    <button class="dtab" data-t="weather">
-      <i class="fas fa-cloud-sun"></i><span class="tlbl">{% trans "Hava" %}</span>
-    </button>
-    <button class="dtab" data-t="ai">
-      <i class="fas fa-robot"></i><span class="tlbl">AI & {% trans "Analiz" %}</span>
-    </button>
-    <button class="dtab" data-t="sensors">
-      <i class="fas fa-microchip"></i><span class="tlbl">{% trans "Sensorlar" %}</span>
-    </button>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════
-       TAB 1 — BAXIŞ
-  ══════════════════════════════════════════════════ -->
-  <div class="tpane on" id="t-overview">
-    <div class="row g-4">
-
-      <!-- SOL: Növbəti suvarmalar -->
-      <div class="col-lg-7">
-        <div class="sh">
-          <h6><i class="fas fa-calendar-alt" style="color:var(--v2-accent)"></i> {% trans "Növbəti Suvarmalar" %}</h6>
-          <a href="{% url 'irrigation:irrigation_list' %}">{% trans "Hamısına bax" %} →</a>
-        </div>
-        {% for plan in upcoming_irrigations %}
-        <a href="{% url 'irrigation:irrigation_detail' plan.pk %}" class="rlink au" style="animation-delay:{{ forloop.counter0 }}00ms">
-          <div class="rlink-icon" style="background:rgba(59,130,246,.1)"><i class="fas fa-tint" style="color:#3b82f6"></i></div>
-          <div class="flex-grow-1 overflow-hidden">
-            <div class="fw-bold text-truncate" style="color:var(--text)">{{ plan.field.name }}</div>
-            <small style="color:var(--text-muted)">{{ plan.get_irrigation_type_display }} · {{ plan.irrigation_date|date:"d/m/Y" }}{% if plan.start_time %} · {{ plan.start_time|time:"H:i" }}{% endif %}</small>
-          </div>
-          <span class="sb sb-{% if plan.status == 'completed' %}ok{% elif plan.status == 'planned' %}warn{% elif plan.status == 'active' %}info{% else %}err{% endif %} flex-shrink-0">{{ plan.get_status_display }}</span>
-          <i class="fas fa-chevron-right fa-xs" style="color:var(--text-muted);flex-shrink:0"></i>
-        </a>
-        {% empty %}
-        <div class="empty"><i class="fas fa-tint d-block"></i><p>{% trans "Planlaşdırılmış suvarma yoxdur." %}</p><a href="{% url 'irrigation:irrigation_add' %}" class="btn btn-success btn-sm rounded-pill px-3 mt-1">{% trans "Plan yarat" %}</a></div>
-        {% endfor %}
+  <!-- ══════════ HAVA MƏLUMATları (bütün sahələr) ══════════ -->
+  <div class="row g-4 mb-4">
+    <div class="col-12 au d2">
+      <div class="sh">
+        <h6><i class="fas fa-cloud-sun" style="color:#3b82f6"></i> {% trans "Hava Məlumatları" %}</h6>
+        <a href="{% url 'weather:weather_list' %}">{% trans "Hamısına bax" %} →</a>
       </div>
 
-      <!-- SAĞ: Hava + Anbar -->
-      <div class="col-lg-5">
-        {% if latest_weather %}
-        <a href="{% url 'weather:weather_list' %}" class="weather-hero mb-4 d-block" style="position:relative;z-index:1">
-          <div style="position:relative;z-index:1">
-            <div class="d-flex justify-content-between mb-3">
-              <small style="opacity:.65;font-size:.7rem;text-transform:uppercase;letter-spacing:1px">
-                <i class="fas fa-map-marker-alt me-1"></i>{{ latest_weather.field.name }}
-              </small>
-              <small style="opacity:.5;font-size:.7rem">{% now "d F" %}</small>
+      {% if weather_list %}
+      {# Birdən çox hava məlumatı varsa carousel göstər #}
+      <div class="car-wrap" id="car-weather">
+        <div class="car-viewport">
+          <div class="car-track" id="ct-weather">
+            {% for w in weather_list %}
+            <div class="car-item">
+              <a href="{% url 'weather:weather_detail' w.id %}" class="weather-mini">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <div class="fw-bold" style="color:var(--text)">{{ w.field.name }}</div>
+                    <small style="color:var(--text-muted)">{{ w.date|date:"d F Y"|default:"Bugün" }}</small>
+                  </div>
+                  <span style="font-size:2.4rem">{% if w.precipitation_mm > 0 %}🌧️{% elif w.temperature_max > 30 %}☀️{% else %}⛅{% endif %}</span>
+                </div>
+                <div class="d-flex align-items-end gap-3 mb-3">
+                  <div style="font-size:2.5rem;font-weight:800;color:var(--text);line-height:1">{{ w.temperature_max }}°</div>
+                  <div>
+                    <div class="small fw-bold" style="color:var(--text)">{{ w.get_weather_condition_display }}</div>
+                    <small style="color:var(--text-muted)">Min: {{ w.temperature_min|default:"—" }}°</small>
+                  </div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                  <span style="background:var(--bg-secondary);border-radius:8px;padding:4px 10px;font-size:.7rem;color:var(--text-muted)">💧 {{ w.precipitation_mm }} mm</span>
+                  {% if w.humidity_avg %}<span style="background:var(--bg-secondary);border-radius:8px;padding:4px 10px;font-size:.7rem;color:var(--text-muted)">💦 {{ w.humidity_avg }}%</span>{% endif %}
+                  {% if w.wind_speed_ms %}<span style="background:var(--bg-secondary);border-radius:8px;padding:4px 10px;font-size:.7rem;color:var(--text-muted)">🌬 {{ w.wind_speed_ms }} m/s</span>{% endif %}
+                </div>
+              </a>
             </div>
-            <div class="d-flex align-items-center gap-4">
-              <div class="weather-icon">{% if latest_weather.precipitation_mm > 0 %}🌧️{% elif latest_weather.temperature_max > 30 %}☀️{% else %}⛅{% endif %}</div>
-              <div>
-                <div style="font-size:3rem;font-weight:800;line-height:1">{{ latest_weather.temperature_max }}°C</div>
-                <div style="opacity:.8;font-size:.9rem">{{ latest_weather.get_weather_condition_display }}</div>
-                <div style="opacity:.6;font-size:.75rem">💧 {{ latest_weather.precipitation_mm }} mm</div>
-              </div>
-            </div>
+            {% endfor %}
           </div>
-        </a>
-        {% endif %}
+        </div>
+        <div class="car-controls" id="cc-weather"></div>
+      </div>
 
-        <div class="sh">
-          <h6><i class="fas fa-exclamation-triangle" style="color:#f59e0b"></i> {% trans "Anbar Xəbərdarlıqları" %}</h6>
-        </div>
-        {% for item in low_stock_items %}
-        <div class="rlink" style="margin-bottom:9px">
-          <div class="rlink-icon" style="background:rgba(239,68,68,.1)"><i class="fas fa-exclamation-triangle" style="color:#ef4444"></i></div>
-          <div class="flex-grow-1">
-            <div class="fw-bold" style="color:var(--text);font-size:.9rem">{{ item.item_name }}</div>
-            <small style="color:var(--text-muted)">{% trans "Qalıq" %}: <strong style="color:#ef4444">{{ item.quantity }} {{ item.unit|default:"ədəd" }}</strong></small>
+      {% elif latest_weather %}
+      {# Tək hava varsa böyük kart #}
+      <a href="{% url 'weather:weather_list' %}" class="weather-hero">
+        <div style="position:relative;z-index:1">
+          <div class="d-flex justify-content-between mb-3">
+            <small style="opacity:.65;font-size:.68rem;text-transform:uppercase;letter-spacing:1px">
+              <i class="fas fa-map-marker-alt me-1"></i>{{ latest_weather.field.name }}
+            </small>
+            <small style="opacity:.45;font-size:.68rem">{% now "d F" %}</small>
           </div>
-          <span class="sb sb-err">{% trans "Az qalıb" %}</span>
-        </div>
-        {% empty %}
-        <div class="rlink" style="border-color:rgba(61,153,112,.3) !important">
-          <div class="rlink-icon" style="background:rgba(61,153,112,.1)"><i class="fas fa-check-circle" style="color:var(--v2-accent)"></i></div>
-          <div style="color:var(--v2-accent);font-weight:600">{% trans "Anbar qaydasındadır" %}</div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-
-    <!-- Sistem Vəziyyəti + pH -->
-    <div class="row g-4 mt-2">
-      <div class="col-lg-5 au d3">
-        <div class="sec-wrap h-100">
-          <div class="sh">
-            <h6><i class="fas fa-vial" style="color:var(--v2-accent)"></i> {% trans "Torpaq pH Paylanması" %}</h6>
-            <a href="{% url 'fields:field_list' %}">{% trans "Sahələrə bax" %} →</a>
-          </div>
-          <div class="position-relative" style="height:220px">
-            <canvas id="phChart"></canvas>
-            <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events:none">
-              <div style="font-size:1.8rem;font-weight:800;color:var(--v2-accent)">{{ avg_ph|default:"7.0" }}</div>
-              <small style="color:var(--text-muted)">Ort. pH</small>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-7 au d4">
-        <div class="sec-wrap h-100">
-          <div class="sh">
-            <h6><i class="fas fa-chart-bar" style="color:#3b82f6"></i> {% trans "Sistem Göstəriciləri" %}</h6>
-          </div>
-          <div class="d-flex flex-column gap-3">
+          <div class="d-flex align-items-center gap-4">
+            <div class="weather-icon">{% if latest_weather.precipitation_mm > 0 %}🌧️{% elif latest_weather.temperature_max > 30 %}☀️{% else %}⛅{% endif %}</div>
             <div>
-              <div class="d-flex justify-content-between mb-2 small">
-                <span style="color:var(--text-muted)">{% trans "Aktiv Sensorlar" %}</span>
-                <span class="fw-bold" style="color:var(--v2-accent)">{{ total_sensors }}/{{ total_sensors }}</span>
-              </div>
-              <div class="pbar-bg"><div class="pbar" data-w="90"></div></div>
-            </div>
-            <div>
-              <div class="d-flex justify-content-between mb-2 small">
-                <span style="color:var(--text-muted)">{% trans "Bitki Sağlamlığı" %}</span>
-                <span class="fw-bold" style="color:#10b981">{{ plant_health_rate|default:"85" }}%</span>
-              </div>
-              <div class="pbar-bg"><div class="pbar" data-w="{{ plant_health_rate|default:'85' }}"></div></div>
-            </div>
-            <div>
-              <div class="d-flex justify-content-between mb-2 small">
-                <span style="color:var(--text-muted)">{% trans "Suvarma Effektivliyi" %}</span>
-                <span class="fw-bold" style="color:#3b82f6">{{ irr_efficiency|default:"78" }}%</span>
-              </div>
-              <div class="pbar-bg"><div class="pbar blue" data-w="{{ irr_efficiency|default:'78' }}"></div></div>
-            </div>
-            <div>
-              <div class="d-flex justify-content-between mb-2 small">
-                <span style="color:var(--text-muted)">{% trans "AI Proqnoz Dəqiqliyi" %}</span>
-                <span class="fw-bold" style="color:#f59e0b">92%</span>
-              </div>
-              <div class="pbar-bg"><div class="pbar amber" data-w="92"></div></div>
+              <div style="font-size:3.2rem;font-weight:800;line-height:1">{{ latest_weather.temperature_max }}°C</div>
+              <div style="opacity:.8">{{ latest_weather.get_weather_condition_display }}</div>
+              <div style="opacity:.6;font-size:.75rem">💧 {{ latest_weather.precipitation_mm }} mm</div>
             </div>
           </div>
         </div>
-      </div>
+      </a>
+      {% else %}
+      <div class="empty sec-wrap"><i class="fas fa-cloud d-block"></i><p>{% trans "Hava məlumatı yoxdur" %}</p><a href="{% url 'weather:weather_list' %}" class="btn btn-outline-success btn-sm rounded-pill px-3">{% trans "Hava yüklə" %}</a></div>
+      {% endif %}
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════
-       TAB 2 — SAHƏLƏR
-  ══════════════════════════════════════════════════ -->
-  <div class="tpane" id="t-fields">
+  <!-- ══════════ SUVARMALAR + ANBAR ══════════ -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-7 au d2">
+      <div class="sh">
+        <h6><i class="fas fa-calendar-alt" style="color:var(--v2-accent)"></i> {% trans "Növbəti Suvarmalar" %}</h6>
+        <a href="{% url 'irrigation:irrigation_list' %}">{% trans "Hamısına bax" %} →</a>
+      </div>
+      {% for plan in upcoming_irrigations %}
+      <a href="{% url 'irrigation:irrigation_detail' plan.pk %}" class="rlink" style="animation-delay:{{ forloop.counter0 }}0ms">
+        <div class="rlink-icon" style="background:rgba(59,130,246,.1)"><i class="fas fa-tint" style="color:#3b82f6"></i></div>
+        <div class="flex-grow-1 overflow-hidden">
+          <div class="fw-bold text-truncate" style="color:var(--text)">{{ plan.field.name }}</div>
+          <small style="color:var(--text-muted)">{{ plan.get_irrigation_type_display }} · {{ plan.irrigation_date|date:"d/m/Y" }}{% if plan.start_time %} · {{ plan.start_time|time:"H:i" }}{% endif %}</small>
+        </div>
+        <span class="sb sb-{% if plan.status == 'completed' %}ok{% elif plan.status == 'planned' %}warn{% elif plan.status == 'active' %}info{% else %}err{% endif %} flex-shrink-0">{{ plan.get_status_display }}</span>
+        <i class="fas fa-chevron-right fa-xs" style="color:var(--text-muted);flex-shrink:0"></i>
+      </a>
+      {% empty %}
+      <div class="empty"><i class="fas fa-tint d-block"></i><p>{% trans "Planlaşdırılmış suvarma yoxdur." %}</p><a href="{% url 'irrigation:irrigation_add' %}" class="btn btn-success btn-sm rounded-pill px-3">{% trans "Plan yarat" %}</a></div>
+      {% endfor %}
+    </div>
+
+    <div class="col-lg-5 au d3">
+      <div class="sh">
+        <h6><i class="fas fa-exclamation-triangle" style="color:#f59e0b"></i> {% trans "Anbar Xəbərdarlıqları" %}</h6>
+        <a href="{% url 'inventory:inventory_list' %}">{% trans "Anbar" %} →</a>
+      </div>
+      {% for item in low_stock_items %}
+      <div class="rlink">
+        <div class="rlink-icon" style="background:rgba(239,68,68,.1)"><i class="fas fa-exclamation-triangle" style="color:#ef4444"></i></div>
+        <div class="flex-grow-1">
+          <div class="fw-bold" style="color:var(--text);font-size:.88rem">{{ item.item_name }}</div>
+          <small style="color:var(--text-muted)">{% trans "Qalıq" %}: <strong style="color:#ef4444">{{ item.quantity }} {{ item.unit|default:"ədəd" }}</strong></small>
+        </div>
+        <span class="sb sb-err">{% trans "Az qalıb" %}</span>
+      </div>
+      {% empty %}
+      <div class="rlink" style="border-color:rgba(61,153,112,.3) !important">
+        <div class="rlink-icon" style="background:rgba(61,153,112,.1)"><i class="fas fa-check-circle" style="color:var(--v2-accent)"></i></div>
+        <div style="color:var(--v2-accent);font-weight:600">{% trans "Anbar qaydasındadır" %}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ══════════ SAHƏlər CAROUSEL ══════════ -->
+  {% if fields %}
+  <div class="mb-4 au d3">
     <div class="sh">
-      <h6><i class="fas fa-map-marked-alt" style="color:var(--v2-accent)"></i> {% trans "Bütün Sahələr" %} <span style="font-weight:400;color:var(--text-muted);font-size:.8rem">({{ fields|length }})</span></h6>
+      <h6><i class="fas fa-map-marked-alt" style="color:var(--v2-accent)"></i> {% trans "Sahələr" %} <span style="font-weight:400;color:var(--text-muted);font-size:.8rem">({{ fields|length }})</span></h6>
       <a href="{% url 'fields:add_field' %}"><i class="fas fa-plus me-1"></i>{% trans "Yeni Sahə" %}</a>
     </div>
-    {% if fields %}
-    <div class="car-wrap" id="car-fields">
+    <div class="car-wrap">
       <div class="car-viewport">
         <div class="car-track" id="ct-fields">
           {% for field in fields %}
@@ -524,10 +455,10 @@
               <div class="dcard-head">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
-                    <div class="fw-bold text-white" style="font-size:1.05rem">{{ field.name }}</div>
+                    <div class="fw-bold text-white" style="font-size:1.02rem">{{ field.name }}</div>
                     {% if field.location %}<small style="color:rgba(255,255,255,.65)"><i class="fas fa-map-marker-alt me-1"></i>{{ field.location }}</small>{% endif %}
                   </div>
-                  <span style="background:rgba(255,255,255,.18);color:#fff;padding:3px 10px;border-radius:50px;font-size:.68rem;font-weight:700">{{ field.get_soil_type_display }}</span>
+                  <span style="background:rgba(255,255,255,.18);color:#fff;padding:3px 10px;border-radius:50px;font-size:.66rem;font-weight:700">{{ field.get_soil_type_display }}</span>
                 </div>
               </div>
               <div class="dcard-body">
@@ -538,8 +469,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center mt-auto">
                   <small style="color:var(--text-muted)">{{ field.created_at|date:"d.m.Y" }}</small>
-                  <a href="{% url 'fields:field_metrics' field.id %}" onclick="event.stopPropagation()"
-                     class="btn btn-sm rounded-pill" style="font-size:.72rem;border:1px solid var(--border);color:var(--text-muted);padding:3px 12px">
+                  <a href="{% url 'fields:field_metrics' field.id %}" onclick="event.stopPropagation()" class="btn btn-sm rounded-pill" style="font-size:.7rem;border:1px solid var(--border);color:var(--text-muted);padding:3px 12px">
                     <i class="fas fa-chart-bar me-1"></i>{% trans "Analiz" %}
                   </a>
                 </div>
@@ -551,21 +481,17 @@
       </div>
       <div class="car-controls" id="cc-fields"></div>
     </div>
-    {% else %}
-    <div class="empty"><i class="fas fa-map-marked-alt d-block"></i><p>{% trans "Sahə tapılmadı" %}</p><a href="{% url 'fields:add_field' %}" class="btn btn-success btn-sm rounded-pill px-3">{% trans "İlk Sahəni Əlavə Et" %}</a></div>
-    {% endif %}
   </div>
+  {% endif %}
 
-  <!-- ══════════════════════════════════════════════════
-       TAB 3 — BİTKİLƏR
-  ══════════════════════════════════════════════════ -->
-  <div class="tpane" id="t-plants">
+  <!-- ══════════ BİTKİLƏR CAROUSEL ══════════ -->
+  {% if plants %}
+  <div class="mb-4 au d4">
     <div class="sh">
       <h6><i class="fas fa-seedling" style="color:#10b981"></i> {% trans "Aktiv Bitkilər" %} <span style="font-weight:400;color:var(--text-muted);font-size:.8rem">({{ plants|length }})</span></h6>
       <a href="{% url 'plants:add_plant' %}"><i class="fas fa-plus me-1"></i>{% trans "Yeni Əkin" %}</a>
     </div>
-    {% if plants %}
-    <div class="car-wrap" id="car-plants">
+    <div class="car-wrap">
       <div class="car-viewport">
         <div class="car-track" id="ct-plants">
           {% for plant in plants %}
@@ -578,9 +504,9 @@
                     <small style="color:rgba(255,255,255,.65)"><i class="fas fa-map-marker-alt me-1"></i>{{ plant.field.name }}</small>
                   </div>
                   {% if plant.is_harvest_due %}
-                  <span style="background:#ef4444;color:#fff;padding:3px 10px;border-radius:50px;font-size:.68rem;font-weight:700">⚠️ {% trans "Yığım" %}</span>
+                  <span style="background:#ef4444;color:#fff;padding:3px 10px;border-radius:50px;font-size:.66rem;font-weight:700">⚠️ {% trans "Yığım" %}</span>
                   {% else %}
-                  <span style="background:rgba(255,255,255,.18);color:#fff;padding:3px 10px;border-radius:50px;font-size:.68rem;font-weight:700">{{ plant.get_status_display }}</span>
+                  <span style="background:rgba(255,255,255,.18);color:#fff;padding:3px 10px;border-radius:50px;font-size:.66rem;font-weight:700">{{ plant.get_status_display }}</span>
                   {% endif %}
                 </div>
               </div>
@@ -588,13 +514,12 @@
                 <div class="pill-row">
                   <div class="pill"><div class="pill-v">{{ plant.area_hectares }} ha</div><div class="pill-l">{% trans "Ərazi" %}</div></div>
                   <div class="pill"><div class="pill-v">{{ plant.days_since_planting }}</div><div class="pill-l">{% trans "Gün" %}</div></div>
-                  <div class="pill"><div class="pill-v" style="font-size:.75rem">{{ plant.get_growth_stage_display }}</div><div class="pill-l">{% trans "Mərhələ" %}</div></div>
+                  <div class="pill"><div class="pill-v" style="font-size:.72rem">{{ plant.get_growth_stage_display }}</div><div class="pill-l">{% trans "Mərhələ" %}</div></div>
                 </div>
-                <div class="pbar-bg mb-3"><div class="pbar" data-stage="{{ plant.growth_stage }}" style="width:0%"></div></div>
+                <div class="pbar-bg mb-3"><div class="pbar stage-bar" data-stage="{{ plant.growth_stage }}"></div></div>
                 <div class="d-flex justify-content-between align-items-center mt-auto">
                   <small style="color:var(--text-muted)">{{ plant.planting_date|date:"d/m/Y" }}</small>
-                  <a href="{% url 'plants:harvest_prediction' plant.id %}" onclick="event.stopPropagation()"
-                     class="btn btn-sm rounded-pill" style="font-size:.72rem;border:1px solid var(--border);color:var(--text-muted);padding:3px 12px">
+                  <a href="{% url 'plants:harvest_prediction' plant.id %}" onclick="event.stopPropagation()" class="btn btn-sm rounded-pill" style="font-size:.7rem;border:1px solid var(--border);color:var(--text-muted);padding:3px 12px">
                     <i class="fas fa-magic me-1"></i>{% trans "Proqnoz" %}
                   </a>
                 </div>
@@ -606,144 +531,81 @@
       </div>
       <div class="car-controls" id="cc-plants"></div>
     </div>
-    {% else %}
-    <div class="empty"><i class="fas fa-seedling d-block"></i><p>{% trans "Bitki tapılmadı" %}</p><a href="{% url 'plants:add_plant' %}" class="btn btn-success btn-sm rounded-pill px-3">{% trans "İlk Əkini Əlavə Et" %}</a></div>
-    {% endif %}
   </div>
+  {% endif %}
 
-  <!-- ══════════════════════════════════════════════════
-       TAB 4 — SUVARMA
-  ══════════════════════════════════════════════════ -->
-  <div class="tpane" id="t-irrigation">
-    <div class="row g-4">
-      <div class="col-lg-8">
+  <!-- ══════════ SİSTEM GÖSTƏRİCİLƏRİ + pH ══════════ -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-5 au d3">
+      <div class="sec-wrap h-100">
         <div class="sh">
-          <h6><i class="fas fa-tint" style="color:#3b82f6"></i> {% trans "Suvarmalar" %}</h6>
-          <a href="{% url 'irrigation:irrigation_add' %}"><i class="fas fa-plus me-1"></i>{% trans "Yeni Plan" %}</a>
+          <h6><i class="fas fa-vial" style="color:var(--v2-accent)"></i> {% trans "Torpaq pH Paylanması" %}</h6>
+          <a href="{% url 'fields:field_list' %}">{% trans "Sahələr" %} →</a>
         </div>
-        {% for plan in upcoming_irrigations %}
-        <a href="{% url 'irrigation:irrigation_detail' plan.pk %}" class="rlink au" style="animation-delay:{{ forloop.counter0 }}05s">
-          <div class="rlink-icon" style="background:rgba(59,130,246,.1)"><i class="fas fa-tint" style="color:#3b82f6"></i></div>
-          <div class="flex-grow-1 overflow-hidden">
-            <div class="fw-bold" style="color:var(--text)">{{ plan.field.name }}</div>
-            <small style="color:var(--text-muted)">{{ plan.get_irrigation_type_display }} · {{ plan.irrigation_date|date:"d/m/Y" }}{% if plan.start_time %} · {{ plan.start_time|time:"H:i" }}{% endif %} · <strong>{{ plan.water_volume_liters }} L</strong></small>
-          </div>
-          <span class="sb sb-{% if plan.status == 'completed' %}ok{% elif plan.status == 'planned' %}warn{% elif plan.status == 'active' %}info{% else %}err{% endif %}">{{ plan.get_status_display }}</span>
-          <i class="fas fa-chevron-right fa-xs" style="color:var(--text-muted)"></i>
-        </a>
-        {% empty %}
-        <div class="empty"><i class="fas fa-tint d-block"></i><p>{% trans "Suvarma planı yoxdur" %}</p><a href="{% url 'irrigation:irrigation_add' %}" class="btn btn-success btn-sm rounded-pill px-3">{% trans "Plan yarat" %}</a></div>
-        {% endfor %}
-      </div>
-      <div class="col-lg-4">
-        <div class="sec-wrap">
-          <h6 class="fw-bold mb-4" style="color:var(--text)"><i class="fas fa-chart-pie me-2" style="color:#3b82f6"></i>{% trans "Statistika" %}</h6>
-          <div class="d-flex flex-column gap-3">
-            <div class="pill" style="border-radius:14px;padding:16px">
-              <div class="pill-v" style="font-size:1.6rem;color:#3b82f6">{{ today_consumption|default:"0" }} L</div>
-              <div class="pill-l">{% trans "Bu günkü istehlak" %}</div>
-            </div>
-            <div class="pill" style="border-radius:14px;padding:16px">
-              <div class="pill-v" style="font-size:1.6rem;color:#10b981">{{ active_zones_count|default:"0" }}</div>
-              <div class="pill-l">{% trans "Aktiv zona" %}</div>
-            </div>
-            <div class="pill" style="border-radius:14px;padding:16px">
-              <div class="pill-v" style="font-size:1.1rem;color:#f59e0b">
-                {% if next_irrigation %}{{ next_irrigation.time_until }}{% else %}—{% endif %}
-              </div>
-              <div class="pill-l">{% trans "Növbəti suvarma" %}</div>
-            </div>
+        <div class="position-relative" style="height:210px">
+          <canvas id="phChart"></canvas>
+          <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events:none">
+            <div style="font-size:1.75rem;font-weight:800;color:var(--v2-accent)">{{ avg_ph|default:"7.0" }}</div>
+            <small style="color:var(--text-muted)">Ort. pH</small>
           </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════
-       TAB 5 — HAVA
-  ══════════════════════════════════════════════════ -->
-  <div class="tpane" id="t-weather">
-    <div class="sh">
-      <h6><i class="fas fa-cloud-sun" style="color:#3b82f6"></i> {% trans "Hava Məlumatları" %}</h6>
-      <a href="{% url 'weather:weather_list' %}">{% trans "Hamısına bax" %} →</a>
-    </div>
-    {% if weather_list %}
-    <div class="car-wrap" id="car-weather">
-      <div class="car-viewport">
-        <div class="car-track" id="ct-weather">
-          {% for w in weather_list %}
-          <div class="car-item">
-            <a href="{% url 'weather:weather_detail' w.id %}" class="weather-mini h-100">
-              <div class="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                  <div class="fw-bold" style="color:var(--text)">{{ w.field.name }}</div>
-                  <small style="color:var(--text-muted)">{{ w.date|date:"d F Y"|default:"Bugün" }}</small>
-                </div>
-                <span style="font-size:2rem">{% if w.precipitation_mm > 0 %}🌧️{% elif w.temperature_max > 30 %}☀️{% else %}⛅{% endif %}</span>
-              </div>
-              <div class="d-flex align-items-end gap-3 mb-3">
-                <div style="font-size:2.4rem;font-weight:800;color:var(--text);line-height:1">{{ w.temperature_max }}°</div>
-                <div>
-                  <div class="small fw-bold" style="color:var(--text)">{{ w.get_weather_condition_display }}</div>
-                  <small style="color:var(--text-muted)">Min: {{ w.temperature_min|default:"—" }}°</small>
-                </div>
-              </div>
-              <div class="d-flex gap-2 flex-wrap">
-                <span style="background:var(--bg-secondary);border-radius:8px;padding:4px 10px;font-size:.72rem;color:var(--text-muted)">💧 {{ w.precipitation_mm }} mm</span>
-                {% if w.humidity_avg %}<span style="background:var(--bg-secondary);border-radius:8px;padding:4px 10px;font-size:.72rem;color:var(--text-muted)">💦 {{ w.humidity_avg }}%</span>{% endif %}
-              </div>
-            </a>
-          </div>
-          {% endfor %}
+    <div class="col-lg-7 au d4">
+      <div class="sec-wrap h-100">
+        <div class="sh">
+          <h6><i class="fas fa-chart-bar" style="color:#3b82f6"></i> {% trans "Sistem Göstəriciləri" %}</h6>
         </div>
-      </div>
-      <div class="car-controls" id="cc-weather"></div>
-    </div>
-    {% elif latest_weather %}
-    <a href="{% url 'weather:weather_list' %}" class="weather-hero">
-      <div style="position:relative;z-index:1">
-        <div class="d-flex justify-content-between mb-3">
-          <small style="opacity:.65;font-size:.7rem;text-transform:uppercase;letter-spacing:1px"><i class="fas fa-map-marker-alt me-1"></i>{{ latest_weather.field.name }}</small>
-          <small style="opacity:.5;font-size:.7rem">{% now "d F" %}</small>
-        </div>
-        <div class="d-flex align-items-center gap-4">
-          <div class="weather-icon">{% if latest_weather.precipitation_mm > 0 %}🌧️{% elif latest_weather.temperature_max > 30 %}☀️{% else %}⛅{% endif %}</div>
+        <div class="d-flex flex-column gap-3">
           <div>
-            <div style="font-size:3.2rem;font-weight:800;line-height:1">{{ latest_weather.temperature_max }}°C</div>
-            <div style="opacity:.8">{{ latest_weather.get_weather_condition_display }}</div>
-            <div style="opacity:.6;font-size:.8rem">💧 {{ latest_weather.precipitation_mm }} mm</div>
+            <div class="d-flex justify-content-between mb-2 small">
+              <span style="color:var(--text-muted)">{% trans "Aktiv Sensorlar" %}</span>
+              <span class="fw-bold" style="color:var(--v2-accent)">{{ total_sensors }} aktiv</span>
+            </div>
+            <div class="pbar-bg"><div class="pbar sys-bar" data-w="90"></div></div>
+          </div>
+          <div>
+            <div class="d-flex justify-content-between mb-2 small">
+              <span style="color:var(--text-muted)">{% trans "Bitki Sağlamlığı" %}</span>
+              <span class="fw-bold" style="color:#10b981">{{ plant_health_rate|default:"85" }}%</span>
+            </div>
+            <div class="pbar-bg"><div class="pbar sys-bar" data-w="{{ plant_health_rate|default:'85' }}"></div></div>
+          </div>
+          <div>
+            <div class="d-flex justify-content-between mb-2 small">
+              <span style="color:var(--text-muted)">{% trans "Suvarma Effektivliyi" %}</span>
+              <span class="fw-bold" style="color:#3b82f6">{{ irr_efficiency|default:"78" }}%</span>
+            </div>
+            <div class="pbar-bg"><div class="pbar blue sys-bar" data-w="{{ irr_efficiency|default:'78' }}"></div></div>
+          </div>
+          <div>
+            <div class="d-flex justify-content-between mb-2 small">
+              <span style="color:var(--text-muted)">{% trans "AI Proqnoz Dəqiqliyi" %}</span>
+              <span class="fw-bold" style="color:#f59e0b">92%</span>
+            </div>
+            <div class="pbar-bg"><div class="pbar amber sys-bar" data-w="92"></div></div>
           </div>
         </div>
       </div>
-    </a>
-    {% else %}
-    <div class="empty"><i class="fas fa-cloud d-block"></i><p>{% trans "Hava məlumatı yoxdur" %}</p></div>
-    {% endif %}
+    </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════
-       TAB 6 — AI & ANALİZ
-  ══════════════════════════════════════════════════ -->
-  <div class="tpane" id="t-ai">
-
-    <a href="{% url 'plants:plant_list' %}" class="ai-banner al">
+  <!-- ══════════ AI BANNER + HARVEST ══════════ -->
+  <div class="mb-4 au d5">
+    <a href="{% url 'plants:plant_list' %}" class="ai-banner">
       <div class="ai-orb"><i class="fas fa-robot"></i></div>
       <div>
         <h5 class="fw-bold mb-1 text-white">{% trans "Süni İntellekt Analizi" %}</h5>
-        <p class="mb-0 small" style="opacity:.8">{% trans "Hava və torpaq faktorlarına əsaslanan yığım proqnozları" %}</p>
+        <p class="mb-0 small" style="opacity:.78">{% trans "Hava və torpaq faktorlarına əsaslanan yığım proqnozları" %}</p>
       </div>
       <i class="fas fa-chevron-right ms-auto" style="opacity:.4"></i>
     </a>
 
-    <div class="row g-4">
-      <!-- Yığım proqnozları -->
-      <div class="col-lg-6">
-        <div class="sh">
-          <h6><i class="fas fa-calendar-check" style="color:#10b981"></i> {% trans "Yığım Proqnozları" %}</h6>
-          <a href="{% url 'plants:plant_list' %}">{% trans "Bütün bitkilər" %} →</a>
-        </div>
-        {% for plant in plants %}
-        <a href="{% url 'plants:harvest_prediction' plant.id %}" class="hcard au d{{ forloop.counter }}">
+    {% if plants %}
+    <div class="row g-3 mt-1">
+      {% for plant in plants %}
+      <div class="col-md-6 col-xl-4">
+        <a href="{% url 'plants:harvest_prediction' plant.id %}" class="hcard">
           <div class="d-flex align-items-center gap-3">
             <div class="hdays">
               <div class="hn">{{ plant.days_since_planting }}</div>
@@ -751,60 +613,27 @@
             </div>
             <div class="flex-grow-1 overflow-hidden">
               <div class="fw-bold text-truncate" style="color:var(--text)">{{ plant.get_plant_type_display }}</div>
-              <small style="color:var(--text-muted)"><i class="fas fa-map-marker-alt me-1"></i>{{ plant.field.name }} · {{ plant.get_growth_stage_display }}</small>
-              <div class="pbar-bg mt-2"><div class="pbar" data-stage="{{ plant.growth_stage }}"></div></div>
+              <small style="color:var(--text-muted)"><i class="fas fa-map-marker-alt me-1"></i>{{ plant.field.name }}</small>
+              <div class="pbar-bg mt-2"><div class="pbar stage-bar" data-stage="{{ plant.growth_stage }}"></div></div>
             </div>
-            {% if plant.is_harvest_due %}
-            <span class="sb sb-err flex-shrink-0" style="animation:dotPulse 1.5s infinite">⚠️ {% trans "Hazır" %}</span>
-            {% endif %}
+            {% if plant.is_harvest_due %}<span class="sb sb-err flex-shrink-0">⚠️</span>{% endif %}
             <i class="fas fa-magic fa-sm" style="color:var(--v2-accent);flex-shrink:0"></i>
           </div>
         </a>
-        {% empty %}
-        <div class="empty"><i class="fas fa-robot d-block"></i><p>{% trans "Analiz üçün bitki yoxdur" %}</p></div>
-        {% endfor %}
       </div>
-
-      <!-- Sahə metrikləri -->
-      <div class="col-lg-6">
-        <div class="sh">
-          <h6><i class="fas fa-chart-bar" style="color:#3b82f6"></i> {% trans "Sahə Metrikləri" %}</h6>
-        </div>
-        {% for field in fields %}
-        <a href="{% url 'fields:field_metrics' field.id %}" class="hcard au d{{ forloop.counter }}">
-          <div class="d-flex align-items-center gap-3">
-            <div class="hdays" style="background:linear-gradient(135deg,#1e3a5f,#3b82f6)">
-              <div class="hn" style="font-size:.85rem">{{ field.area_hectares }}</div>
-              <div class="hl">ha</div>
-            </div>
-            <div class="flex-grow-1 overflow-hidden">
-              <div class="fw-bold text-truncate" style="color:var(--text)">{{ field.name }}</div>
-              <small style="color:var(--text-muted)">{{ field.get_soil_type_display }}{% if field.location %} · {{ field.location }}{% endif %}</small>
-              <div class="d-flex gap-2 mt-2">
-                <span style="background:var(--bg-secondary);border-radius:6px;padding:2px 8px;font-size:.68rem;color:var(--text-muted)">pH {{ field.ph_level|default:"—" }}</span>
-                <span style="background:var(--bg-secondary);border-radius:6px;padding:2px 8px;font-size:.68rem;color:var(--text-muted)">{{ field.plants.count }} {% trans "bitki" %}</span>
-              </div>
-            </div>
-            <i class="fas fa-chart-bar fa-sm" style="color:#3b82f6;flex-shrink:0"></i>
-          </div>
-        </a>
-        {% empty %}
-        <div class="empty"><i class="fas fa-chart-bar d-block"></i><p>{% trans "Metrik üçün sahə yoxdur" %}</p></div>
-        {% endfor %}
-      </div>
+      {% endfor %}
     </div>
+    {% endif %}
   </div>
 
-  <!-- ══════════════════════════════════════════════════
-       TAB 7 — SENSORLAR
-  ══════════════════════════════════════════════════ -->
-  <div class="tpane" id="t-sensors">
+  <!-- ══════════ SENSORLAR CAROUSEL ══════════ -->
+  {% if sensors %}
+  <div class="mb-4 au d5">
     <div class="sh">
       <h6><i class="fas fa-microchip" style="color:#f59e0b"></i> {% trans "IoT Sensorlar" %}</h6>
       <a href="{% url 'sensors:sensor_dashboard' %}">{% trans "Sensora keç" %} →</a>
     </div>
-    {% if sensors %}
-    <div class="car-wrap" id="car-sensors">
+    <div class="car-wrap">
       <div class="car-viewport">
         <div class="car-track" id="ct-sensors">
           {% for sensor in sensors %}
@@ -818,12 +647,12 @@
                 <span class="sdot" style="background:{% if sensor.is_active %}#3d9970{% else %}#ef4444{% endif %}"></span>
               </div>
               <div class="d-flex gap-2 flex-wrap">
-                <span style="background:var(--bg-secondary);border-radius:8px;padding:5px 10px;font-size:.72rem;color:var(--text-muted)">{{ sensor.get_sensor_type_display }}</span>
+                <span style="background:var(--bg-secondary);border-radius:8px;padding:4px 10px;font-size:.7rem;color:var(--text-muted)">{{ sensor.get_sensor_type_display }}</span>
                 {% if sensor.battery_level %}
-                <span style="background:var(--bg-secondary);border-radius:8px;padding:5px 10px;font-size:.72rem;color:{% if sensor.battery_level > 30 %}#10b981{% else %}#ef4444{% endif %}">🔋 {{ sensor.battery_level }}%</span>
+                <span style="background:var(--bg-secondary);border-radius:8px;padding:4px 10px;font-size:.7rem;color:{% if sensor.battery_level > 30 %}#10b981{% else %}#ef4444{% endif %}">🔋 {{ sensor.battery_level }}%</span>
                 {% endif %}
                 {% if sensor.latest_reading %}
-                <span style="background:rgba(61,153,112,.1);border-radius:8px;padding:5px 10px;font-size:.72rem;color:var(--v2-accent);font-weight:700">{{ sensor.latest_reading }}</span>
+                <span style="background:rgba(61,153,112,.1);border-radius:8px;padding:4px 10px;font-size:.7rem;color:var(--v2-accent);font-weight:700">{{ sensor.latest_reading }}</span>
                 {% endif %}
               </div>
             </a>
@@ -833,177 +662,194 @@
       </div>
       <div class="car-controls" id="cc-sensors"></div>
     </div>
-    {% else %}
-    <div class="empty"><i class="fas fa-microchip d-block"></i><p>{% trans "Sensor tapılmadı" %}</p><a href="{% url 'sensors:add_sensor' %}" class="btn btn-success btn-sm rounded-pill px-3">{% trans "Sensor Əlavə Et" %}</a></div>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     FLOATING LIVE WIDGET (FPS kimi köşə)
+══════════════════════════════════════════ -->
+<div class="live-widget" id="liveWidget">
+  <div class="lw-card" id="lwCard">
+    <div class="lw-title"><span class="lw-live"></span> {% trans "Canlı Status" %}</div>
+    <div class="lw-row">
+      <span class="lw-lbl">{% trans "Sahələr" %}</span>
+      <span class="lw-val">{{ total_fields|default:"0" }}</span>
+    </div>
+    <div class="lw-row">
+      <span class="lw-lbl">{% trans "Sensorlar" %}</span>
+      <span class="lw-val">{{ total_sensors|default:"0" }} aktiv</span>
+    </div>
+    <div class="lw-row">
+      <span class="lw-lbl">{% trans "Bitkilər" %}</span>
+      <span class="lw-val">{{ total_plants|default:"0" }}</span>
+    </div>
+    <div class="lw-row">
+      <span class="lw-lbl">{% trans "Su (bugün)" %}</span>
+      <span class="lw-val">{{ water_usage|floatformat:0|default:"0" }}L</span>
+    </div>
+    {% if latest_weather %}
+    <div class="lw-row">
+      <span class="lw-lbl">{% trans "Hava" %}</span>
+      <span class="lw-val">{{ latest_weather.temperature_max }}°C {% if latest_weather.precipitation_mm > 0 %}🌧{% elif latest_weather.temperature_max > 30 %}☀{% else %}⛅{% endif %}</span>
+    </div>
     {% endif %}
   </div>
+  <button class="lw-btn" id="lwBtn" title="{% trans 'Canlı Status' %}">
+    <i class="fas fa-seedling"></i>
+  </button>
+</div>
 
-</div><!-- /container -->
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-/* ────────────────────────────────────
-   TAB MƏNTIQI
-──────────────────────────────────── */
-const stageMap = {seedling:14, vegetative:38, flowering:62, fruiting:82, mature:100, harvested:5};
+const stageMap = { seedling:14, vegetative:38, flowering:62, fruiting:82, mature:100, harvested:5 };
 
-function activatePane(id) {
-  document.querySelectorAll('.tpane').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.dtab').forEach(b => b.classList.remove('on'));
-  const pane = document.getElementById('t-' + id);
-  if (!pane) return;
-  pane.classList.add('on');
-  document.querySelector(`.dtab[data-t="${id}"]`)?.classList.add('on');
-
-  // Proqress bar-lar
-  pane.querySelectorAll('.pbar[data-w]').forEach(b => {
+/* ── Progress bars (sistem) ── */
+function runBars(scope) {
+  (scope || document).querySelectorAll('.sys-bar[data-w]').forEach(b => {
     b.style.width = '0%';
-    requestAnimationFrame(() => setTimeout(() => b.style.width = b.dataset.w + '%', 80));
+    requestAnimationFrame(() => setTimeout(() => b.style.width = b.dataset.w + '%', 120));
   });
-  pane.querySelectorAll('.pbar[data-stage]').forEach(b => {
+  (scope || document).querySelectorAll('.stage-bar[data-stage]').forEach(b => {
     const pct = stageMap[b.dataset.stage] || 10;
     b.style.width = '0%';
-    requestAnimationFrame(() => setTimeout(() => b.style.width = pct + '%', 80));
+    requestAnimationFrame(() => setTimeout(() => b.style.width = pct + '%', 120));
   });
 }
 
-document.querySelectorAll('.dtab').forEach(btn => {
-  btn.addEventListener('click', () => activatePane(btn.dataset.t));
+/* ── IntersectionObserver: animate on scroll ── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      e.target.style.animationPlayState = 'running';
+      runBars(e.target);
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.au,.al').forEach(el => {
+  el.style.animationPlayState = 'paused';
+  io.observe(el);
 });
 
-/* ────────────────────────────────────
-   CAROUSEL
-──────────────────────────────────── */
+// İlk görünən bölmə
+runBars();
+
+/* ── CAROUSEL ── */
 function initCarousel(trackId, controlId) {
   const track = document.getElementById(trackId);
-  const controls = document.getElementById(controlId);
-  if (!track || !controls) return;
-
+  const ctrlEl = document.getElementById(controlId);
+  if(!track || !ctrlEl) return;
   const items = track.querySelectorAll('.car-item');
-  if (items.length === 0) return;
+  if(!items.length) return;
 
-  // Görünən adet
-  function visibleCount() {
-    if (window.innerWidth < 576) return 1;
-    if (window.innerWidth < 992) return 2;
+  let cur = 0;
+
+  function vc() {
+    if(window.innerWidth < 576) return 1;
+    if(window.innerWidth < 992) return 2;
     return 3;
   }
 
-  let cur = 0;
-  const totalSlides = Math.ceil(items.length / visibleCount());
+  function build() {
+    const slides = Math.ceil(items.length / vc());
+    ctrlEl.innerHTML = '';
+    if(slides <= 1) return;
 
-  // Dot-ları yarat
-  function buildControls() {
-    const vc = visibleCount();
-    const slides = Math.ceil(items.length / vc);
-    controls.innerHTML = '';
-
-    // Prev
     const prev = document.createElement('button');
     prev.className = 'car-btn'; prev.innerHTML = '<i class="fas fa-chevron-left"></i>';
-    prev.onclick = () => goTo(cur - 1);
-    controls.appendChild(prev);
+    prev.onclick = () => go(cur - 1);
+    ctrlEl.appendChild(prev);
 
-    // Dots
-    for (let i = 0; i < slides; i++) {
+    for(let i = 0; i < slides; i++){
       const d = document.createElement('button');
-      d.className = 'car-dot' + (i === 0 ? ' on' : '');
-      d.onclick = () => goTo(i);
-      controls.appendChild(d);
+      d.className = 'car-dot' + (i===0?' on':'');
+      d.onclick = () => go(i);
+      ctrlEl.appendChild(d);
     }
 
-    // Next
     const next = document.createElement('button');
     next.className = 'car-btn'; next.innerHTML = '<i class="fas fa-chevron-right"></i>';
-    next.onclick = () => goTo(cur + 1);
-    controls.appendChild(next);
+    next.onclick = () => go(cur + 1);
+    ctrlEl.appendChild(next);
   }
 
-  function goTo(idx) {
-    const vc = visibleCount();
-    const slides = Math.ceil(items.length / vc);
+  function go(idx) {
+    const slides = Math.ceil(items.length / vc());
     cur = Math.max(0, Math.min(idx, slides - 1));
-
-    // Her item genişliyi = (container - gaps) / vc
-    const itemW = items[0].offsetWidth;
-    const gap = 16;
-    track.style.transform = `translateX(-${cur * vc * (itemW + gap)}px)`;
-
-    controls.querySelectorAll('.car-dot').forEach((d, i) => d.classList.toggle('on', i === cur));
+    const w = items[0].offsetWidth + 16;
+    track.style.transform = `translateX(-${cur * vc() * w}px)`;
+    ctrlEl.querySelectorAll('.car-dot').forEach((d, i) => d.classList.toggle('on', i===cur));
   }
 
-  buildControls();
-  window.addEventListener('resize', () => { cur = 0; buildControls(); goTo(0); });
+  build();
+  window.addEventListener('resize', () => { cur=0; build(); go(0); });
 }
 
-initCarousel('ct-fields',   'cc-fields');
-initCarousel('ct-plants',   'cc-plants');
-initCarousel('ct-weather',  'cc-weather');
-initCarousel('ct-sensors',  'cc-sensors');
+initCarousel('ct-weather', 'cc-weather');
+initCarousel('ct-fields',  'cc-fields');
+initCarousel('ct-plants',  'cc-plants');
+initCarousel('ct-sensors', 'cc-sensors');
 
-/* ────────────────────────────────────
-   pH CHART
-──────────────────────────────────── */
+/* ── pH CHART ── */
 const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-const textC  = isDark ? '#94a3b8' : '#6b7280';
-const phEl   = document.getElementById('phChart');
-if (phEl) {
+const tc = isDark ? '#94a3b8' : '#6b7280';
+const phEl = document.getElementById('phChart');
+if(phEl){
   new Chart(phEl.getContext('2d'), {
-    type: 'doughnut',
-    data: {
-      labels: ['{% trans "Optimal" %}', '{% trans "Turş" %}', '{% trans "Qələvi" %}'],
-      datasets: [{
+    type:'doughnut',
+    data:{
+      labels:['{% trans "Optimal" %}','{% trans "Turş" %}','{% trans "Qələvi" %}'],
+      datasets:[{
         data: {{ ph_dist|safe|default:"[60,25,15]" }},
-        backgroundColor: ['#3d9970','#f59e0b','#ef4444'],
-        borderWidth: 0, cutout: '80%', hoverOffset: 8
+        backgroundColor:['#3d9970','#f59e0b','#ef4444'],
+        borderWidth:0, cutout:'80%', hoverOffset:8
       }]
     },
-    options: {
-      maintainAspectRatio: false, responsive: true,
-      plugins: {
-        legend: { position:'bottom', labels:{ color:textC, usePointStyle:true, padding:18, font:{size:11} } },
-        tooltip: {
-          backgroundColor: isDark ? '#1e293b' : '#fff',
-          titleColor: isDark ? '#e2e8f0' : '#111',
-          bodyColor:  isDark ? '#94a3b8' : '#555',
-          borderColor: isDark ? '#334155' : '#e5e7eb', borderWidth: 1
-        }
+    options:{
+      maintainAspectRatio:false, responsive:true,
+      plugins:{
+        legend:{ position:'bottom', labels:{ color:tc, usePointStyle:true, padding:16, font:{size:11} } },
+        tooltip:{ backgroundColor:isDark?'#1e293b':'#fff', titleColor:isDark?'#e2e8f0':'#111', bodyColor:isDark?'#94a3b8':'#555', borderColor:isDark?'#334155':'#e5e7eb', borderWidth:1 }
       }
     }
   });
 }
 
-/* ────────────────────────────────────
-   PROGRESS BARS — ilkin yüklənmə (overview)
-──────────────────────────────────── */
-window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    document.querySelectorAll('#t-overview .pbar[data-w]').forEach(b => {
-      b.style.width = b.dataset.w + '%';
-    });
-    document.querySelectorAll('#t-overview .pbar[data-stage]').forEach(b => {
-      b.style.width = (stageMap[b.dataset.stage] || 10) + '%';
-    });
-  }, 500);
+/* ── FLOATING WIDGET ── */
+const lw   = document.getElementById('liveWidget');
+const lwBtn = document.getElementById('lwBtn');
+const lwCard = document.getElementById('lwCard');
+let lwOpen = false;
+
+// Scroll-da görün
+window.addEventListener('scroll', () => {
+  lw.classList.toggle('show', window.scrollY > 200);
+}, { passive:true });
+
+lwBtn.addEventListener('click', () => {
+  lwOpen = !lwOpen;
+  lwCard.classList.toggle('open', lwOpen);
+  lwBtn.innerHTML = lwOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-seedling"></i>';
 });
 
-/* ────────────────────────────────────
-   INTERSECTION OBSERVER — AU animasiyaları
-──────────────────────────────────── */
-const ioOpts = { threshold: 0.12 };
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.style.animationPlayState = 'running';
-      io.unobserve(e.target);
-    }
-  });
-}, ioOpts);
-document.querySelectorAll('.au,.al,.ar,.as').forEach(el => {
-  el.style.animationPlayState = 'paused';
-  io.observe(el);
+document.addEventListener('click', e => {
+  if(lwOpen && !lw.contains(e.target)){
+    lwOpen = false;
+    lwCard.classList.remove('open');
+    lwBtn.innerHTML = '<i class="fas fa-seedling"></i>';
+  }
 });
+
+/* ── Theme dəyişdikdə FOUC olmadan tətbiq et ── */
+const themeObserver = new MutationObserver(() => {
+  // Chart rənglərini yeniləmək lazım olsa buraya əlavə etmək olar
+});
+themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 </script>
 {% endblock %}
