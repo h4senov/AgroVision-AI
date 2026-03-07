@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Bütün Sessiyalar" %} — AgroVision{% endblock %}
+
+{% block extra_css %}
+<style>
+:root { --v2-from:#182f4c; --v2-to:#2e8e63; --v2-accent:#3d9970; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.au{animation:fadeUp .4s ease backwards;}
+.d1{animation-delay:.05s}.d2{animation-delay:.10s}
+
+.page-hero {
+  background:linear-gradient(135deg,var(--v2-from),var(--v2-to));
+  border-radius:20px; padding:22px 26px; color:#fff; margin-bottom:22px;
+  position:relative; overflow:hidden;
+}
+[data-theme="dark"] .page-hero { background:linear-gradient(135deg,#09203c,#09482d); }
+.page-hero::before { content:'';position:absolute;top:-50px;right:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05); }
+
+/* ── Stat xanaları ── */
+.s-stat {
+  background:var(--bg-card)!important; border:1px solid var(--border)!important;
+  border-radius:16px; padding:16px 18px; text-align:center;
+}
+.s-stat-val { font-size:1.7rem; font-weight:800; color:var(--text); line-height:1; }
+.s-stat-lbl { font-size:.68rem; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); margin-top:4px; }
+
+/* ── Cədvəl ── */
+.ses-table-wrap {
+  background:var(--bg-card)!important; border:1px solid var(--border)!important;
+  border-radius:18px; overflow:hidden;
+}
+.ses-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+.ses-table th {
+  padding:12px 14px; font-weight:700; font-size:.73rem;
+  text-transform:uppercase; letter-spacing:.4px;
+  color:var(--text-muted); border-bottom:1px solid var(--border);
+  background:var(--bg-secondary)!important; white-space:nowrap;
+}
+.ses-table td { padding:12px 14px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:middle; }
+.ses-table tr:last-child td { border-bottom:none; }
+.ses-table tr:hover td { background:rgba(61,153,112,.03); }
+
+/* ── Badge-lər ── */
+.role-badge {
+  display:inline-block; font-size:.65rem; font-weight:700;
+  padding:2px 9px; border-radius:50px;
+}
+.rb-admin  { background:rgba(239,68,68,.12);  color:#ef4444; }
+.rb-farmer { background:rgba(34,197,94,.12);  color:#16a34a; }
+.rb-expert { background:rgba(59,130,246,.12); color:#3b82f6; }
+.rb-guest  { background:rgba(107,114,128,.12);color:var(--text-muted); }
+
+.dev-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:.72rem; color:var(--text-muted);
+}
+.ip-mono { font-family:monospace; font-size:.78rem; color:var(--text-muted); }
+.uname   { font-weight:700; color:var(--text); }
+.bot-tag { background:rgba(239,68,68,.1); color:#ef4444; font-size:.62rem; padding:1px 7px; border-radius:50px; margin-left:4px; }
+
+/* ── Axtarış ── */
+.search-bar {
+  background:var(--bg-secondary)!important; border:1px solid var(--border)!important;
+  border-radius:11px; padding:9px 14px; font-size:.875rem; color:var(--text)!important;
+  outline:none; width:260px; transition:border-color .2s;
+}
+.search-bar:focus { border-color:var(--v2-accent)!important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-3 px-md-4">
+
+  <!-- Hero -->
+  <div class="page-hero au" style="position:relative;z-index:1">
+    <div style="position:relative;z-index:1">
+      <p class="mb-1 small" style="opacity:.6;text-transform:uppercase;letter-spacing:1px">
+        <i class="fas fa-history me-2"></i>{% trans "Admin Paneli" %}
+      </p>
+      <h3 class="fw-bold text-white mb-1">{% trans "Bütün Sessiyalar" %}</h3>
+      <p class="mb-0 small" style="opacity:.7">{% trans "İstifadəçi giriş tarixçəsi və şəbəkə məlumatları" %}</p>
+    </div>
+  </div>
+
+  <!-- Stat xanaları -->
+  <div class="row g-3 mb-4 au d1">
+    <div class="col-6 col-md-3">
+      <div class="s-stat">
+        <div class="s-stat-val" style="color:var(--v2-accent)">{{ sessions.count }}</div>
+        <div class="s-stat-lbl">{% trans "Ümumi Sessiya" %}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="s-stat">
+        <div class="s-stat-val" style="color:#3b82f6">{{ sessions|length }}</div>
+        <div class="s-stat-lbl">{% trans "Yüklənən" %}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="s-stat">
+        <div class="s-stat-val" style="color:#f59e0b">
+          {% with mob=sessions|dictsortreversed:"device" %}{{ mob|length }}{% endwith %}
+        </div>
+        <div class="s-stat-lbl">{% trans "Cihaz növü" %}</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="s-stat">
+        <div class="s-stat-val" style="color:#ef4444">
+          {% for s in sessions %}{% if s.is_bot %}+{% endif %}{% endfor %}
+        </div>
+        <div class="s-stat-lbl">{% trans "Bot / Crawler" %}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cədvəl -->
+  <div class="ses-table-wrap au d2">
+    <div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div style="font-weight:700;font-size:.875rem;color:var(--text);display:flex;align-items:center;gap:8px">
+        <i class="fas fa-list" style="color:var(--v2-accent)"></i>{% trans "Sessiya Qeydləri" %}
+      </div>
+      <input type="text" class="search-bar" id="sesSearch" placeholder="🔍 IP, ad, brauzer...">
+    </div>
+
+    <div style="overflow-x:auto">
+      <table class="ses-table" id="sesTable">
+        <thead>
+          <tr>
+            <th>{% trans "İstifadəçi" %}</th>
+            <th>{% trans "Rol" %}</th>
+            <th>IP</th>
+            <th>{% trans "Ölkə / Şəhər" %}</th>
+            <th>{% trans "Brauzer" %}</th>
+            <th>{% trans "OS" %}</th>
+            <th>{% trans "Cihaz" %}</th>
+            <th>{% trans "Son Giriş" %}</th>
+            <th>{% trans "Qeydiyyat" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in sessions %}
+          <tr>
+            <td>
+              {% if s.user %}
+                <span class="uname">{{ s.user.username }}</span>
+                {% if s.is_bot %}<span class="bot-tag">BOT</span>{% endif %}
+                {% if s.user.get_full_name %}
+                  <div style="font-size:.7rem;color:var(--text-muted)">{{ s.user.get_full_name }}</div>
+                {% endif %}
+              {% else %}
+                <span style="color:var(--text-muted)">👤 {% trans "Anonim" %}</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if s.user %}
+                {% if s.user.role == 'admin' %}<span class="role-badge rb-admin">Admin</span>
+                {% elif s.user.role == 'farmer' %}<span class="role-badge rb-farmer">Fermer</span>
+                {% elif s.user.role == 'expert' %}<span class="role-badge rb-expert">Mütəxəssis</span>
+                {% else %}<span class="role-badge rb-guest">Qonaq</span>{% endif %}
+              {% else %}
+                <span class="role-badge rb-guest">Anonim</span>
+              {% endif %}
+            </td>
+            <td class="ip-mono">{{ s.ip_address|default:"—" }}</td>
+            <td style="color:var(--text-muted)">
+              {% if s.country %}{{ s.country }}{% if s.city %} / {{ s.city }}{% endif %}{% else %}—{% endif %}
+            </td>
+            <td>
+              <span class="dev-badge">
+                {% if s.browser == 'Chrome' %}🟢
+                {% elif s.browser == 'Firefox' %}🟠
+                {% elif s.browser == 'Safari' %}🔵
+                {% elif s.browser == 'Edge' %}🔷
+                {% else %}⚪{% endif %}
+                {{ s.browser|default:"—" }}
+              </span>
+            </td>
+            <td style="color:var(--text-muted)">{{ s.os|default:"—" }}</td>
+            <td>
+              <span class="dev-badge">
+                {% if s.device == 'Mobile' %}📱{% elif s.device == 'Tablet' %}📟{% else %}💻{% endif %}
+                {{ s.device|default:"—" }}
+              </span>
+            </td>
+            <td style="color:var(--text-muted);white-space:nowrap">{{ s.last_login|date:"d.m.Y H:i" }}</td>
+            <td style="color:var(--text-muted);white-space:nowrap">{{ s.created_at|date:"d.m.Y H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">
+              <i class="fas fa-inbox" style="font-size:2rem;opacity:.2;margin-bottom:10px;display:block"></i>
+              {% trans "Hələ heç bir sessiya qeydə alınmayıb." %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Cədvəl axtarışı */
+document.getElementById('sesSearch').addEventListener('input', function(){
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#sesTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

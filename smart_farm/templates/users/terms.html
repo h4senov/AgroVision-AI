@@ -1,88 +1,78 @@
 {% extends 'base.html' %}
-{% block title %}İstifadə Qaydaları - AgroVision AI{% endblock %}
+{% block title %}İstifadə Şərtləri - AgroVision AI{% endblock %}
 
 {% block content %}
 <div class="container py-5 mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 custom-terms-card">
 
-                <h1 class="fw-bold mb-4 text-success">
-                    <i class="fas fa-file-contract me-2"></i>
-                    İstifadə Qaydaları və Şərtlər
-                </h1>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="fw-bold mb-0 text-success">
+                        <i class="fas fa-file-contract me-2"></i>
+                        İstifadə Qaydaları və Şərtlər
+                    </h1>
+                </div>
 
-                <p class="text-muted small">Son yenilənmə: 1 fevral 2026</p>
-                <hr>
+                <p class="text-muted small">Son yenilənmə: 6 mart 2026</p>
+                <hr class="opacity-10">
 
                 <div class="terms-content mt-4">
 
-                    <h5 class="fw-bold">1. Xidmətin Təsviri</h5>
+                    <h5 class="fw-bold section-title"><i class="fas fa-info-circle me-2"></i>1. Xidmətin Mahiyyəti</h5>
                     <p>
-                        AgroVision AI IoT sensorlar və Süni İntellekt vasitəsilə
-                        kənd təsərrüfatı sahələrinin monitorinqi və analizi üçün
-                        platformadır. Tövsiyələr sensor məlumatlarına əsaslanır.
+                        AgroVision AI platforması əşyaların interneti (IoT) sensorları, peyk görüntüləri və Süni İntellekt (AI) alqoritmləri vasitəsilə 
+                        kənd təsərrüfatı sahələrinin rəqəmsal monitorinqi üçün nəzərdə tutulmuşdur. Sistem torpaq rütubəti, NPK (Azot, Fosfor, Kalium) 
+                        səviyyəsi və iqlim göstəricilərini analiz edərək optimal suvarma və gübrələmə cədvəlləri təklif edir.
                     </p>
 
-                    <h5 class="fw-bold mt-4">2. Hesab Qaydaları</h5>
+                    <h5 class="fw-bold mt-4 section-title"><i class="fas fa-user-shield me-2"></i>2. Hesabın İdarə Edilməsi və Təhlükəsizlik</h5>
                     <ul>
-                        <li>Düzgün məlumatla qeydiyyat vacibdir</li>
-                        <li>Şifrəni qorumaq istifadəçinin məsuliyyətidir</li>
-                        <li>Hesab paylaşmaq qadağandır</li>
+                        <li>İstifadəçi qeydiyyat zamanı təqdim etdiyi məlumatların (ad, soyad, mobil nömrə, sahə koordinatları) doğruluğuna görə birbaşa məsuliyyət daşıyır.</li>
+                        <li>Hesab məlumatlarının (şifrə, login) üçüncü tərəflərə ötürülməsi qəti qadağandır.</li>
+                        <li>Sistemdə şübhəli fəaliyyət aşkarlandıqda, AgroVision AI birtərəfli qaydada hesabı dondurmaq hüququnu özündə saxlayır.</li>
                     </ul>
 
-                    <h5 class="fw-bold mt-4">3. Məlumatların Gizliliyi</h5>
+                    <h5 class="fw-bold mt-4 section-title"><i class="fas fa-database me-2"></i>3. Məlumatların Toplanması və Məxfilik</h5>
                     <p>
-                        Rütubət, PH, NPK və digər sahə dataları yalnız analiz
-                        üçün istifadə olunur və üçüncü tərəfə satılmır.
+                        Sensorlar vasitəsilə toplanan torpaq analizi və məhsuldarlıq dataları platformanın AI modelinin təkmilləşdirilməsi və fermerə 
+                        dəqiq hesabatlar verilməsi üçün istifadə olunur. Şəxsi məlumatlar "Fərdi məlumatlar haqqında" qanuna uyğun olaraq qorunur 
+                        və kommersiya məqsədilə üçüncü tərəflərə satılmır.
                     </p>
 
-                    <h5 class="fw-bold mt-4">4. AI Tövsiyələri</h5>
+                    <h5 class="fw-bold mt-4 section-title"><i class="fas fa-brain me-2"></i>4. Süni İntellekt (AI) Tövsiyələri və Məsuliyyət</h5>
                     <p>
-                        AI tövsiyələri köməkçi xarakterlidir.
-                        Son qərar fermerə məxsusdur.
+                        AI tərəfindən verilən suvarma və bitki xəstəlikləri diaqnozları məsləhət xarakterlidir. Təbiət hadisələri, gözlənilməz iqlim 
+                        dəyişiklikləri və sensorun fiziki zədələnməsi nəticəsində yaranan xətalara görə platforma hüquqi məsuliyyət daşımır. 
+                        Son aqrotexniki qərar fermerin səlahiyyətindədir.
                     </p>
 
-                    <h5 class="fw-bold mt-4">5. Avtomatik İdarəetmə</h5>
+                    <h5 class="fw-bold mt-4 section-title"><i class="fas fa-robot me-2"></i>5. Avtomatlaşdırılmış Suvarma Sistemi</h5>
                     <p>
-                        Tam Avtomatik rejimdə sistem klapanları və
-                        avadanlıqları özü idarə edə bilər.
+                        Sistem "Tam Avtomatik" rejimə keçirildikdə, klapanlar və su nasosları sensor göstəricilərinə əsasən insan müdaxiləsi olmadan 
+                        işə düşə bilər. İstifadəçi avadanlıqların texniki sazlığına və su təminatına mütəmadi nəzarət etməlidir.
                     </p>
 
-                    <h5 class="fw-bold mt-4">6. Ödəniş və Abunə</h5>
+                    <h5 class="fw-bold mt-4 section-title"><i class="fas fa-credit-card me-2"></i>6. Abunəlik və Ödəniş Şərtləri</h5>
                     <p>
-                        Bəzi funksiyalar ödənişlidir.
-                        Abunə planları platformada göstərilir.
+                        Professional analizlər, peyk xəritələri və uzunmüddətli arxivləşdirmə xidmətləri ödənişli abunəlik planları (Aylıq/İllik) 
+                        çərçivəsində təqdim edilir. Ödəniş edilmədikdə sistem "Məhdud Rejim"ə keçirilir.
                     </p>
 
-                    <h5 class="fw-bold mt-4">7. Təhlükəsizlik</h5>
+                    <h5 class="fw-bold mt-4 section-title"><i class="fas fa-exclamation-triangle me-2"></i>7. Fors-Major və Texniki Fasilələr</h5>
                     <p>
-                        Məlumatlar şifrələnir və qorunur,
-                        lakin 100% təhlükəsizlik zəmanəti yoxdur.
-                    </p>
-
-                    <h5 class="fw-bold mt-4">8. Hesabın Ləğvi</h5>
-                    <p>
-                        Qaydalar pozularsa hesab bloklana bilər.
-                    </p>
-
-                    <h5 class="fw-bold mt-4">9. Qaydaların Dəyişməsi</h5>
-                    <p>
-                        AgroVision AI qaydaları yeniləyə bilər.
-                        Davamlı istifadə razılıq sayılır.
-                    </p>
-
-                    <h5 class="fw-bold mt-4">10. Əlaqə</h5>
-                    <p>
-                        support@agrovision.az
+                        Server yenilənmələri və ya qlobal internet provayderlərində yaranan problemlər zamanı xidmətdə qısa müddətli fasilələr yarana bilər. 
+                        Bu kimi hallarda dataların itməməsi üçün sistem "Offline Cache" rejimində işləməyə davam edəcəkdir.
                     </p>
 
                 </div>
 
-                <div class="mt-5">
-                    <a href="{% url 'users:user_register' %}" 
-                       class="btn btn-outline-success rounded-pill px-4">
-                       Geri qayıt
+                <div class="mt-5 d-flex gap-3">
+                    <a href="{% url 'users:user_register' %}" class="btn btn-success rounded-pill px-4">
+                        Razıyam
+                    </a>
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill px-4">
+                        Geri qayıt
                     </a>
                 </div>
 
@@ -92,10 +82,45 @@
 </div>
 
 <style>
+/* Gece və Gündüz rejimi üçün rəng dəyişənləri */
+:root {
+    --terms-bg: #ffffff;
+    --terms-text: #555555;
+    --terms-title: #2c3e50;
+    --terms-card-bg: #ffffff;
+}
+
+[data-bs-theme="dark"] {
+    --terms-bg: #1a1d20;
+    --terms-text: #adb5bd;
+    --terms-title: #e9ecef;
+    --terms-card-bg: #212529;
+}
+
+.custom-terms-card {
+    background-color: var(--terms-card-bg) !important;
+    transition: background-color 0.3s ease;
+}
+
 .terms-content p, .terms-content li {
-    color: #555;
-    line-height: 1.7;
+    color: var(--terms-text);
+    line-height: 1.8;
+    font-size: 1.05rem;
+}
+
+.section-title {
+    color: var(--terms-title);
+    border-left: 4px solid #198754;
+    padding-left: 15px;
+    margin-bottom: 15px;
+}
+
+.terms-content ul {
+    padding-left: 20px;
+}
+
+.terms-content li {
+    margin-bottom: 10px;
 }
 </style>
-
 {% endblock %}

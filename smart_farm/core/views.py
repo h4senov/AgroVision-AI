@@ -15,23 +15,33 @@ from weather.models import WeatherData
 from news.models import News
 
 def log_user_session(request):
-    """Sessiya məlumatlarını qeyd edən köməkçi funksiya"""
+    """Sessiya məlumatlarını qeyd edən və MultipleObjectsReturned xətasını önləyən funksiya"""
     client_ip = get_client_ip(request)
     u_agent = request.META.get('HTTP_USER_AGENT', '')[:500]
     curr_user = request.user if request.user.is_authenticated else None
 
-    # update_or_create istifadəsi bazanın şişməsinin qarşısını alır
-    UserSession.objects.update_or_create(
-        ip_address=client_ip,
-        user=curr_user,
-        defaults={
-            'user_agent': u_agent,
-            'last_login': timezone.now(),
-            'city': "Baku (Guest)", 
-            'device': "Mobile" if "Mobile" in u_agent else "Desktop",
-            'browser': u_agent.split(' ')[0] if u_agent else "Unknown"
-        }
-    )
+    # filter() istifadə edirik ki, birdən çox nəticə gəlsə belə proqram çökməsin
+    session_qs = UserSession.objects.filter(ip_address=client_ip, user=curr_user)
+
+    if session_qs.exists():
+        # Əgər varsa, ilk tapılanı yeniləyirik
+        session = session_qs.first()
+        session.user_agent = u_agent
+        session.last_login = timezone.now()
+        session.device = "Mobile" if "Mobile" in u_agent else "Desktop"
+        session.browser = u_agent.split(' ')[0] if u_agent else "Unknown"
+        session.save()
+    else:
+        # Yoxdursa, yeni qeyd yaradırıq
+        UserSession.objects.create(
+            ip_address=client_ip,
+            user=curr_user,
+            user_agent=u_agent,
+            last_login=timezone.now(),
+            city="Baku (Guest)",
+            device="Mobile" if "Mobile" in u_agent else "Desktop",
+            browser=u_agent.split(' ')[0] if u_agent else "Unknown"
+        )
 
 def home(request):
 
