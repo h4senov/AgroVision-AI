@@ -60,13 +60,16 @@
     /* ══════════════════════════════════════════
        RESET & BODY
     ══════════════════════════════════════════ */
-    *, *::before, *::after { box-sizing: border-box; }
-    body {
-        background: var(--bg) !important;
-        color: var(--text);
-        transition: background .3s, color .3s;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
+
+  html, body {
+    background: var(--bg) !important;
+    transition: background .3s;
+}  
+   *, *::before, *::after {
+  transition: background-color .3s ease, 
+              color .3s ease, 
+              border-color .3s ease !important;
+}
 
     /* ══════════════════════════════════════════
        DESKTOP NAVBAR  (pill stili)
@@ -143,6 +146,7 @@
         border: 1px solid var(--border); background: var(--bg-secondary);
         color: var(--text-muted); display: flex; align-items: center;
         justify-content: center; cursor: pointer; font-size: .82rem; transition: all .2s;
+        touch-action: manipulation;
     }
     .ctrl-btn:hover { background: var(--v2-accent); color: #fff; border-color: var(--v2-accent); }
 
@@ -208,7 +212,7 @@
        MOBILE TOP BAR  (hamburger → offcanvas)
     ══════════════════════════════════════════ */
     .mob-top {
-        display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+        display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 1001;
         background: var(--navbar-bg); border-bottom: 1px solid var(--border);
         padding: 10px 16px; align-items: center; justify-content: space-between;
         box-shadow: var(--shadow-sm); height: 56px;
@@ -426,183 +430,9 @@
 <!-- ═══════════════════════════════════════════════
      DESKTOP NAVBAR
 ═══════════════════════════════════════════════ -->
-<nav class="site-nav">
-    <div class="site-nav-inner">
+ {% include 'components/_navbar.html' %}
 
-        <a class="nav-brand" href="{% if user.is_authenticated %}{% url 'core:dashboard' %}{% else %}/{% endif %}">
-            <div class="brand-icon"><i class="fas fa-tractor"></i></div>
-            <span>{% if user.is_authenticated %}{{ user_farm_name|default:"Smart Farm" }}{% else %}AgroVision AI{% endif %}</span>
-        </a>
-
-        {% if user.is_authenticated %}
-        <!-- ── Authenticated: pill links ── -->
-        <div class="pill-nav-wrap">
-            <a class="plink {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
-               href="{% url 'core:dashboard' %}">
-                <i class="fas fa-home"></i>{% trans "Panel" %}
-            </a>
-            <a class="plink {% if request.resolver_match.app_name == 'fields' %}active{% endif %}"
-               href="{% url 'fields:field_list' %}">
-                <i class="fas fa-map"></i>{% trans "Sahələr" %}
-            </a>
-            <a class="plink {% if request.resolver_match.app_name == 'plants' %}active{% endif %}"
-               href="{% url 'plants:plant_list' %}">
-                <i class="fas fa-seedling"></i>{% trans "Bitkilər" %}
-            </a>
-            <a class="plink {% if 'irrigation' in request.path %}active{% endif %}"
-               href="{% url 'irrigation:irrigation_list' %}">
-                <i class="fas fa-tint"></i>{% trans "Suvarma" %}
-            </a>
-            <a class="plink {% if request.resolver_match.app_name == 'sensors' %}active{% endif %}"
-               href="{% url 'sensors:sensor_list' %}">
-                <i class="fas fa-satellite-dish"></i>{% trans "Sensorlar" %}
-            </a>
-            <a class="plink {% if request.resolver_match.app_name == 'inventory' %}active{% endif %}"
-               href="{% url 'inventory:inventory_list' %}">
-                <i class="fas fa-box"></i>{% trans "Anbar" %}
-            </a>
-            <a class="plink {% if request.resolver_match.app_name == 'weather' %}active{% endif %}"
-               href="{% url 'weather:weather_list' %}">
-                <i class="fas fa-cloud-sun"></i>{% trans "Hava" %}
-            </a>
-        </div>
-
-        <div class="nav-right">
-            <!-- Dil -->
-            <div class="cdd" id="dd-lang">
-                <button class="ctrl-btn" onclick="toggleCDD('dd-lang')"><i class="fas fa-globe"></i></button>
-                <div class="cdd-menu" style="min-width:170px">
-                    {% load i18n %}
-                    {% get_current_language as CURRENT_LANG %}
-                    {% get_available_languages as ALL_LANGS %}
-                    {% get_language_info_list for ALL_LANGS as languages %}
-                    {% for lang in languages %}
-                    <form action="{% url 'set_language' %}" method="post">
-                        {% csrf_token %}
-                        <input name="next" type="hidden" value="{{ request.path }}">
-                        <input name="language" type="hidden" value="{{ lang.code }}">
-                        <button type="submit" class="cdd-item">
-                            <i class="fas fa-check fa-xs" style="color:var(--v2-accent);{% if lang.code != CURRENT_LANG %}opacity:0{% endif %}"></i>
-                            {{ lang.name_local }}
-                            <small class="ms-auto" style="opacity:.45">{{ lang.code|upper }}</small>
-                        </button>
-                    </form>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Tema -->
-            <button class="ctrl-btn" id="themeBtn"><i class="fas fa-moon" id="themeIcon"></i></button>
-
-            <!-- İstifadəçi -->
-            <div class="cdd" id="dd-user">
-                <div class="user-btn" onclick="toggleCDD('dd-user')">
-                    <div class="user-avatar">{{ user.username|first|upper }}</div>
-                    <span style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ user.username }}</span>
-                    <i class="fas fa-chevron-down fa-xs" style="color:var(--text-muted);margin-left:2px"></i>
-                </div>
-                <div class="cdd-menu">
-                    <a class="cdd-item" href="{% url 'users:user_profile' %}">
-                        <i class="fas fa-user" style="color:var(--v2-accent)"></i>{% trans "Profil" %}
-                    </a>
-                    {% if user.is_staff %}
-                    <div class="cdd-sep"></div>
-                    <div class="cdd-lbl">Admin</div>
-                    <a class="cdd-item" href="{% url 'products:product_create' %}"><i class="fas fa-plus-circle" style="color:#f59e0b"></i>{% trans "Yeni Produkt" %}</a>
-                    <a class="cdd-item" href="{% url 'products:product_list' %}?admin=1"><i class="fas fa-list" style="color:#f59e0b"></i>{% trans "Bütün Produktlər" %}</a>
-                    <a class="cdd-item" href="{% url 'news:news_create' %}"><i class="fas fa-newspaper" style="color:#3b82f6"></i>{% trans "Yeni Xəbər" %}</a>
-                    <a class="cdd-item" href="{% url 'news:news_list' %}?admin=1"><i class="fas fa-edit" style="color:#3b82f6"></i>{% trans "Xəbərlər (İdarə)" %}</a>
-                    <a class="cdd-item" href="{% url 'careers:career_list' %}?admin=1"><i class="fas fa-briefcase" style="color:#8b5cf6"></i>{% trans "Vakansiyalar" %}</a>
-                    {% endif %}
-                    <div class="cdd-sep"></div>
-                    <form method="post" action="{% url 'users:user_logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="cdd-item danger">
-                            <i class="fas fa-sign-out-alt"></i>{% trans "Çıxış" %}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        {% else %}
-        <!-- ── Unauthenticated: pub links ── -->
-        <div class="pub-wrap">
-            <div class="cdd" id="dd-about">
-                <button class="pub-link" onclick="toggleCDD('dd-about')"><i class="fas fa-info-circle me-1"></i>{% trans "Haqqımızda" %} <i class="fas fa-chevron-down fa-xs ms-1"></i></button>
-                <div class="cdd-menu">
-                    <a class="cdd-item" href="{% url 'pages:about_general' %}">{% trans "Ümumi Məlumatlar" %}</a>
-                    <a class="cdd-item" href="{% url 'pages:about_goals' %}">{% trans "Məqsədlərimiz" %}</a>
-                </div>
-            </div>
-            <a class="pub-link {% if request.resolver_match.app_name == 'careers' %}active{% endif %}" href="{% url 'careers:career_list' %}"><i class="fas fa-briefcase me-1"></i>{% trans "Karyera" %}</a>
-            <a class="pub-link {% if request.resolver_match.app_name == 'news' %}active{% endif %}" href="{% url 'news:news_list' %}"><i class="fas fa-newspaper me-1"></i>{% trans "Media" %}</a>
-            <a class="pub-link {% if request.resolver_match.url_name == 'contact_index' %}active{% endif %}" href="{% url 'pages:contact_index' %}"><i class="fas fa-phone-alt me-1"></i>{% trans "Əlaqə" %}</a>
-        </div>
-
-        <div class="nav-right">
-            <!-- Dil -->
-            <div class="cdd" id="dd-lang-pub">
-                <button class="ctrl-btn" onclick="toggleCDD('dd-lang-pub')"><i class="fas fa-globe"></i></button>
-                <div class="cdd-menu" style="min-width:160px">
-                    {% get_current_language as CURRENT_LANG %}
-                    {% get_available_languages as ALL_LANGS %}
-                    {% get_language_info_list for ALL_LANGS as languages %}
-                    {% for lang in languages %}
-                    <form action="{% url 'set_language' %}" method="post">
-                        {% csrf_token %}
-                        <input name="next" type="hidden" value="{{ request.path }}">
-                        <input name="language" type="hidden" value="{{ lang.code }}">
-                        <button type="submit" class="cdd-item">
-                            <i class="fas fa-check fa-xs" style="color:var(--v2-accent);{% if lang.code != CURRENT_LANG %}opacity:0{% endif %}"></i>
-                            {{ lang.name_local }}
-                        </button>
-                    </form>
-                    {% endfor %}
-                </div>
-            </div>
-            <button class="ctrl-btn" id="themeBtn"><i class="fas fa-moon" id="themeIcon"></i></button>
-            <a class="btn-login" href="{% url 'users:user_login' %}"><i class="fas fa-sign-in-alt me-1"></i>{% trans "Giriş" %}</a>
-            <a class="btn-register" href="{% url 'users:user_register' %}"><i class="fas fa-user-plus me-1"></i>{% trans "Qeydiyyat" %}</a>
-        </div>
-        {% endif %}
-
-    </div>
-</nav>
-
-<!-- ═══════════════════════════════════════════════
-     MOBILE TOP BAR
-═══════════════════════════════════════════════ -->
-<div class="mob-top">
-    <a class="nav-brand" href="{% if user.is_authenticated %}{% url 'core:dashboard' %}{% else %}/{% endif %}">
-        <div class="brand-icon" style="width:30px;height:30px;font-size:.8rem"><i class="fas fa-tractor"></i></div>
-        <span style="font-size:.92rem">{% if user.is_authenticated %}{{ user_farm_name|default:"Smart Farm" }}{% else %}AgroVision AI{% endif %}</span>
-    </a>
-    <div class="mob-right-actions">
-        <button class="ctrl-btn" id="themeBtnMob"><i class="fas fa-moon" id="themeIconMob"></i></button>
-        {% if user.is_authenticated %}
-        <div class="cdd" id="dd-mob-user">
-            <div class="user-btn" onclick="toggleCDD('dd-mob-user')" style="padding:4px 10px 4px 4px">
-                <div class="user-avatar">{{ user.username|first|upper }}</div>
-            </div>
-            <div class="cdd-menu">
-                <a class="cdd-item" href="{% url 'users:user_profile' %}"><i class="fas fa-user" style="color:var(--v2-accent)"></i>{% trans "Profil" %}</a>
-                <div class="cdd-sep"></div>
-                <form method="post" action="{% url 'users:user_logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="cdd-item danger"><i class="fas fa-sign-out-alt"></i>{% trans "Çıxış" %}</button>
-                </form>
-            </div>
-        </div>
-        {% else %}
-        <a href="{% url 'users:user_register' %}" class="btn-register" style="padding:7px 13px;font-size:.8rem">{% trans "Qeydiyyat" %}</a>
-        <!-- Unauthenticated mobile: hamburger for offcanvas -->
-        <button class="ctrl-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobOffcanvas">
-            <i class="fas fa-bars"></i>
-        </button>
-        {% endif %}
-    </div>
-</div>
+ 
 
 <!-- Unauthenticated offcanvas -->
 {% if not user.is_authenticated %}
@@ -787,8 +617,12 @@ function applyTheme(t) {
 }
 applyTheme(localStorage.getItem('theme') || 'light');
 document.getElementById('themeBtn')?.addEventListener('click', () => applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark'));
-document.getElementById('themeBtnMob')?.addEventListener('click', () => applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark'));
-
+['click','touchend'].forEach(ev =>
+  document.getElementById('themeBtnMob')?.addEventListener(ev, (e) => {
+    e.preventDefault();
+    applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark');
+  })
+); 
 /* ────────────────────────────────────────
    CUSTOM DROPDOWN
 ──────────────────────────────────────── */

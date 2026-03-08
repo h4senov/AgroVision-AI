@@ -1,0 +1,169 @@
+{% load i18n %}
+<style>
+/* ── Shared keyframes ── */
+@keyframes lwBeat   { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.6);opacity:.5} }
+@keyframes dpFadeUp { from{opacity:0;transform:translateY(26px)} to{opacity:1;transform:translateY(0)} }
+@keyframes dpFadeLeft{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:translateX(0)}}
+@keyframes dpShim   { 0%{background-position:200% 0}100%{background-position:-200% 0} }
+
+/* ── Stagger animasiya sinifləri ── */
+.au { opacity:0; animation:dpFadeUp  .6s cubic-bezier(.22,1,.36,1) forwards; animation-play-state:paused; }
+.al { opacity:0; animation:dpFadeLeft .6s cubic-bezier(.22,1,.36,1) forwards; animation-play-state:paused; }
+.d1{animation-delay:.04s}.d2{animation-delay:.10s}.d3{animation-delay:.16s}
+.d4{animation-delay:.22s}.d5{animation-delay:.28s}.d6{animation-delay:.34s}
+
+/* ── Section header ── */
+.dp-sh { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.dp-sh h6 { font-weight:700; margin:0; color:var(--text); display:flex; align-items:center; gap:8px; font-size:.92rem; }
+.dp-sh a  { font-size:.78rem; color:#3d9970; text-decoration:none; font-weight:600; }
+.dp-sh a:hover { text-decoration:underline; }
+.dp-sh-count {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:20px; height:20px; border-radius:50%;
+  background:rgba(61,153,112,.12); color:#3d9970; font-size:.65rem; font-weight:800;
+}
+
+/* ── Shared progress bar ── */
+.dp-pbar-bg { height:6px; border-radius:10px; background:var(--border); overflow:hidden; }
+.dp-pbar    { height:100%; border-radius:10px; width:0%;
+  background:linear-gradient(90deg,#182f4c,#3d9970);
+  transition:width 1.3s cubic-bezier(.22,1,.36,1); }
+
+/* ── CAROUSEL ── */
+.dp-car-wrap { position:relative; }
+.dp-car-vp   { overflow:hidden; }
+.dp-car-track {
+  display:flex; gap:14px;
+  transition:transform .42s cubic-bezier(.25,.8,.25,1);
+}
+.dp-car-item { flex:0 0 calc(33.333% - 10px); min-width:0; }
+@media(max-width:991px){ .dp-car-item { flex:0 0 calc(50% - 7px); } }
+@media(max-width:575px){ .dp-car-item { flex:0 0 88%; } }
+
+.dp-car-ctrl { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:14px; }
+.dp-car-btn {
+  width:34px; height:34px; border-radius:50%;
+  background:var(--bg-card); border:1px solid var(--border);
+  color:var(--text-muted); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.78rem; transition:all .22s;
+}
+.dp-car-btn:hover { background:#3d9970; color:#fff; border-color:#3d9970; }
+.dp-car-dot {
+  width:7px; height:7px; border-radius:50%;
+  background:var(--border); cursor:pointer; border:none;
+  transition:all .22s; padding:0;
+}
+.dp-car-dot.on { width:20px; border-radius:4px; background:#3d9970; }
+</style>
+
+<script>
+/* ── Carousel factory ── */
+function dpCarousel(trackId, ctrlId) {
+  const track = document.getElementById(trackId);
+  const ctrl  = document.getElementById(ctrlId);
+  if (!track || !ctrl) return;
+  const items = track.querySelectorAll('.dp-car-item');
+  if (!items.length) return;
+
+  let cur = 0;
+
+  function vc() {
+    if (window.innerWidth < 576) return 1;
+    if (window.innerWidth < 992) return 2;
+    return 3;
+  }
+
+  function build() {
+    const slides = Math.ceil(items.length / vc());
+    ctrl.innerHTML = '';
+    if (slides <= 1) return;
+
+    const prev = document.createElement('button');
+    prev.className = 'dp-car-btn'; prev.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    prev.onclick = () => go(cur - 1);
+    ctrl.appendChild(prev);
+
+    for (let i = 0; i < slides; i++) {
+      const d = document.createElement('button');
+      d.className = 'dp-car-dot' + (i === 0 ? ' on' : '');
+      d.onclick = () => go(i);
+      ctrl.appendChild(d);
+    }
+
+    const next = document.createElement('button');
+    next.className = 'dp-car-btn'; next.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    next.onclick = () => go(cur + 1);
+    ctrl.appendChild(next);
+  }
+
+  function go(idx) {
+    const slides = Math.ceil(items.length / vc());
+    cur = Math.max(0, Math.min(idx, slides - 1));
+    const gap = 14;
+    const itemW = items[0].offsetWidth + gap;
+    track.style.transform = `translateX(-${cur * vc() * itemW}px)`;
+    ctrl.querySelectorAll('.dp-car-dot').forEach((d, i) => d.classList.toggle('on', i === cur));
+  }
+
+  build();
+  let _rto;
+  window.addEventListener('resize', () => {
+    clearTimeout(_rto);
+    _rto = setTimeout(() => { cur = 0; build(); go(0); }, 200);
+  });
+}
+
+/* ── IntersectionObserver — animasiyaları scroll-da tetikle ── */
+(function(){
+  const stageW = { seedling:14, vegetative:38, flowering:62, fruiting:82, mature:100, harvested:5 };
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.style.animationPlayState = 'running';
+
+      /* progress bars */
+      e.target.querySelectorAll('.dp-pbar[data-w]').forEach(b => {
+        setTimeout(() => b.style.width = b.dataset.w + '%', 120);
+      });
+      e.target.querySelectorAll('.stage-bar[data-stage]').forEach(b => {
+        setTimeout(() => b.style.width = (stageW[b.dataset.stage] || 10) + '%', 120);
+      });
+      e.target.querySelectorAll('.dp-bar-fill[data-w]').forEach(b => {
+        setTimeout(() => b.style.width = b.dataset.w + '%', 120);
+      });
+
+      io.unobserve(e.target);
+    });
+  }, { threshold: 0.08 });
+
+  function initObserver() {
+  document.querySelectorAll('.au, .al').forEach(el => io.observe(el));
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initObserver);
+} else {
+  initObserver();
+}
+})();
+
+/* ── Touch/Swipe dəstəyi (carousel) ── */
+document.querySelectorAll('.dp-car-vp').forEach(vp => {
+  let sx = 0;
+  vp.addEventListener('touchstart', e => sx = e.touches[0].clientX, { passive: true });
+  vp.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    const track = vp.querySelector('.dp-car-track');
+    if (!track || Math.abs(dx) < 40) return;
+    const ctrl = vp.closest('.dp-car-wrap')?.querySelector('.dp-car-ctrl');
+    if (!ctrl) return;
+    const dots = [...ctrl.querySelectorAll('.dp-car-dot')];
+    const cur  = dots.findIndex(d => d.classList.contains('on'));
+    const btn  = dx < 0
+      ? ctrl.querySelectorAll('.dp-car-btn')[1]
+      : ctrl.querySelectorAll('.dp-car-btn')[0];
+    btn?.click();
+  }, { passive: true });
+});
+</script>

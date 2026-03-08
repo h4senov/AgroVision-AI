@@ -28,7 +28,7 @@
 ════════════════════════════════════════════ */
 .counter-bar {
   background:linear-gradient(135deg,#14532d,#198754);
-  padding:28px 0; color:#fff;
+  padding:28px 0; color:var(--bg-card);
 }
 [data-theme="dark"] .counter-bar { background:linear-gradient(135deg,#052e16,#14532d); }
 .counter-bar .cnt-num  { font-size:2rem; font-weight:700; line-height:1; }
@@ -37,8 +37,8 @@
 /* ════════════════════════════════════════════
    SECTIONS (fon rəngi)
 ════════════════════════════════════════════ */
-.sec-light  { background:#fff; }
-.sec-soft   { background:#f8faf9; }
+.sec-light  { background:var(--bg-card); }
+.sec-soft   { background:var(--bg-secondary); }
 [data-theme="dark"] .sec-light { background:var(--bg); }
 [data-theme="dark"] .sec-soft  { background:var(--bg-secondary); }
 
@@ -46,7 +46,7 @@
    FEATURE CARDS
 ════════════════════════════════════════════ */
 .feature-card {
-  background:#fff; border:1px solid #eee; border-radius:18px;
+  background:var(--bg-card); border:1px solid #eee; border-radius:18px;
   padding:28px; height:100%;
   transition:transform .3s, box-shadow .3s, border-color .3s;
 }
@@ -60,7 +60,7 @@
    STEPS
 ════════════════════════════════════════════ */
 .step-number {
-  width:48px; height:48px; border-radius:50%; background:#198754; color:#fff;
+  width:48px; height:48px; border-radius:50%; background:#198754; color:var(--bg-card);
   display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1rem;
   margin:0 auto 16px; box-shadow:0 4px 14px rgba(25,135,84,.35);
 }
@@ -75,7 +75,7 @@
 /* ════════════════════════════════════════════
    SECTION HEADINGS & TEXT
 ════════════════════════════════════════════ */
-.sec-title    { color:#111827; }
+.sec-title    { color:var(--text); }
 [data-theme="dark"] .sec-title { color:var(--text); }
 .sec-subtitle { color:#6b7280; }
 [data-theme="dark"] .sec-subtitle { color:var(--text-muted); }
@@ -83,11 +83,11 @@
 /* ════════════════════════════════════════════
    PROGRESS BARS (Niyə AI)
 ════════════════════════════════════════════ */
-.ai-section { background:#fff; }
+.ai-section { background:var(--bg-card); }
 [data-theme="dark"] .ai-section { background:var(--bg); }
 
 .stat-box {
-  background:#fff; border:1px solid #e5e7eb; border-radius:20px; padding:28px; text-align:center;
+  background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:28px; text-align:center;
   transition:transform .3s, box-shadow .3s;
 }
 .stat-box:hover { transform:translateY(-5px); box-shadow:0 14px 32px rgba(0,0,0,.08); }
@@ -98,19 +98,19 @@
 .stat-box small { color:#6b7280; }
 [data-theme="dark"] .stat-box small { color:var(--text-muted); }
 
-.prog-label { color:#111827; }
+.prog-label { color:var(--text); }
 [data-theme="dark"] .prog-label { color:var(--text); }
 .prog-val { color:#198754; }
 [data-theme="dark"] .prog-val { color:var(--v2-accent); }
-.progress { background:#e5e7eb; }
+.progress { background:var(--border); }
 [data-theme="dark"] .progress { background:var(--border); }
 
 /* ════════════════════════════════════════════
    TESTİMONİALS
 ════════════════════════════════════════════ */
-.testi-section { background:#f8faf9; }
+.testi-section { background:var(--bg-secondary); }
 [data-theme="dark"] .testi-section { background:var(--bg-secondary); }
-.testi-quote { color:#111827; }
+.testi-quote { color:var(--text); }
 [data-theme="dark"] .testi-quote { color:var(--text); }
 .carousel-control-prev-icon,
 .carousel-control-next-icon { filter:invert(1); }
@@ -131,11 +131,11 @@
 ════════════════════════════════════════════ */
 
 /* --- Platform uyğunluğu --- */
-.platform-section { background:#fff; }
+.platform-section { background:var(--bg-card); }
 [data-theme="dark"] .platform-section { background:var(--bg); }
 
 .plat-card {
-  background:#f8faf9; border:1px solid #e5e7eb; border-radius:18px; padding:24px 22px;
+  background:var(--bg-secondary); border:1px solid var(--border); border-radius:18px; padding:24px 22px;
   display:flex; align-items:flex-start; gap:16px;
   transition:transform .28s, box-shadow .28s;
 }
@@ -143,23 +143,23 @@
 [data-theme="dark"] .plat-card { background:var(--bg-card); border-color:var(--border); }
 [data-theme="dark"] .plat-card:hover { box-shadow:0 12px 28px rgba(0,0,0,.3); }
 .plat-icon { width:50px; height:50px; border-radius:14px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
-.plat-name { font-weight:700; color:#111827; margin-bottom:4px; }
+.plat-name { font-weight:700; color:var(--text); margin-bottom:4px; }
 [data-theme="dark"] .plat-name { color:var(--text); }
 .plat-desc { color:#6b7280; font-size:.85rem; }
 [data-theme="dark"] .plat-desc { color:var(--text-muted); }
 
 /* --- Tariflər --- */
-.price-section { background:#f8faf9; }
+.price-section { background:var(--bg-secondary); }
 [data-theme="dark"] .price-section { background:var(--bg-secondary); }
 
 .price-card {
-  background:#fff; border:1px solid #e5e7eb; border-radius:22px; padding:32px 28px;
+  background:var(--bg-card); border:1px solid var(--border); border-radius:22px; padding:32px 28px;
   height:100%; display:flex; flex-direction:column;
   transition:transform .3s, box-shadow .3s;
 }
 .price-card:hover { transform:translateY(-7px); box-shadow:0 18px 40px rgba(0,0,0,.1); }
 .price-card.featured {
-  background:linear-gradient(135deg,#14532d,#198754); border-color:transparent; color:#fff;
+  background:linear-gradient(135deg,#14532d,#198754); border-color:transparent; color:var(--bg-card);
 }
 [data-theme="dark"] .price-card { background:var(--bg-card); border-color:var(--border); }
 [data-theme="dark"] .price-card.featured { background:linear-gradient(135deg,#052e16,#166534); }
@@ -173,11 +173,11 @@
 .price-card.featured .price-feat li { border-color:rgba(255,255,255,.15); color:rgba(255,255,255,.9); }
 
 /* --- Sual & Cavab --- */
-.faq-section { background:#fff; }
+.faq-section { background:var(--bg-card); }
 [data-theme="dark"] .faq-section { background:var(--bg); }
 
 .faq-item {
-  background:#f8faf9; border:1px solid #e5e7eb; border-radius:16px;
+  background:var(--bg-secondary); border:1px solid var(--border); border-radius:16px;
   overflow:hidden; margin-bottom:12px; transition:border-color .2s;
 }
 .faq-item:hover { border-color:#198754; }
@@ -185,7 +185,7 @@
 [data-theme="dark"] .faq-item:hover { border-color:var(--v2-accent); }
 .faq-q {
   padding:18px 22px; font-weight:700; font-size:.95rem; cursor:pointer;
-  display:flex; justify-content:space-between; align-items:center; color:#111827;
+  display:flex; justify-content:space-between; align-items:center; color:var(--text);
   user-select:none;
 }
 [data-theme="dark"] .faq-q { color:var(--text); }
@@ -199,7 +199,7 @@
 
 /* --- Şərikli sahib kartı --- */
 .partner-logo {
-  background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:18px 28px;
+  background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:18px 28px;
   display:flex; align-items:center; justify-content:center; transition:all .25s;
   font-weight:700; font-size:1.1rem; color:#6b7280; min-height:70px;
 }
@@ -208,11 +208,11 @@
 [data-theme="dark"] .partner-logo:hover { border-color:var(--v2-accent); color:var(--v2-accent); }
 
 /* --- Son xəbərlər --- */
-.news-section { background:#f8faf9; }
+.news-section { background:var(--bg-secondary); }
 [data-theme="dark"] .news-section { background:var(--bg-secondary); }
 
 .news-card {
-  background:#fff; border:1px solid #e5e7eb; border-radius:18px; overflow:hidden;
+  background:var(--bg-card); border:1px solid var(--border); border-radius:18px; overflow:hidden;
   height:100%; display:flex; flex-direction:column; transition:transform .3s, box-shadow .3s;
   text-decoration:none;
 }
@@ -222,7 +222,7 @@
 .news-body { padding:18px 20px; flex:1; display:flex; flex-direction:column; }
 .news-tag { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#198754; margin-bottom:6px; }
 [data-theme="dark"] .news-tag { color:var(--v2-accent); }
-.news-title { font-weight:700; color:#111827; font-size:.95rem; margin-bottom:8px; line-height:1.45; }
+.news-title { font-weight:700; color:var(--text); font-size:.95rem; margin-bottom:8px; line-height:1.45; }
 [data-theme="dark"] .news-title { color:var(--text); }
 .news-date { font-size:.72rem; color:#9ca3af; margin-top:auto; padding-top:10px; }
 [data-theme="dark"] .news-date { color:var(--text-muted); }
@@ -235,9 +235,9 @@
   font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:7px;
   transition:all .2s;
 }
-.btn-green-outline:hover { background:#198754; color:#fff; }
+.btn-green-outline:hover { background:#198754; color:var(--bg-card); }
 [data-theme="dark"] .btn-green-outline { border-color:var(--v2-accent); color:var(--v2-accent); }
-[data-theme="dark"] .btn-green-outline:hover { background:var(--v2-accent); color:#fff; }
+[data-theme="dark"] .btn-green-outline:hover { background:var(--v2-accent); color:var(--bg-card); }
 </style>
 {% endblock %}
 
@@ -321,7 +321,7 @@
       </div>
       <div class="col-md-6 col-lg-4 reveal delay-3">
         <div class="feature-card">
-          <div class="icon-box" style="background:#fff3e0;color:#e65100"><i class="fas fa-faucet"></i></div>
+          <div class="icon-box" style="background:var(--bg-card)3e0;color:#e65100"><i class="fas fa-faucet"></i></div>
           <h5 class="fw-bold sec-title">{% trans "Smart Suvarma" %}</h5>
           <p class="sec-subtitle small">{% trans "Hava proqnozuna görə suvarma klapanlarını avtomatik idarə edir." %}</p>
         </div>
@@ -507,7 +507,7 @@
       </div>
       <div class="col-md-6 col-lg-3 reveal delay-1">
         <div class="plat-card">
-          <div class="plat-icon" style="background:#fff3e0"><i class="fas fa-microchip" style="color:#e65100;font-size:1.4rem"></i></div>
+          <div class="plat-icon" style="background:var(--bg-card)3e0"><i class="fas fa-microchip" style="color:#e65100;font-size:1.4rem"></i></div>
           <div>
             <div class="plat-name">IoT Gateway</div>
             <div class="plat-desc">{% trans "Raspberry Pi, Arduino ilə birbaşa inteqrasiya." %}</div>
@@ -557,7 +557,7 @@
           </div>
           <div class="mb-4">
             <div class="fw-bold small text-uppercase mb-2" style="color:rgba(255,255,255,.65)">🚀 Pro</div>
-            <div class="price-val" style="color:#fff">49 <span style="font-size:1rem;font-weight:400;opacity:.7">₼/ay</span></div>
+            <div class="price-val" style="color:var(--bg-card)">49 <span style="font-size:1rem;font-weight:400;opacity:.7">₼/ay</span></div>
             <div class="price-period" style="color:rgba(255,255,255,.6)">{% trans "İllik ödənişdə 20% endirim" %}</div>
           </div>
           <ul class="price-feat mb-4 flex-grow-1">

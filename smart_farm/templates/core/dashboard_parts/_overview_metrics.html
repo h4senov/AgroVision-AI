@@ -1,74 +1,134 @@
-<!-- Statistika Kartları -->
-<div class="row mb-4">
-    <!-- Sensorlar -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card dashboard-card text-white bg-secondary hover-lift">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5 class="card-title">Sensorlar</h5>
-                        <h2 class="mb-0">{{ total_sensors }}</h2>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-microchip fa-2x"></i>
-                    </div>
-                </div>
-                <p class="card-text mb-0">{{ active_sensors }} aktiv sensor</p>
-            </div>
+{% load i18n %}
+  
+
+<div class="row g-3 mb-4">
+  {% with cards=True %}
+
+  <!-- Sahələr -->
+  <div class="col-6 col-xl-3 au d1">
+    <a href="{% url 'fields:field_list' %}" class="dp-stat-card">
+      <div class="dp-stat-top">
+        <div class="dp-stat-icon" style="background:rgba(61,153,112,.12)">
+          <i class="fas fa-map-marked-alt" style="color:#3d9970"></i>
         </div>
-    </div>
-    
-    <!-- Sahələr -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card dashboard-card text-white bg-primary hover-lift">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5 class="card-title">Sahələr</h5>
-                        <h2 class="mb-0">{{ total_fields }}</h2>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-map-marked-alt fa-2x"></i>
-                    </div>
-                </div>
-                <p class="card-text mb-0">{{ total_farm_area|floatformat:2 }} ha ümumi sahə</p>
-            </div>
+        <span class="dp-stat-change up"><i class="fas fa-arrow-up fa-xs"></i> {% trans "aktiv" %}</span>
+      </div>
+      <div class="dp-stat-val counter" data-target="{{ total_fields|default:0 }}">0</div>
+      <div class="dp-stat-lbl">{% trans "Ümumi Sahə" %}</div>
+      <div class="dp-stat-bar"><div class="dp-bar-fill" style="background:#3d9970" data-w="100"></div></div>
+    </a>
+  </div>
+
+  <!-- Bitkilər -->
+  <div class="col-6 col-xl-3 au d2">
+    <a href="{% url 'plants:plant_list' %}" class="dp-stat-card">
+      <div class="dp-stat-top">
+        <div class="dp-stat-icon" style="background:rgba(16,185,129,.12)">
+          <i class="fas fa-seedling" style="color:#10b981"></i>
         </div>
-    </div>
-    
-    <!-- Bitkilər -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card dashboard-card text-white bg-success hover-lift">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5 class="card-title">Bitkilər</h5>
-                        <h2 class="mb-0">{{ total_plants }}</h2>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-seedling fa-2x"></i>
-                    </div>
-                </div>
-                <p class="card-text mb-0">{{ active_plants_count }} aktiv • {{ total_plant_area|floatformat:2 }} ha</p>
-            </div>
+        <span class="dp-stat-change up"><i class="fas fa-leaf fa-xs"></i> {% trans "aktiv" %}</span>
+      </div>
+      <div class="dp-stat-val counter" data-target="{{ total_plants|default:0 }}">0</div>
+      <div class="dp-stat-lbl">{% trans "Aktiv Bitki" %}</div>
+      <div class="dp-stat-bar"><div class="dp-bar-fill" style="background:#10b981" data-w="80"></div></div>
+    </a>
+  </div>
+
+  <!-- Su -->
+  <div class="col-6 col-xl-3 au d3">
+    <a href="{% url 'irrigation:irrigation_list' %}" class="dp-stat-card">
+      <div class="dp-stat-top">
+        <div class="dp-stat-icon" style="background:rgba(59,130,246,.12)">
+          <i class="fas fa-tint" style="color:#3b82f6"></i>
         </div>
-    </div>
-    
-    <!-- Yaxın Yığımlar -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card dashboard-card text-white bg-warning hover-lift">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5 class="card-title">Yaxın Yığımlar</h5>
-                        <h2 class="mb-0">{{ upcoming_harvests }}</h2>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-hourglass-half fa-2x"></i>
-                    </div>
-                </div>
-                <p class="card-text mb-0">Növbəti 7 gün ərzində</p>
-            </div>
+        <span class="dp-stat-change" style="color:var(--text-muted)">{% trans "bu gün" %}</span>
+      </div>
+      <div class="dp-stat-val" style="font-size:1.7rem">
+        <span class="counter" data-target="{{ water_usage|floatformat:0|default:0 }}">0</span>
+        <span style="font-size:.9rem;font-weight:500;margin-left:2px">L</span>
+      </div>
+      <div class="dp-stat-lbl">{% trans "İstifadə Edilən Su" %}</div>
+      <div class="dp-stat-bar"><div class="dp-bar-fill" style="background:#3b82f6" data-w="65"></div></div>
+    </a>
+  </div>
+
+  <!-- Sensorlar -->
+  <div class="col-6 col-xl-3 au d4">
+    <a href="{% url 'sensors:sensor_dashboard' %}" class="dp-stat-card">
+      <div class="dp-stat-top">
+        <div class="dp-stat-icon" style="background:rgba(245,158,11,.12)">
+          <i class="fas fa-microchip" style="color:#f59e0b"></i>
         </div>
-    </div>
+        <span class="dp-stat-change up" style="color:#10b981">
+          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;animation:lwBeat 1.6s infinite"></span>
+          IoT
+        </span>
+      </div>
+      <div class="dp-stat-val counter" data-target="{{ total_sensors|default:0 }}">0</div>
+      <div class="dp-stat-lbl">{% trans "Onlayn Sensor" %}</div>
+      <div class="dp-stat-bar"><div class="dp-bar-fill" style="background:#f59e0b" data-w="72"></div></div>
+    </a>
+  </div>
+
+  {% endwith %}
 </div>
+
+<style>
+.dp-stat-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 22px; padding: 20px 18px;
+  display: block; text-decoration: none; overflow: hidden; position: relative;
+  transition: transform .32s cubic-bezier(.22,1,.36,1), box-shadow .32s, border-color .25s;
+}
+.dp-stat-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #182f4c, #3d9970);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .35s cubic-bezier(.22,1,.36,1);
+}
+.dp-stat-card:hover { transform: translateY(-8px); box-shadow: 0 20px 42px rgba(0,0,0,.12); border-color: #3d9970 !important; }
+.dp-stat-card:hover::after { transform: scaleX(1); }
+.dp-stat-top   { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.dp-stat-icon  { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.dp-stat-change { font-size: .7rem; font-weight: 700; padding: 3px 8px; border-radius: 50px; background: var(--bg-secondary); color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.dp-stat-change.up { color: #10b981; background: rgba(16,185,129,.1); }
+.dp-stat-val { font-size: 2.1rem; font-weight: 800; color: var(--text); line-height: 1.1; margin-bottom: 4px; }
+.dp-stat-lbl { font-size: .67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--text-muted); margin-bottom: 14px; }
+.dp-stat-bar { height: 5px; border-radius: 10px; background: var(--border); overflow: hidden; }
+.dp-bar-fill { height: 100%; border-radius: 10px; width: 0%; transition: width 1.4s cubic-bezier(.22,1,.36,1); }
+</style>
+
+<script>
+(function(){
+  /* Counter animasiyası */
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.target) || 0;
+    if (!target) { el.textContent = '0'; return; }
+    const dur = 1200, step = 16;
+    let cur = 0, start = null;
+    function tick(ts) {
+      if (!start) start = ts;
+      const pct = Math.min((ts - start) / dur, 1);
+      cur = Math.round(pct * target);
+      el.textContent = cur.toLocaleString();
+      if (pct < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* Intersection Observer ile tetikle */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.querySelectorAll('.counter').forEach(animateCounter);
+      e.target.querySelectorAll('.dp-bar-fill[data-w]').forEach(b => {
+        setTimeout(() => b.style.width = b.dataset.w + '%', 100);
+      });
+      io.unobserve(e.target);
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll('.dp-stat-card').forEach(c => io.observe(c));
+})();
+</script>

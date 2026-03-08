@@ -1,0 +1,122 @@
+{% load i18n %}
+ 
+
+<div class="mb-4 au d3" id="dp-activity-wrap">
+  <div class="dp-sh">
+    <h6><i class="fas fa-history" style="color:#6366f1"></i> {% trans "Son Aktivliklər" %}</h6>
+    <span style="font-size:.75rem;color:var(--text-muted)">{% trans "Bugün" %}</span>
+  </div>
+
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:22px;padding:8px 6px">
+
+    {# Suvarmalar #}
+    {% for plan in upcoming_irrigations %}
+    <a href="{% url 'irrigation:irrigation_detail' plan.pk %}" class="dp-act-row">
+      <div class="dp-act-ico" style="background:rgba(59,130,246,.12)">
+        <i class="fas fa-tint" style="color:#3b82f6"></i>
+      </div>
+      <div class="dp-act-body">
+        <div class="dp-act-title">{{ plan.field.name }} — {{ plan.get_irrigation_type_display }}</div>
+        <div class="dp-act-sub">{{ plan.irrigation_date|date:"d/m/Y" }}{% if plan.start_time %} · {{ plan.start_time|time:"H:i" }}{% endif %}</div>
+      </div>
+      <span class="dp-act-badge
+        {% if plan.status == 'completed' %}green
+        {% elif plan.status == 'planned'   %}amber
+        {% elif plan.status == 'active'    %}blue
+        {% else %}red{% endif %}">
+        {{ plan.get_status_display }}
+      </span>
+    </a>
+    {% empty %}
+    <div class="dp-act-empty">
+      <i class="fas fa-tint"></i>
+      <span>{% trans "Planlaşdırılmış suvarma yoxdur" %}</span>
+      <a href="{% url 'irrigation:irrigation_add' %}">{% trans "Plan yarat" %}</a>
+    </div>
+    {% endfor %}
+
+    {# Anbar xəbərdarlıqları #}
+    {% for item in low_stock_items %}
+    <div class="dp-act-row">
+      <div class="dp-act-ico" style="background:rgba(239,68,68,.1)">
+        <i class="fas fa-exclamation-triangle" style="color:#ef4444"></i>
+      </div>
+      <div class="dp-act-body">
+        <div class="dp-act-title">{{ item.item_name }}</div>
+        <div class="dp-act-sub">{% trans "Qalıq" %}: <strong style="color:#ef4444">{{ item.quantity }} {{ item.unit|default:"ədəd" }}</strong></div>
+      </div>
+      <span class="dp-act-badge red">{% trans "Az qalıb" %}</span>
+    </div>
+    {% endfor %}
+
+    {# Hava məlumatı #}
+    {% if latest_weather %}
+    <a href="{% url 'weather:weather_list' %}" class="dp-act-row">
+      <div class="dp-act-ico" style="background:rgba(99,102,241,.1)">
+        <i class="fas fa-cloud-sun" style="color:#6366f1"></i>
+      </div>
+      <div class="dp-act-body">
+        <div class="dp-act-title">{{ latest_weather.field.name }} — {{ latest_weather.get_weather_condition_display }}</div>
+        <div class="dp-act-sub">{{ latest_weather.temperature_max }}°C · 💧{{ latest_weather.precipitation_mm }}mm</div>
+      </div>
+      <span class="dp-act-badge blue">{% trans "Hava" %}</span>
+    </a>
+    {% endif %}
+
+    {# Yığıma hazır bitkilər #}
+    {% for plant in plants %}
+      {% if plant.is_harvest_due %}
+      <a href="{% url 'plants:plant_detail' plant.id %}" class="dp-act-row">
+        <div class="dp-act-ico" style="background:rgba(245,158,11,.1)">
+          <i class="fas fa-wheat fa-xs" style="color:#f59e0b"></i>
+        </div>
+        <div class="dp-act-body">
+          <div class="dp-act-title">{{ plant.get_plant_type_display }} — {{ plant.field.name }}</div>
+          <div class="dp-act-sub">⚠️ {% trans "Yığıma hazırdır" %}</div>
+        </div>
+        <span class="dp-act-badge amber">{% trans "Yığım" %}</span>
+      </a>
+      {% endif %}
+    {% endfor %}
+
+    {# Heç bir aktivlik yoxdursa #}
+    {% if not upcoming_irrigations and not low_stock_items and not latest_weather %}
+    <div class="dp-act-empty">
+      <i class="fas fa-check-circle" style="color:#3d9970;opacity:.4"></i>
+      <span>{% trans "Hər şey qaydasındadır" %} ✅</span>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<style>
+.dp-act-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 12px; border-radius: 14px; text-decoration: none; color: var(--text);
+  transition: background .22s;
+  border-bottom: 1px solid var(--border);
+}
+.dp-act-row:last-child { border-bottom: none; }
+.dp-act-row:hover { background: var(--bg-secondary); color: var(--text); }
+.dp-act-ico  { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: .9rem; }
+.dp-act-body { flex: 1; overflow: hidden; }
+.dp-act-title { font-size: .82rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dp-act-sub   { font-size: .71rem; color: var(--text-muted); }
+.dp-act-badge { padding: 3px 9px; border-radius: 50px; font-size: .65rem; font-weight: 700; flex-shrink: 0; }
+.dp-act-badge.green { background:rgba(61,153,112,.12); color:#059669; }
+.dp-act-badge.amber { background:rgba(245,158,11,.12); color:#d97706; }
+.dp-act-badge.blue  { background:rgba(59,130,246,.12);  color:#3b82f6; }
+.dp-act-badge.red   { background:rgba(239,68,68,.12);   color:#ef4444; }
+[data-theme="dark"] .dp-act-badge.green { color:#34d399; }
+[data-theme="dark"] .dp-act-badge.amber { color:#fbbf24; }
+[data-theme="dark"] .dp-act-badge.blue  { color:#60a5fa; }
+[data-theme="dark"] .dp-act-badge.red   { color:#f87171; }
+
+.dp-act-empty {
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 14px; font-size: .82rem; color: var(--text-muted);
+}
+.dp-act-empty i { font-size: 1.1rem; opacity: .3; }
+.dp-act-empty a { margin-left: auto; color: #3d9970; font-weight: 600; text-decoration: none; font-size: .78rem; }
+</style>

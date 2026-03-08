@@ -1,0 +1,172 @@
+{% load i18n %}
+ 
+<style>
+.lw-root {
+  position: fixed; bottom: 28px; right: 22px; z-index: 1040;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+  opacity: 0; transform: translateY(20px); pointer-events: none;
+  transition: opacity .38s cubic-bezier(.22,1,.36,1), transform .38s cubic-bezier(.22,1,.36,1);
+}
+.lw-root.show { opacity: 1; transform: translateY(0); pointer-events: none; }
+.lw-btn { pointer-events: auto; }
+.lw-card.open { pointer-events: auto; }
+/* Kart */
+.lw-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 18px; padding: 14px 17px; width: 218px;
+  box-shadow: 0 14px 36px rgba(0,0,0,.14);
+  transform: scale(.88) translateY(12px); opacity: 0;
+  pointer-events: none; transition: transform .32s cubic-bezier(.22,1,.36,1), opacity .28s;
+  transform-origin: bottom right;
+}
+.lw-card.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: auto; }
+
+.lw-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 11px; padding-bottom: 9px;
+  border-bottom: 1px solid var(--border);
+}
+.lw-title { font-weight: 700; font-size: .8rem; color: var(--text); display: flex; align-items: center; gap: 6px; }
+.lw-live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: lwBeat 1.6s infinite; flex-shrink: 0; }
+@keyframes lwBeat { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.6);opacity:.5} }
+
+.lw-refresh {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); padding: 2px 5px; border-radius: 6px;
+  font-size: .72rem; transition: color .2s, background .2s;
+}
+.lw-refresh:hover { color: var(--v2-accent); background: rgba(61,153,112,.1); }
+.lw-refresh.spin i { animation: lwSpin .6s linear; }
+@keyframes lwSpin { to{transform:rotate(360deg)} }
+
+.lw-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 0; border-bottom: 1px solid var(--border); font-size: .79rem;
+}
+.lw-row:last-child { border: none; padding-bottom: 0; }
+.lw-lbl { color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.lw-val { font-weight: 700; color: var(--v2-accent); transition: color .3s; }
+.lw-val.red   { color: #ef4444; }
+.lw-val.amber { color: #f59e0b; }
+.lw-val.blue  { color: #3b82f6; }
+
+/* Skeleton loading */
+.lw-skel { display:inline-block; width:40px; height:11px; border-radius:4px;
+  background:linear-gradient(90deg,var(--border) 25%,var(--bg-secondary) 50%,var(--border) 75%);
+  background-size:200% 100%; animation:lwShim 1.2s infinite; }
+@keyframes lwShim { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* Düymə */
+.lw-btn {
+  width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer;
+  background: linear-gradient(135deg, #182f4c, #2e8e63); color: #fff; font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  box-shadow: 0 6px 22px rgba(46,142,99,.45);
+  transition: transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s;
+}
+.lw-btn:hover { transform: scale(1.1); box-shadow: 0 10px 30px rgba(46,142,99,.6); }
+.lw-btn i { transition: transform .3s; }
+.lw-btn.active i { transform: rotate(45deg); }
+
+@media(max-width:576px){
+  .lw-root { bottom: 76px; right: 14px; }
+  .lw-card { width: 192px; }
+}
+</style>
+
+<div class="lw-root" id="lwRoot">
+  <div class="lw-card" id="lwCard">
+    <div class="lw-head">
+      <div class="lw-title"><span class="lw-live-dot"></span>{% trans "Canlı Status" %}</div>
+      <button class="lw-refresh" id="lwRefresh" title="{% trans 'Yenilə' %}"><i class="fas fa-sync-alt"></i></button>
+    </div>
+
+    <div class="lw-row">
+      <span class="lw-lbl"><i class="fas fa-map-marked-alt fa-xs"></i>{% trans "Sahələr" %}</span>
+      <span class="lw-val" id="lw-fields"><span class="lw-skel"></span></span>
+    </div>
+    <div class="lw-row">
+      <span class="lw-lbl"><i class="fas fa-microchip fa-xs"></i>{% trans "Sensorlar" %}</span>
+      <span class="lw-val" id="lw-sensors"><span class="lw-skel"></span></span>
+    </div>
+    <div class="lw-row">
+      <span class="lw-lbl"><i class="fas fa-seedling fa-xs"></i>{% trans "Bitkilər" %}</span>
+      <span class="lw-val" id="lw-plants"><span class="lw-skel"></span></span>
+    </div>
+    <div class="lw-row">
+      <span class="lw-lbl"><i class="fas fa-tint fa-xs" style="color:#3b82f6"></i>{% trans "Su (bugün)" %}</span>
+      <span class="lw-val blue" id="lw-water"><span class="lw-skel"></span></span>
+    </div>
+    <div class="lw-row">
+      <span class="lw-lbl"><i class="fas fa-exclamation-triangle fa-xs" style="color:#f59e0b"></i>{% trans "Anbar xəbərdarlığı" %}</span>
+      <span class="lw-val" id="lw-stock"><span class="lw-skel"></span></span>
+    </div>
+    <div class="lw-row">
+      <span class="lw-lbl"><i class="fas fa-cloud-sun fa-xs" style="color:#3b82f6"></i>{% trans "Hava" %}</span>
+      <span class="lw-val" id="lw-weather"><span class="lw-skel"></span></span>
+    </div>
+  </div>
+
+  <button class="lw-btn" id="lwBtn" title="{% trans 'Canlı Status' %}">
+    <i class="fas fa-seedling"></i>
+  </button>
+</div>
+
+<script>
+(function(){
+  const root   = document.getElementById('lwRoot');
+  const card   = document.getElementById('lwCard');
+  const btn    = document.getElementById('lwBtn');
+  const refBtn = document.getElementById('lwRefresh');
+  let open     = false;
+  let loaded   = false;
+
+  // Scroll-da göstər
+  window.addEventListener('scroll', () => {
+    root.classList.toggle('show', window.scrollY > 180);
+  }, { passive: true });
+
+  // Xaricdə klik → bağla
+  document.addEventListener('click', e => {
+    if (open && !root.contains(e.target)) toggle(false);
+  });
+
+  function toggle(force) {
+    open = (force !== undefined) ? force : !open;
+    card.classList.toggle('open', open);
+    btn.classList.toggle('active', open);
+    btn.querySelector('i').className = open ? 'fas fa-times' : 'fas fa-seedling';
+    if (open && !loaded) fetchStats();
+  }
+
+  btn.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+  refBtn.addEventListener('click', e => { e.stopPropagation(); fetchStats(); });
+
+  function fetchStats() {
+    refBtn.classList.add('spin');
+    fetch('/api/live-stats/', { credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(d => {
+        set('lw-fields',  d.fields  ?? '—');
+        set('lw-sensors', d.sensors_active !== undefined ? d.sensors_active + ' aktiv' : '—');
+        set('lw-plants',  d.plants  ?? '—');
+        set('lw-water',   d.water_today !== undefined ? d.water_today + ' L' : '—');
+        set('lw-stock',   d.low_stock ?? '—', d.low_stock > 0 ? 'amber' : '');
+        set('lw-weather', d.weather  ?? '—');
+        loaded = true;
+      })
+      .catch(() => {
+        ['lw-fields','lw-sensors','lw-plants','lw-water','lw-stock','lw-weather']
+          .forEach(id => set(id, '—'));
+      })
+      .finally(() => refBtn.classList.remove('spin'));
+  }
+
+  function set(id, val, cls) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = val;
+    el.className = 'lw-val' + (cls ? ' ' + cls : '');
+  }
+})();
+</script>

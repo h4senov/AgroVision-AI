@@ -1,34 +1,87 @@
-<!-- Tez İstifadə Linkləri -->
-<div class="card hover-lift mt-4">
-    <div class="card-header bg-light">
-        <h5 class="card-title mb-0"><i class="fas fa-bolt me-2"></i>Tez Hərəkət</h5>
-    </div>
-    <div class="card-body">
-        <div class="row text-center">
-            <div class="col-md-3 col-6 mb-3">
-                <a href="{% url 'add_field' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center py-3 hover-lift">
-                    <i class="fas fa-plus-circle fa-2x mb-2"></i>
-                    <span class="fw-medium">Yeni Sahə</span>
-                </a>
-            </div>
-            <div class="col-md-3 col-6 mb-3">
-                <a href="{% url 'add_plant' %}" class="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center py-3 hover-lift">
-                    <i class="fas fa-seedling fa-2x mb-2"></i>
-                    <span class="fw-medium">Yeni Bitki</span>
-                </a>
-            </div>
-            <div class="col-md-3 col-6 mb-3">
-                <a href="{% url 'field_list' %}" class="btn btn-outline-info w-100 h-100 d-flex flex-column justify-content-center py-3 hover-lift">
-                    <i class="fas fa-list fa-2x mb-2"></i>
-                    <span class="fw-medium">Sahələrə Bax</span>
-                </a>
-            </div>
-            <div class="col-md-3 col-6 mb-3">
-                <a href="{% url 'plant_list' %}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column justify-content-center py-3 hover-lift">
-                    <i class="fas fa-leaf fa-2x mb-2"></i>
-                    <span class="fw-medium">Bitkilərə Bax</span>
-                </a>
-            </div>
-        </div>
-    </div>
+{% load i18n %}
+ 
+<div class="mb-4 au d1" id="dp-qa-wrap">
+  <div class="dp-sh">
+    <h6><i class="fas fa-bolt" style="color:#f59e0b"></i> {% trans "Sürətli Əməliyyatlar" %}</h6>
+  </div>
+
+  <div class="dp-qa-grid">
+
+    <a href="{% url 'fields:add_field' %}" class="dp-qa-btn" style="--qa-c:#3d9970">
+      <div class="dp-qa-icon"><i class="fas fa-map-marked-alt"></i></div>
+      <span>{% trans "Sahə əlavə et" %}</span>
+    </a>
+
+    <a href="{% url 'plants:add_plant' %}" class="dp-qa-btn" style="--qa-c:#10b981">
+      <div class="dp-qa-icon"><i class="fas fa-seedling"></i></div>
+      <span>{% trans "Əkin yarat" %}</span>
+    </a>
+
+    <a href="{% url 'irrigation:irrigation_add' %}" class="dp-qa-btn" style="--qa-c:#3b82f6">
+      <div class="dp-qa-icon"><i class="fas fa-tint"></i></div>
+      <span>{% trans "Suvarma planla" %}</span>
+    </a>
+
+    <a href="{% url 'sensors:add_sensor' %}" class="dp-qa-btn" style="--qa-c:#f59e0b">
+      <div class="dp-qa-icon"><i class="fas fa-microchip"></i></div>
+      <span>{% trans "Sensor qoş" %}</span>
+    </a>
+
+    <a href="{% url 'weather:weather_list' %}" class="dp-qa-btn" style="--qa-c:#6366f1">
+      <div class="dp-qa-icon"><i class="fas fa-cloud-sun"></i></div>
+      <span>{% trans "Hava məlumatı" %}</span>
+    </a>
+
+    <a href="{% url 'inventory:add_inventory' %}" class="dp-qa-btn" style="--qa-c:#ec4899">
+      <div class="dp-qa-icon"><i class="fas fa-box"></i></div>
+      <span>{% trans "Anbar əlavə et" %}</span>
+    </a>
+
+    {% if user.is_staff %}
+    <a href="{% url 'news:news_create' %}" class="dp-qa-btn" style="--qa-c:#8b5cf6">
+      <div class="dp-qa-icon"><i class="fas fa-newspaper"></i></div>
+      <span>{% trans "Xəbər yaz" %}</span>
+    </a>
+    <a href="{% url 'users:all_sessions' %}" class="dp-qa-btn" style="--qa-c:#ef4444">
+      <div class="dp-qa-icon"><i class="fas fa-users"></i></div>
+      <span>{% trans "Sessiyalar" %}</span>
+    </a>
+    {% endif %}
+
+  </div>
 </div>
+
+<style>
+.dp-qa-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+}
+@media(max-width:576px){ .dp-qa-grid { grid-template-columns: repeat(3,1fr); } }
+
+.dp-qa-btn {
+  background: var(--bg-card) !important; border: 1px solid var(--border) !important;
+  border-radius: 18px; padding: 18px 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text); text-align: center;
+  transition: transform .3s cubic-bezier(.22,1,.36,1), border-color .25s, box-shadow .3s;
+  position: relative; overflow: hidden;
+}
+.dp-qa-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--qa-c, #3d9970); opacity: 0;
+  transition: opacity .25s;
+}
+.dp-qa-btn:hover { transform: translateY(-7px); border-color: var(--qa-c, #3d9970) !important; box-shadow: 0 14px 30px rgba(0,0,0,.1); color: var(--text); }
+.dp-qa-btn:hover::before { opacity: .06; }
+.dp-qa-icon {
+  width: 46px; height: 46px; border-radius: 14px;
+  background: color-mix(in srgb, var(--qa-c, #3d9970) 14%, transparent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; color: var(--qa-c, #3d9970);
+  transition: transform .3s;
+  position: relative;
+}
+.dp-qa-btn:hover .dp-qa-icon { transform: scale(1.15) rotate(-5deg); }
+.dp-qa-btn span { font-size: .74rem; font-weight: 600; color: var(--text-muted); line-height: 1.3; position: relative; }
+</style>

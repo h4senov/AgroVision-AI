@@ -1,75 +1,130 @@
-<div class="row">
-    <!-- Bitki Paylanması -->
-    <div class="col-xl-6 col-lg-12 mb-4">
-        <div class="card h-100 hover-lift">
-            <div class="card-header bg-light">
-                <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2"></i>Bitki Növləri</h5>
-            </div>
-            <div class="card-body">
-                {% if plant_distribution %}
-                    <div class="list-group list-group-flush">
-                        {% for dist in plant_distribution %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center py-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-seedling text-success me-3"></i>
-                                <span class="fw-medium">{{ dist.get_plant_type_display }}</span>
-                            </div>
-                            <div>
-                                <span class="badge bg-primary rounded-pill me-2">{{ dist.count }} bitki</span>
-                                <small class="text-muted">{{ dist.total_area|floatformat:2 }} ha</small>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
+{% load i18n %}
+ 
+{% if plants %}
+<div class="mb-4 au d4" id="dp-plants-wrap">
+  <div class="dp-sh">
+    <h6><i class="fas fa-seedling" style="color:#10b981"></i> {% trans "Aktiv Bitkilər" %}
+      <span class="dp-sh-count">{{ plants|length }}</span>
+    </h6>
+    <a href="{% url 'plants:add_plant' %}"><i class="fas fa-plus me-1"></i>{% trans "Yeni" %}</a>
+  </div>
+
+  <div class="dp-car-wrap">
+    <div class="dp-car-vp">
+      <div class="dp-car-track" id="dp-ct-plants">
+        {% for plant in plants %}
+        <div class="dp-car-item">
+          <a href="{% url 'plants:plant_detail' plant.id %}" class="dp-plant-card">
+
+            {# Başlıq zolağı #}
+            <div class="dp-plant-head"
+                 style="background:{% if plant.is_harvest_due %}linear-gradient(135deg,#7f1d1d,#ef4444){% else %}linear-gradient(135deg,#064e3b,#059669){% endif %}">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="fw-bold text-white" style="font-size:.95rem">{{ plant.get_plant_type_display }}</div>
+                  <small style="color:rgba(255,255,255,.65)">
+                    <i class="fas fa-map-marker-alt me-1"></i>{{ plant.field.name }}
+                  </small>
+                </div>
+                {% if plant.is_harvest_due %}
+                <span class="dp-badge red">⚠️ {% trans "Yığım" %}</span>
                 {% else %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Hələ bitki məlumatı yoxdur.</p>
-                        <a href="{% url 'add_plant' %}" class="btn btn-success">İlk Bitkini Əlavə Et</a>
-                    </div>
+                <span class="dp-badge">{{ plant.get_status_display }}</span>
                 {% endif %}
+              </div>
             </div>
+
+            {# Məzmun #}
+            <div class="dp-plant-body">
+              {# Mərhələ progress #}
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <small style="color:var(--text-muted);font-size:.7rem">{{ plant.get_growth_stage_display }}</small>
+                <small style="color:var(--v2-accent);font-weight:700;font-size:.7rem">
+                  {% with s=plant.growth_stage %}
+                    {% if s == 'seedling' %}14%{% elif s == 'vegetative' %}38%{% elif s == 'flowering' %}62%{% elif s == 'fruiting' %}82%{% elif s == 'mature' %}100%{% else %}5%{% endif %}
+                  {% endwith %}
+                </small>
+              </div>
+              <div class="dp-pbar-bg mb-3">
+                <div class="dp-pbar stage-bar" data-stage="{{ plant.growth_stage }}"></div>
+              </div>
+
+              {# Pill-lər #}
+              <div class="dp-pill-row">
+                <div class="dp-pill">
+                  <div class="dp-pill-v">{{ plant.area_hectares }}</div>
+                  <div class="dp-pill-l">ha</div>
+                </div>
+                <div class="dp-pill">
+                  <div class="dp-pill-v">{{ plant.days_since_planting }}</div>
+                  <div class="dp-pill-l">{% trans "gün" %}</div>
+                </div>
+                <div class="dp-pill">
+                  <div class="dp-pill-v" style="font-size:.72rem">{{ plant.planting_date|date:"d/m" }}</div>
+                  <div class="dp-pill-l">{% trans "tarix" %}</div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                <small style="color:var(--text-muted)">{{ plant.planting_date|date:"d/m/Y" }}</small>
+                <a href="{% url 'plants:harvest_prediction' plant.id %}"
+                   onclick="event.stopPropagation()"
+                   class="dp-mini-btn">
+                  <i class="fas fa-magic me-1"></i>{% trans "Proqnoz" %}
+                </a>
+              </div>
+            </div>
+
+          </a>
         </div>
+        {% endfor %}
+      </div>
     </div>
-    
-    <!-- Son Bitkilər -->
-    <div class="col-xl-6 col-lg-12 mb-4">
-        <div class="card h-100 hover-lift">
-            <div class="card-header bg-light">
-                <h5 class="card-title mb-0"><i class="fas fa-clock me-2"></i>Son Əlavə Edilən Bitkilər</h5>
-            </div>
-            <div class="card-body">
-                {% if recent_plants %}
-                    <div class="list-group list-group-flush">
-                        {% for plant in recent_plants %}
-                        <a href="{% url 'plant_detail' plant.id %}" class="list-group-item list-group-item-action py-3">
-                            <div class="d-flex w-100 justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1 fw-medium">{{ plant.get_plant_type_display }}</h6>
-                                    <p class="mb-1 text-muted">{{ plant.field.name }}</p>
-                                    <small class="text-muted">
-                                        <i class="fas fa-ruler-combined me-1"></i>{{ plant.area_hectares }} ha • 
-                                        <i class="fas fa-leaf me-1"></i>{{ plant.get_growth_stage_display }}
-                                    </small>
-                                </div>
-                                <div class="text-end">
-                                    <small class="text-muted d-block">{{ plant.created_at|date:"d.m.Y" }}</small>
-                                    <span class="badge bg-{% if plant.status == 'active' %}success{% else %}warning{% endif %}">
-                                        {{ plant.get_status_display }}
-                                    </span>
-                                </div>
-                            </div>
-                        </a>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Hələ bitki yoxdur.</p>
-                        <a href="{% url 'add_plant' %}" class="btn btn-success">İlk Bitkini Əlavə Et</a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    <div class="dp-car-ctrl" id="dp-cc-plants"></div>
+  </div>
 </div>
+{% endif %}
+
+<style>
+.dp-plant-card {
+  background: var(--bg-card) !important; border: 1px solid var(--border) !important;
+  border-radius: 20px; overflow: hidden; text-decoration: none; color: var(--text);
+  display: flex; flex-direction: column; height: 100%;
+  transition: transform .32s cubic-bezier(.22,1,.36,1), box-shadow .3s, border-color .25s;
+}
+.dp-plant-card:hover { transform: translateY(-9px); box-shadow: 0 22px 44px rgba(0,0,0,.13); border-color: #3d9970 !important; color: var(--text); }
+.dp-plant-head { padding: 16px 18px; position: relative; overflow: hidden; flex-shrink: 0; }
+.dp-plant-head::after { content: ''; position: absolute; top: -22px; right: -22px; width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.08); }
+.dp-plant-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; }
+.dp-badge { background: rgba(255,255,255,.18); color: #fff; padding: 3px 10px; border-radius: 50px; font-size: .64rem; font-weight: 700; }
+.dp-badge.red { background: rgba(0,0,0,.25); }
+
+.dp-pbar-bg { height: 6px; border-radius: 10px; background: var(--border); overflow: hidden; }
+.dp-pbar    { height: 100%; border-radius: 10px; width: 0%; background: linear-gradient(90deg, #064e3b, #3d9970); transition: width 1.3s cubic-bezier(.22,1,.36,1); }
+
+.dp-pill-row { display: flex; gap: 6px; margin-bottom: 10px; }
+.dp-pill { flex: 1; background: var(--bg-secondary) !important; border: 1px solid var(--border) !important; border-radius: 10px; padding: 8px 5px; text-align: center; }
+.dp-pill-v { font-weight: 700; font-size: .85rem; color: var(--text); }
+.dp-pill-l { font-size: .54rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: .3px; }
+
+.dp-mini-btn { font-size: .7rem; border: 1px solid var(--border); border-radius: 50px; padding: 3px 11px; color: var(--text-muted); text-decoration: none; transition: border-color .2s, color .2s; }
+.dp-mini-btn:hover { border-color: #3d9970; color: #3d9970; }
+</style>
+
+<script>
+(function(){
+  const stageW = { seedling:14, vegetative:38, flowering:62, fruiting:82, mature:100, harvested:5 };
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.querySelectorAll('.stage-bar[data-stage]').forEach(b => {
+        setTimeout(() => b.style.width = (stageW[b.dataset.stage] || 10) + '%', 150);
+      });
+      io.unobserve(e.target);
+    });
+  }, { threshold: 0.15 });
+
+  const wrap = document.getElementById('dp-plants-wrap');
+  if (wrap) io.observe(wrap);
+})();
+</script>

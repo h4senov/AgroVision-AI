@@ -1,0 +1,100 @@
+{% load i18n %}
+ 
+<div class="mb-4 au d5" id="dp-ai-wrap">
+
+  {# AI Xəbərdarlıq Banner #}
+  {% if ai_msg %}
+  <div class="dp-ai-alert mb-3
+    {% if ai_msg.type == 'danger' %}red{% elif ai_msg.type == 'warning' %}amber{% elif ai_msg.type == 'info' %}blue{% else %}green{% endif %}">
+    <div class="dp-ai-alert-icon">
+      <i class="fas {{ ai_msg.icon }}"></i>
+    </div>
+    <div class="flex-grow-1">
+      <div class="fw-bold" style="color:var(--text);font-size:.92rem">{{ ai_msg.title }}</div>
+      <small style="color:var(--text-muted)">{{ ai_msg.text }}</small>
+    </div>
+    <button onclick="this.closest('.dp-ai-alert').remove()"
+            style="background:none;border:none;cursor:pointer;color:var(--text-muted);padding:0 4px">
+      <i class="fas fa-times fa-xs"></i>
+    </button>
+  </div>
+  {% endif %}
+
+  {# AI Proqnoz kartları #}
+  <div class="dp-sh">
+    <h6><i class="fas fa-robot" style="color:#8b5cf6"></i> {% trans "AI Yığım Proqnozu" %}</h6>
+    <a href="{% url 'plants:plant_list' %}">{% trans "Bitkilər" %} →</a>
+  </div>
+
+  {% if plants %}
+  <div class="dp-ai-grid">
+    {% for plant in plants %}
+    <a href="{% url 'plants:harvest_prediction' plant.id %}" class="dp-ai-card">
+      <div class="d-flex align-items-center gap-3">
+        <div class="dp-ai-days {% if plant.is_harvest_due %}due{% endif %}">
+          <div class="dp-ai-n">{{ plant.days_since_planting }}</div>
+          <div class="dp-ai-l">{% trans "gün" %}</div>
+        </div>
+        <div class="flex-grow-1 overflow-hidden">
+          <div class="fw-bold text-truncate" style="color:var(--text);font-size:.9rem">{{ plant.get_plant_type_display }}</div>
+          <small style="color:var(--text-muted)"><i class="fas fa-map-marker-alt me-1"></i>{{ plant.field.name }}</small>
+          <div class="dp-pbar-bg mt-2">
+            <div class="dp-pbar stage-bar" data-stage="{{ plant.growth_stage }}"></div>
+          </div>
+        </div>
+        {% if plant.is_harvest_due %}
+        <span style="background:rgba(239,68,68,.12);color:#ef4444;border-radius:8px;padding:4px 8px;font-size:.66rem;font-weight:700;flex-shrink:0">⚠️</span>
+        {% endif %}
+        <i class="fas fa-magic fa-sm" style="color:#8b5cf6;flex-shrink:0"></i>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:32px;text-align:center">
+    <i class="fas fa-seedling" style="font-size:2.2rem;opacity:.2;display:block;margin-bottom:10px"></i>
+    <p style="color:var(--text-muted);margin:0">{% trans "Hələ bitki yoxdur." %}</p>
+    <a href="{% url 'plants:add_plant' %}" class="btn btn-success btn-sm rounded-pill px-3 mt-3">{% trans "Əkin yarat" %}</a>
+  </div>
+  {% endif %}
+
+</div>
+
+<style>
+/* Alert */
+.dp-ai-alert {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 16px; border-radius: 16px;
+  border: 1px solid; border-left-width: 4px;
+}
+.dp-ai-alert.green { background:rgba(61,153,112,.07); border-color:rgba(61,153,112,.25); }
+.dp-ai-alert.amber { background:rgba(245,158,11,.07); border-color:rgba(245,158,11,.3); }
+.dp-ai-alert.red   { background:rgba(239,68,68,.07);  border-color:rgba(239,68,68,.3); }
+.dp-ai-alert.blue  { background:rgba(59,130,246,.07); border-color:rgba(59,130,246,.3); }
+[data-theme="dark"] .dp-ai-alert.green { background:rgba(61,153,112,.14); }
+[data-theme="dark"] .dp-ai-alert.amber { background:rgba(245,158,11,.14); }
+[data-theme="dark"] .dp-ai-alert.red   { background:rgba(239,68,68,.14); }
+[data-theme="dark"] .dp-ai-alert.blue  { background:rgba(59,130,246,.14); }
+.dp-ai-alert-icon { font-size:1.2rem; padding-top:2px; flex-shrink:0; }
+.dp-ai-alert.green .dp-ai-alert-icon { color:#3d9970; }
+.dp-ai-alert.amber .dp-ai-alert-icon { color:#f59e0b; }
+.dp-ai-alert.red   .dp-ai-alert-icon { color:#ef4444; }
+.dp-ai-alert.blue  .dp-ai-alert-icon { color:#3b82f6; }
+
+/* Grid */
+.dp-ai-grid { display:flex; flex-direction:column; gap:10px; }
+.dp-ai-card {
+  background:var(--bg-card) !important; border:1px solid var(--border) !important;
+  border-radius:16px; padding:14px 16px; text-decoration:none; color:var(--text); display:block;
+  transition: transform .28s cubic-bezier(.22,1,.36,1), border-color .25s;
+}
+.dp-ai-card:hover { border-color:#8b5cf6 !important; transform:translateX(5px); color:var(--text); }
+.dp-ai-days {
+  width:52px; height:52px; border-radius:14px; flex-shrink:0;
+  background:linear-gradient(135deg,#182f4c,#2e8e63);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.dp-ai-days.due { background:linear-gradient(135deg,#7f1d1d,#ef4444); }
+.dp-ai-n { font-size:1.05rem; font-weight:800; color:#fff; line-height:1; }
+.dp-ai-l { font-size:.46rem; color:rgba(255,255,255,.65); text-transform:uppercase; letter-spacing:.5px; }
+</style>
