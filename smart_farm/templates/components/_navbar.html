@@ -120,10 +120,9 @@
     <span style="font-size:.92rem">{% if user.is_authenticated %}{{ user_farm_name|default:"Smart Farm" }}{% else %}AgroVision AI{% endif %}</span>
   </a>
   <div class="mob-right-actions">
-    <button class="ctrl-btn" id="themeBtnMob" 
-  ontouchstart="applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');event.preventDefault()">
+    <button class="ctrl-btn" id="themeBtnMob">
   <i class="fas fa-moon" id="themeIconMob"></i>
-</button>
+  </button> 
     {% if user.is_authenticated %}
     <div class="cdd" id="dd-mob-user">
       <div class="user-btn" onclick="toggleCDD('dd-mob-user')" style="padding:4px 10px 4px 4px">
