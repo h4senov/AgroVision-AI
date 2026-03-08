@@ -50,7 +50,7 @@ def dashboard(request):
     # ── Hava (bütün sahələrin ən son qeydi)
     weather_list = WeatherData.objects.filter(
         field__user=user
-    ).order_by('-weather_date').distinct()[:6]
+    ).order_by('-weather_date').distinct()[:3]
 
     latest_weather = weather_list.first()
 

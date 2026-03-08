@@ -617,12 +617,19 @@ function applyTheme(t) {
 }
 applyTheme(localStorage.getItem('theme') || 'light');
 document.getElementById('themeBtn')?.addEventListener('click', () => applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark'));
-['click','touchend'].forEach(ev =>
-  document.getElementById('themeBtnMob')?.addEventListener(ev, (e) => {
+const btnMob = document.getElementById('themeBtnMob');
+if (btnMob) {
+  let touched = false;
+  btnMob.addEventListener('touchend', (e) => {
     e.preventDefault();
+    touched = true;
     applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark');
-  })
-); 
+    setTimeout(() => touched = false, 500);
+  });
+  btnMob.addEventListener('click', () => {
+    if (!touched) applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark');
+  });
+}
 /* ────────────────────────────────────────
    CUSTOM DROPDOWN
 ──────────────────────────────────────── */
