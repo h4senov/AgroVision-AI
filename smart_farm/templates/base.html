@@ -620,7 +620,7 @@ document.getElementById('themeBtn')?.addEventListener('click', () => applyTheme(
 const btnMob = document.getElementById('themeBtnMob');
 if (btnMob) {
   let touched = false;
-  btnMob.addEventListener('touchend', (e) => {
+  btnMob.addEventListener('touchstart', (e) => {
     e.preventDefault();
     touched = true;
     applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark');
@@ -629,7 +629,7 @@ if (btnMob) {
   btnMob.addEventListener('click', () => {
     if (!touched) applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark');
   });
-}
+} 
 /* ────────────────────────────────────────
    CUSTOM DROPDOWN
 ──────────────────────────────────────── */
